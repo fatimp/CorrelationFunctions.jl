@@ -12,18 +12,4 @@ function slice_generators(array :: Array{T,3},
     end
 end
 
-struct PeriodicIterator
-    iterator
-    len :: Integer
-end
-
-add_tail(:: Int, :: Nothing) = nothing
-function add_tail(len :: Int, it :: Tuple{Vector, Any})
-    slice, state = it
-    return vcat(slice, slice[1:len-1]), state 
-end
-
-Base.iterate(iter :: PeriodicIterator) =
-    add_tail(iter.len, iterate(iter.iterator))
-Base.iterate(iter :: PeriodicIterator, state ) =
-    add_tail(iter.len, iterate(iter.iterator, state))
+with_doubling(iter, len) = imap(slice -> vcat(slice, slice[1:len]), iter)

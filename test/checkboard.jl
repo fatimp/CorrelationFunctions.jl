@@ -22,8 +22,8 @@ end
 cb = gen_checkboard(300)
 
 # S_2 and L_2 for phases 0 and 1
-s = reduce(hcat, ms2(cb, 50, i) for i in 0:1)
-l = reduce(hcat, ml2(cb, 50, i) for i in 0:1)
+s = reduce(hcat, pms2(cb, 50, i) for i in 0:1)
+l = reduce(hcat, pml2(cb, 50, i) for i in 0:1)
 
 # Phases 0 and 1 are distributed evenly
 @test s[:,1] ≈ s[:,2]
@@ -38,7 +38,6 @@ l = l[:,1]
 
 # Check S_2
 s = s[:,1]
-# Would equal to 1/4 on infinite cube
-@test all(x -> abs(x - 1/4) < 0.05, s[2:2:end])
+@test all(x -> x ≈ 1/4, s[2:2:end])
 @test all(x -> x == 0,  s[3:4:end])
-@test all(x -> x ≈ 1/2,  s[1:4:end])
+@test all(x -> x ≈ 1/2, s[1:4:end])

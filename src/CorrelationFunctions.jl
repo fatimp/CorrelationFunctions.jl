@@ -3,6 +3,7 @@ using Images
 using ImageSegmentation
 using JSON
 using PrettyTables
+using IterTools
 
 include("corrdata.jl")
 include("slicer.jl")

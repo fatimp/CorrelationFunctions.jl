@@ -20,14 +20,14 @@ end
 
 function l2(array :: Array{T, 3},
             len   :: Integer,
-            phase,
-            directions :: Symbol...;
-            periodic :: Bool = false) where T
-    cd = CorrelationData(len, directions...)
+            phase;
+            directions :: Vector{Symbol} = known_directions,
+            periodic   :: Bool = false) where T
+    cd = CorrelationData(len, directions)
 
     for direction in directions
         slicer = slice_generators(array, direction)
-        slicer = periodic ? PeriodicIterator(slicer, len) : slicer
+        slicer = periodic ? with_doubling(slicer, len) : slicer
 
         for slice in slicer
             # TODO: check slen >= len
@@ -40,11 +40,4 @@ function l2(array :: Array{T, 3},
     end
 
     return cd
-end
-
-function l2(array :: Array{T, 3},
-            len   :: Integer,
-            phase,
-            periodic :: Bool = false) where T
-    return l2(array, len, phase, known_directions...; periodic = periodic)
 end
