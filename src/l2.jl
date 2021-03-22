@@ -18,6 +18,21 @@ function count_runs(array :: Vector,
     return result
 end
 
+"""
+~~~~{.jl}
+l2(array :: Array{T,3},
+   len   :: Integer,
+   phase;
+   directions :: Vector{Symbol} = known_directions,
+   periodic   :: Bool = false) where T
+~~~~
+
+Calculate L2 correlation function on 3D array `array`. `L2(array, l,
+phase)` equals to probability that a line segment with length `l` cut
+from the array all belong to the same phase `phase`. This
+implementation calculates L2 for all `l`s in the range from zero to
+`len-1`.
+"""
 function l2(array :: Array{T, 3},
             len   :: Integer,
             phase;

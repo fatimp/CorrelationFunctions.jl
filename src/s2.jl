@@ -1,3 +1,18 @@
+"""
+~~~~{.jl}
+s2(array :: Array{T,3},
+   len   :: Integer,
+   phase;
+   directions :: Vector{Symbol} = known_directions,
+   periodic   :: Bool = false) where T
+~~~~
+
+Calculate S2 correlation function on 3D array `array`. `S2(array, l,
+phase)` equals to probability that two points `X` and `Y` in the array
+with distance `l` between them all belong to the same phase `phase`.
+This implementation calculates S2 for all `l`s in the range from zero
+to `len-1`.
+"""
 function s2(array :: Array{T,3},
             len   :: Integer,
             phase;
