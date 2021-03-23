@@ -31,7 +31,7 @@ function c2(array :: Array{T,3},
             shifts = periodic ? len : min(len, slen)
 
             # Calculate slices where slice[x] == slice[x+y] for all y's from 1 to len
-            cd.success[direction] += map(1:shifts) do shift
+            cd.success[direction][1:shifts] .+= imap(1:shifts) do shift
                 # Periodic slice, if needed
                 pslice = periodic ? vcat(slice, slice[1:shift-1]) : slice
                 mapreduce((x,y) -> x == y != 0, +, pslice, pslice[shift:end])
@@ -41,8 +41,7 @@ function c2(array :: Array{T,3},
             if periodic
                 cd.total[direction] .+= slen
             else
-                # FIXME: Check slen > len
-                cd.total[direction] += collect(slen:-1:slen-len+1)
+                update_runs!(cd.total[direction], slen, min(slen, len))
             end
         end
     end

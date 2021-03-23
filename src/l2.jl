@@ -7,14 +7,12 @@ function count_runs(array :: Vector,
         if x == phase
             runs += 1
         elseif runs != 0
-            update = min(runs, len)
-            result[1:update] += runs:-1:runs-update+1
+            update_runs!(result, runs, min(runs, len))
             runs = 0
         end
     end
 
-    update = min(runs, len)
-    result[1:update] += runs:-1:runs-update+1
+    update_runs!(result, runs, min(runs, len))
     return result
 end
 
@@ -45,12 +43,11 @@ function l2(array :: Array{T, 3},
         slicer = periodic ? with_doubling(slicer, len) : slicer
 
         for slice in slicer
-            # TODO: check slen >= len
             slen = length(slice)
             # Calculate runs of phase in all slices with lengths from 1 to len
             cd.success[direction] += count_runs(slice, len, phase)
             # Calculate total number of slices with lengths from 1 to len
-            cd.total[direction] += collect(slen:-1:slen-len+1)
+            update_runs!(cd.total[direction], slen, min(slen, len))
         end
     end
 
