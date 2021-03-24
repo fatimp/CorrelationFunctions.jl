@@ -39,7 +39,7 @@ function l2(array :: Array{T, 3},
     cd = CorrelationData(len, directions)
 
     for direction in directions
-        slicer = slice_generators(array, direction)
+        slicer = slice_generators(array, Val(direction))
         slicer = periodic ? with_doubling(slicer, len) : slicer
 
         for slice in slicer

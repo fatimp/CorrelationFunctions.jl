@@ -23,24 +23,23 @@ function diagonal_slices(array :: Array{T,2}) where T
     return flatten(((diagonal(x,1) for x in 1:h), (diagonal(1,y) for y in 2:w)))
 end
 
-function slice_generators(array :: Array{T,3},
-                          direction :: Symbol) where T
-    x, y, z = size(array)
-    if direction == :x
-        return (array[:,j,k] for j in 1:y for k in 1:z)
-    elseif direction == :y
-        return (array[i,:,k] for i in 1:x for k in 1:z)
-    elseif direction == :z
-        return (array[i,j,:] for i in 1:x for j in 1:y)
-    elseif direction == :xy
-        return flatten(diagonal_slices(array[:,:,k]) for k in 1:z)
-    elseif direction == :xz
-        return flatten(diagonal_slices(array[:,j,:]) for j in 1:y)
-    elseif direction == :yz
-        return flatten(diagonal_slices(array[i,:,:]) for i in 1:x)
-    else
-        error("Unknown direction")
-    end
-end
+# Slicers for different directions
+slice_generators(array :: Array{T,3}, :: Val{:x}) where T =
+    (array[:,j,k] for j in 1:size(array, 2) for k in 1:size(array, 3))
+
+slice_generators(array :: Array{T,3}, :: Val{:y}) where T =
+    (array[i,:,k] for i in 1:size(array, 1) for k in 1:size(array, 3))
+
+slice_generators(array :: Array{T,3}, :: Val{:z}) where T =
+    (array[i,j,:] for i in 1:size(array, 1) for j in 1:size(array, 2))
+
+slice_generators(array :: Array{T,3}, :: Val{:xy}) where T =
+    flatten(diagonal_slices(array[:,:,k]) for k in 1:size(array, 3))
+
+slice_generators(array :: Array{T,3}, :: Val{:xz}) where T =
+    flatten(diagonal_slices(array[:,j,:]) for j in 1:size(array, 2))
+
+slice_generators(array :: Array{T,3}, :: Val{:yz}) where T =
+    flatten(diagonal_slices(array[i,:,:]) for i in 1:size(array, 1))
 
 with_doubling(iter, len) = imap(slice -> vcat(slice, slice[1:len]), iter)

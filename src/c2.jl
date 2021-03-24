@@ -23,7 +23,7 @@ function c2(array :: Array{T,3},
     array = label_components(array)
 
     for direction in directions
-        slicer = slice_generators(array, direction)
+        slicer = slice_generators(array, Val(direction))
 
         for slice in slicer
             slen = length(slice)

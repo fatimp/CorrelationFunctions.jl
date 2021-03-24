@@ -21,7 +21,7 @@ function s2(array :: Array{T,3},
     cd = CorrelationData(len, directions)
 
     for direction in directions
-        slicer = slice_generators(array, direction)
+        slicer = slice_generators(array, Val(direction))
 
         for slice in slicer
             slen = length(slice)
