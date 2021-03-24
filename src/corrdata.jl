@@ -7,11 +7,16 @@ following way:
   and `:z`.
 * Along diagonals of 2D slices of the input array. These 2D slices
   can have the equations `x = C`, `y = C` and `z = C` where C is some
-  constant and the corresponding directions are designated as `:yz`,
-  `:xz` and `:xy`. Diagonals used in this case are parallel to the
-  main diagonals of 2D slices.
+  constant and the corresponding directions are designated as
+  `:yz_main`, `:xz_main` and `:xy_main`. Diagonals used in this case
+  are parallel to the main diagonals of 2D slices.
+* Along diagonals of the same 2D slices, but in this case the
+  diagonals are parallel to the antidiagonal of the slices. These
+  directions are designated as `:yz_anti`, `:xz_anti` or `:xy_anti`.
 """
-const known_directions = [:x, :y, :z, :yz, :xz, :xy]
+const known_directions = [:x,       :y,       :z,
+                          :yz_main, :xz_main, :xy_main,
+                          :yz_anti, :xz_anti, :xy_anti]
 
 """
 `default_directions` is a subset of `known_directions` which is used

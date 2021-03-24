@@ -13,7 +13,8 @@ end
     diagonal_slices(array)
 
 Return an iterator of diagonal slices of a 2D array. All slices go
-from up-left to down-right.
+from up-left to bottom-right (parallel to the main diagonal of the
+array).
 """
 function diagonal_slices(array :: Array{T,2}) where T
     h, w = size(array)
@@ -21,6 +22,21 @@ function diagonal_slices(array :: Array{T,2}) where T
     diagonal(x, y) = [array[idx...] for idx in zip(Iterators.takewhile(x -> x <= h, countfrom(x)),
                                                    Iterators.takewhile(y -> y <= w, countfrom(y)))]
     return flatten(((diagonal(x,1) for x in 1:h), (diagonal(1,y) for y in 2:w)))
+end
+
+"""
+    antidiagonal_slices(array)
+
+Return an iterator of diagonal slices of a 2D array. All slices go
+from bottom-left to up-right (parallel to the antidiagonal of the
+array).
+"""
+function antidiagonal_slices(array :: Array{T,2}) where T
+    h, w = size(array)
+    # Go in the direction (1, 1) until the border is hit
+    diagonal(x, y) = [array[idx...] for idx in zip(Iterators.takewhile(x -> x >  0, countfrom(x, -1)),
+                                                   Iterators.takewhile(y -> y <= w, countfrom(y,  1)))]
+    return flatten(((diagonal(x,1) for x in 1:h), (diagonal(h,y) for y in 2:w)))
 end
 
 # Slicers for different directions
@@ -33,13 +49,22 @@ slice_generators(array :: Array{T,3}, :: Val{:y}) where T =
 slice_generators(array :: Array{T,3}, :: Val{:z}) where T =
     (array[i,j,:] for i in 1:size(array, 1) for j in 1:size(array, 2))
 
-slice_generators(array :: Array{T,3}, :: Val{:xy}) where T =
+slice_generators(array :: Array{T,3}, :: Val{:xy_main}) where T =
     flatten(diagonal_slices(array[:,:,k]) for k in 1:size(array, 3))
 
-slice_generators(array :: Array{T,3}, :: Val{:xz}) where T =
+slice_generators(array :: Array{T,3}, :: Val{:xz_main}) where T =
     flatten(diagonal_slices(array[:,j,:]) for j in 1:size(array, 2))
 
-slice_generators(array :: Array{T,3}, :: Val{:yz}) where T =
+slice_generators(array :: Array{T,3}, :: Val{:yz_main}) where T =
     flatten(diagonal_slices(array[i,:,:]) for i in 1:size(array, 1))
+
+slice_generators(array :: Array{T,3}, :: Val{:xy_anti}) where T =
+    flatten(antidiagonal_slices(array[:,:,k]) for k in 1:size(array, 3))
+
+slice_generators(array :: Array{T,3}, :: Val{:xz_anti}) where T =
+    flatten(antidiagonal_slices(array[:,j,:]) for j in 1:size(array, 2))
+
+slice_generators(array :: Array{T,3}, :: Val{:yz_anti}) where T =
+    flatten(antidiagonal_slices(array[i,:,:]) for i in 1:size(array, 1))
 
 with_doubling(iter, len) = imap(slice -> vcat(slice, slice[1:len]), iter)
