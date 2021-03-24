@@ -5,7 +5,7 @@
 c2(array :: Array{T,3},
    len   :: Integer,
    phase;
-   directions :: Vector{Symbol} = known_directions,
+   directions :: Vector{Symbol} = default_directions,
    periodic   :: Bool = false) where T
 ~~~~
 
@@ -17,7 +17,7 @@ implementation calculates S2 for all `l`s in the range from zero to
 """
 function c2(array :: Array{T,3},
             len   :: Integer;
-            directions :: Vector{Symbol} = known_directions,
+            directions :: Vector{Symbol} = default_directions,
             periodic   :: Bool = false) where T
     cd = CorrelationData(len, directions)
     array = label_components(array)

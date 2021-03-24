@@ -3,6 +3,7 @@ using Images
 using ImageSegmentation
 using JSON
 using PrettyTables
+using Base.Iterators
 using IterTools
 
 include("corrdata.jl")

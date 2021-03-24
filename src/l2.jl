@@ -21,7 +21,7 @@ end
 l2(array :: Array{T,3},
    len   :: Integer,
    phase;
-   directions :: Vector{Symbol} = known_directions,
+   directions :: Vector{Symbol} = default_directions,
    periodic   :: Bool = false) where T
 ~~~~
 
@@ -34,7 +34,7 @@ implementation calculates L2 for all `l`s in the range from zero to
 function l2(array :: Array{T, 3},
             len   :: Integer,
             phase;
-            directions :: Vector{Symbol} = known_directions,
+            directions :: Vector{Symbol} = default_directions,
             periodic   :: Bool = false) where T
     cd = CorrelationData(len, directions)
 
