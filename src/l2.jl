@@ -31,12 +31,12 @@ from the array all belong to the same phase `phase`. This
 implementation calculates L2 for all `l`s in the range from zero to
 `len-1`.
 """
-function l2(array :: Array{T, 3},
-            len   :: Integer,
+function l2(array      :: Array,
+            len        :: Integer,
             phase;
-            directions :: Vector{Symbol} = default_directions,
-            periodic   :: Bool = false) where T
-    cd = CorrelationData(len, directions)
+            directions :: Vector{Symbol} = array |> ndims |> default_directions,
+            periodic   :: Bool = false)
+    cd = CorrelationData(len, directions, ndims(array))
 
     for direction in directions
         slicer = slice_generators(array, Val(direction))

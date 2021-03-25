@@ -39,7 +39,7 @@ function antidiagonal_slices(array :: Array{T,2}) where T
     return flatten(((diagonal(x,1) for x in 1:h), (diagonal(h,y) for y in 2:w)))
 end
 
-# Slicers for different directions
+# Slicers for different directions (3D)
 slice_generators(array :: Array{T,3}, :: Val{:x}) where T =
     (array[:,j,k] for j in 1:size(array, 2) for k in 1:size(array, 3))
 
@@ -67,4 +67,18 @@ slice_generators(array :: Array{T,3}, :: Val{:xz_anti}) where T =
 slice_generators(array :: Array{T,3}, :: Val{:yz_anti}) where T =
     flatten(antidiagonal_slices(array[i,:,:]) for i in 1:size(array, 1))
 
+# Slicers for different directions (2D)
+slice_generators(array :: Array{T,2}, :: Val{:x}) where T =
+    (array[:,j] for j in 1:size(array, 2))
+
+slice_generators(array :: Array{T,2}, :: Val{:y}) where T =
+    (array[i,:] for i in 1:size(array, 1))
+
+slice_generators(array :: Array{T,2}, :: Val{:xy_main}) where T =
+    diagonal_slices(array)
+
+slice_generators(array :: Array{T,2}, :: Val{:xy_anti}) where T =
+    antidiagonal_slices(array)
+
 with_doubling(iter, len) = imap(slice -> vcat(slice, slice[1:len]), iter)
+

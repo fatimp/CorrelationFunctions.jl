@@ -15,11 +15,11 @@ with distance `l` between them all belong to the same segment. This
 implementation calculates S2 for all `l`s in the range from zero to
 `len-1`. Points which belong to the segment 0 are rejected.
 """
-function c2(array :: Array{T,3},
-            len   :: Integer;
-            directions :: Vector{Symbol} = default_directions,
-            periodic   :: Bool = false) where T
-    cd = CorrelationData(len, directions)
+function c2(array      :: Array,
+            len        :: Integer;
+            directions :: Vector{Symbol} = array |> ndims |> default_directions,
+            periodic   :: Bool = false)
+    cd = CorrelationData(len, directions, ndims(array))
     array = label_components(array)
 
     for direction in directions

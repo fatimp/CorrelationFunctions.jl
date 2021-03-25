@@ -1,3 +1,9 @@
+const known_directions = [:x,       :y,       :z,
+                          :yz_main, :xz_main, :xy_main,
+                          :yz_anti, :xz_anti, :xy_anti]
+
+const periodic_directions = [:x, :y, :z]
+
 # Random array with two phases
 rand_array = rand(Float32, (70, 80, 90))
 rand_array = map(x -> (x<0.3) ? 0 : 1, rand_array)
@@ -5,7 +11,7 @@ rand_array = map(x -> (x<0.3) ? 0 : 1, rand_array)
 @testcase "Check s²(a, x) = l²(a, x) = 0 for all x where a is an array without phase 2." begin
     for p in (false, true)
         # FIXME: How periodicity and diagonal directions should work?
-        directions = p ? [:x, :y, :z] : known_directions
+        directions = p ? periodic_directions : known_directions
         for func in (s2, l2)
             corr = mean(func(rand_array, 40, 2; periodic = p, directions = directions))
             @test all(x -> x == 0, corr)
@@ -34,7 +40,7 @@ prob = [p, q]
 
 @testcase "sᶦ(a,0) = lᶦ(a,0) = P{randomly choosing i}" begin
     for p in (false, true)
-        directions = p ? [:x, :y, :z] : known_directions
+        directions = p ? periodic_directions : known_directions
         for phase in 0:1
             for func in (s2, l2)
                 f = mean(func(rand_array, 1, phase, directions = directions))[1]
@@ -46,7 +52,7 @@ end
 
 @testcase "sᶦ(a,1) = lᶦ(a,1)" begin
     for p in (false, true)
-        directions = p ? [:x, :y, :z] : known_directions
+        directions = p ? periodic_directions : known_directions
         for phase in 0:1
             s = mean(s2(rand_array, 2, phase, directions = directions))[2]
             l = mean(l2(rand_array, 2, phase, directions = directions))[2]
@@ -57,7 +63,7 @@ end
 
 @testcase "Check that l2 is non-increasing" begin
     for p in (false, true)
-        directions = p ? [:x, :y, :z] : known_directions
+        directions = p ? periodic_directions : known_directions
         for phase in 0:1
             l = mean(l2(rand_array, 50, phase; directions = directions))
             @test all(x -> x >= 0, map(-, l, l[2:end]))
@@ -67,7 +73,7 @@ end
 
 @testcase "Check that lⁱ(x) = P{randomly independently choosing i twice}" begin
     for p in (false, true)
-        directions = p ? [:x, :y, :z] : known_directions
+        directions = p ? periodic_directions : known_directions
         for phase in 0:1
             s = mean(s2(rand_array, 50, phase; directions = directions, periodic = p))
             all(x -> abs(x-prob[phase+1]^2) < 1e-3, s[2:end])
