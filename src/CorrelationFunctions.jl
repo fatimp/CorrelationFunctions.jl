@@ -13,5 +13,5 @@ include("s2.jl")
 include("c2.jl")
 include("utility.jl")
 
-export read_cuboid, l2, s2, c2, mean
+export read_cuboid, l2, s2, c2, mean, known_directions
 end # module

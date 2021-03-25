@@ -19,25 +19,33 @@ function gen_checkboard(side)
     return checkboard
 end
 
-cb = gen_checkboard(300)
+cb = gen_checkboard(100)
 
-# S_2 and L_2 for phases 0 and 1
-s = reduce(hcat, pms2(cb, 50, i) for i in 0:1)
-l = reduce(hcat, pml2(cb, 50, i) for i in 0:1)
+@testset "L2" begin
+    for phase in 0:1
+        l = (mean∘l2)(cb, 50, phase)
+        @test l[1] ≈ 1/2
+        # Would be 1/4 exactly on infinite checkboard
+        @test isapprox(l[2], 1/4; atol = 10^-2)
+        @test all(x -> x == 0, l[3:end])
+    end
+end
 
-# Phases 0 and 1 are distributed evenly
-@test s[:,1] ≈ s[:,2]
-@test l[:,1] ≈ l[:,2]
+# C2 behaves exactly as L2 with segmentation algorithm chosen which
+# does not join segments in diagonal directions.
+@testset "C2" begin
+    c = (mean∘c2)(cb, 50)
+    @test c[1] ≈ 1/2
+    # Would be 1/4 exactly on infinite checkboard
+    @test isapprox(c[2], 1/4; atol = 10^-2)
+    @test all(x -> x == 0, c[3:end])
+end
 
-# Check L_2
-l = l[:,1]
-@test l[1] ≈ 1/2
-# Would equal to 1/4 on infinite cube
-@test abs(l[2] - 1/4) < 0.05
-@test all(x -> x == 0, l[3:end])
-
-# Check S_2
-s = s[:,1]
-@test all(x -> x ≈ 1/4, s[2:2:end])
-@test all(x -> x == 0,  s[3:4:end])
-@test all(x -> x ≈ 1/2, s[1:4:end])
+@testset "S2" begin
+    for phase in 0:1
+        s = mean(s2(cb, 50, phase; periodic = true))
+        @test all(x -> x ≈ 1/4, s[2:2:end])
+        @test all(x -> x == 0,  s[3:4:end])
+        @test all(x -> x ≈ 1/2, s[1:4:end])
+    end
+end
