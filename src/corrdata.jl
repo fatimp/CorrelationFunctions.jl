@@ -59,16 +59,24 @@ function Base.show(io :: IO, x :: CorrelationData)
 end
 
 """
-    mean(data :: CorrelationData, directions::Vector{Symbol} = default_directions)
+    mean(data :: CorrelationData, directions::Vector{Symbol})
+    mean(data :: CorrelationData)
 
-Return values of correlation function stored in `data` averaged from
-directions specified in the array `directions`. Elements of
-`directions` must be members of `known_directions`. If `directions`
-contain only one direction, values of correlation function computed
-along that direction are returned.
+Return mean of correlation function stored in `data` calculated along
+directions stored in array `directions`. Elements of `directions` must
+be members of `known_directions`. If `directions` contain only one
+direction, values of correlation function computed along that
+direction are returned. If `mean` called without `directions`
+argument, mean of all computed directions is returned.
 """
-function mean(data :: CorrelationData, directions::Vector{Symbol} = default_directions)
+function mean end
+
+function mean(data :: CorrelationData, directions::Vector{Symbol})
     directions = check_directions(directions)
     return mapreduce(x -> data.success[x], +, directions) ./
         mapreduce(x -> data.total[x], +, directions)
+end
+
+function mean(data :: CorrelationData)
+    return mean(data, data.directions)
 end
