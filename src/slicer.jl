@@ -79,6 +79,3 @@ slice_generators(array :: Array{T,2}, :: Val{:xy_main}) where T =
 
 slice_generators(array :: Array{T,2}, :: Val{:xy_anti}) where T =
     antidiagonal_slices(array)
-
-with_doubling(iter, len) = imap(slice -> vcat(slice, slice[1:len]), iter)
-

@@ -40,9 +40,9 @@ function l2(array      :: Array,
 
     for direction in directions
         slicer = slice_generators(array, Val(direction))
-        slicer = periodic ? with_doubling(slicer, len) : slicer
 
         for slice in slicer
+            slice = periodic ? vcat(slice, slice[1:min(len, end)]) : slice
             slen = length(slice)
             # Calculate runs of phase in all slices with lengths from 1 to len
             cd.success[direction] += count_runs(slice, len, phase)

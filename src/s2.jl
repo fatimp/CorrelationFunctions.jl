@@ -26,7 +26,7 @@ function s2(array      :: Array,
         for slice in slicer
             slen = length(slice)
             # Number of shifts (distances between two points for this slice)
-            shifts = periodic ? len : min(len, slen)
+            shifts = min(len, slen)
 
             # Calculate slices where slice[x] == slice[x+y] == phase for all y's from 1 to len
             cd.success[direction][1:shifts] .+= imap(1:shifts) do shift
@@ -39,7 +39,7 @@ function s2(array      :: Array,
             if periodic
                 cd.total[direction] .+= slen
             else
-                update_runs!(cd.total[direction], slen, min(slen, len))
+                update_runs!(cd.total[direction], slen, shifts)
             end
         end
     end
