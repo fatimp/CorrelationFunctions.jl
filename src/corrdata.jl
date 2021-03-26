@@ -129,7 +129,11 @@ function CorrelationData(len        :: Integer,
 end
 
 function Base.show(io :: IO, x :: CorrelationData)
-    corr = mapreduce(direction -> x.success[direction] ./ x.total[direction], hcat, x.directions)
+    corr = mapreduce(hcat, x.directions) do direction
+        # Define correlation function f(a, x) = 0 for x > dimension of a
+        total = (x -> max(x, 1)).(x.total[direction])
+        x.success[direction] ./ total
+    end
     pretty_table(io, corr, x.directions)
 end
 
@@ -150,8 +154,13 @@ function mean(data :: CorrelationData, directions::Vector{Symbol})
     if !all(x -> x ∈ data.directions, directions)
         error("Correlation function is not computed for directions $directions")
     end
-    return mapreduce(x -> data.success[x], +, directions) ./
-        mapreduce(x -> data.total[x], +, directions)
+
+    success = mapreduce(x -> data.success[x],                  +, directions)
+    # Once again, define correlation function f(a, x) = 0
+    # for x > dimension of a.
+    total   = mapreduce(x -> (y -> max(y, 1)).(data.total[x]), +, directions)
+
+    return success ./ total
 end
 
 function mean(data :: CorrelationData)
