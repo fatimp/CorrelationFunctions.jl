@@ -10,7 +10,6 @@ rand_array = map(x -> (x<0.3) ? 0 : 1, rand_array)
 
 @testcase "Check s²(a, x) = l²(a, x) = 0 for all x where a is an array without phase 2." begin
     for p in (false, true)
-        # FIXME: How periodicity and diagonal directions should work?
         directions = p ? periodic_directions : known_directions
         for func in (s2, l2)
             corr = mean(func(rand_array, 40, 2; periodic = p, directions = directions))
