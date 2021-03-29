@@ -6,6 +6,7 @@ using PrettyTables
 using Base.Iterators
 using IterTools
 
+include("directions.jl")
 include("corrdata.jl")
 include("slicer.jl")
 include("l2.jl")
