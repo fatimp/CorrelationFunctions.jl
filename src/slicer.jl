@@ -32,10 +32,10 @@ function diagonals(array     :: Array{T,2},
     h, w = size(array)
     δx, δy = direction
     # FIXME: Ugly line, calculate start points for slices
-    sy, sx = map((dir, dim) -> (dir == 1) ? 1 : dim, direction, (h, w))
+    sx, sy = map((dir, dim) -> (dir == 1) ? 1 : dim, direction, (h, w))
     diagonal(x, y) = slice(array, countfrom(x, δx), countfrom(y, δy))
     # Start from 2:w to not get the longest slice twice
-    return flatten(((diagonal(x,sx) for x in 1:h), (diagonal(sy,y) for y in 2:w)))
+    return flatten(((diagonal(x,sy) for x in 1:h), (diagonal(sx,y) for y in 2:w)))
 end
 
 # Slicers for different directions (3D)
