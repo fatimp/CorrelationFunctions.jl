@@ -79,3 +79,8 @@ slice_generators(array :: Array{T,2}, :: Val{:xy_main}) where T =
 
 slice_generators(array :: Array{T,2}, :: Val{:xy_anti}) where T =
     antidiagonal_slices(array)
+
+# Trivial slicer for 1D case
+slice_generators(array :: Array{T,1}, :: Val{:x}) where T =
+    # Ugly
+    (array for x in 0:0)
