@@ -33,7 +33,7 @@ array).
 """
 function antidiagonal_slices(array :: Array{T,2}) where T
     h, w = size(array)
-    # Go in the direction (1, 1) until the border is hit
+    # Go in the direction (-1, 1) until the border is hit
     diagonal(x, y) = [array[idx...] for idx in zip(Iterators.takewhile(x -> x >  0, countfrom(x, -1)),
                                                    Iterators.takewhile(y -> y <= w, countfrom(y,  1)))]
     return flatten(((diagonal(x,1) for x in 1:h), (diagonal(h,y) for y in 2:w)))
