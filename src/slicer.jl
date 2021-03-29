@@ -10,33 +10,32 @@ function update_runs!(array :: Vector{Int}, runs, n)
 end
 
 """
-    diagonal_slices(array)
+    slice(array, iterators...)
 
-Return an iterator of diagonal slices of a 2D array. All slices go
-from up-left to bottom-right (parallel to the main diagonal of the
-array).
+Return a slice from an array calculating indices iterating over
+`iterators`.
 """
-function diagonal_slices(array :: Array{T,2}) where T
-    h, w = size(array)
-    # Go in the direction (1, 1) until the border is hit
-    diagonal(x, y) = [array[idx...] for idx in zip(Iterators.takewhile(x -> x <= h, countfrom(x)),
-                                                   Iterators.takewhile(y -> y <= w, countfrom(y)))]
-    return flatten(((diagonal(x,1) for x in 1:h), (diagonal(1,y) for y in 2:w)))
+function slice(array :: Array, iterators...)
+    indices = zip(iterators...)
+    stop_iter = Iterators.takewhile(pair -> checkbounds(Bool, array, pair...), indices)
+    return @inbounds [array[indices...] for indices in stop_iter]
 end
 
 """
-    antidiagonal_slices(array)
+    diagonals(array, direction)
 
-Return an iterator of diagonal slices of a 2D array. All slices go
-from bottom-left to up-right (parallel to the antidiagonal of the
-array).
+Return an iterator for diagonal slices of a 2D array. All slices
+follow the direction `direction`.
 """
-function antidiagonal_slices(array :: Array{T,2}) where T
+function diagonals(array     :: Array{T,2},
+                   direction :: Tuple{Int, Int}) where T
     h, w = size(array)
-    # Go in the direction (-1, 1) until the border is hit
-    diagonal(x, y) = [array[idx...] for idx in zip(Iterators.takewhile(x -> x >  0, countfrom(x, -1)),
-                                                   Iterators.takewhile(y -> y <= w, countfrom(y,  1)))]
-    return flatten(((diagonal(x,1) for x in 1:h), (diagonal(h,y) for y in 2:w)))
+    δx, δy = direction
+    # FIXME: Ugly line, calculate start points for slices
+    sy, sx = map((dir, dim) -> (dir == 1) ? 1 : dim, direction, (h, w))
+    diagonal(x, y) = slice(array, countfrom(x, δx), countfrom(y, δy))
+    # Start from 2:w to not get the longest slice twice
+    return flatten(((diagonal(x,sx) for x in 1:h), (diagonal(sy,y) for y in 2:w)))
 end
 
 # Slicers for different directions (3D)
@@ -50,22 +49,22 @@ slice_generators(array :: Array{T,3}, :: Val{:z}) where T =
     (array[i,j,:] for i in 1:size(array, 1) for j in 1:size(array, 2))
 
 slice_generators(array :: Array{T,3}, :: Val{:xy_main}) where T =
-    flatten(diagonal_slices(array[:,:,k]) for k in 1:size(array, 3))
+    flatten(diagonals(array[:,:,k], (1, 1)) for k in 1:size(array, 3))
 
 slice_generators(array :: Array{T,3}, :: Val{:xz_main}) where T =
-    flatten(diagonal_slices(array[:,j,:]) for j in 1:size(array, 2))
+    flatten(diagonals(array[:,j,:], (1, 1)) for j in 1:size(array, 2))
 
 slice_generators(array :: Array{T,3}, :: Val{:yz_main}) where T =
-    flatten(diagonal_slices(array[i,:,:]) for i in 1:size(array, 1))
+    flatten(diagonals(array[i,:,:], (1, 1)) for i in 1:size(array, 1))
 
 slice_generators(array :: Array{T,3}, :: Val{:xy_anti}) where T =
-    flatten(antidiagonal_slices(array[:,:,k]) for k in 1:size(array, 3))
+    flatten(diagonals(array[:,:,k], (-1, 1)) for k in 1:size(array, 3))
 
 slice_generators(array :: Array{T,3}, :: Val{:xz_anti}) where T =
-    flatten(antidiagonal_slices(array[:,j,:]) for j in 1:size(array, 2))
+    flatten(diagonals(array[:,j,:], (-1, 1)) for j in 1:size(array, 2))
 
 slice_generators(array :: Array{T,3}, :: Val{:yz_anti}) where T =
-    flatten(antidiagonal_slices(array[i,:,:]) for i in 1:size(array, 1))
+    flatten(diagonals(array[i,:,:], (-1, 1)) for i in 1:size(array, 1))
 
 # Slicers for different directions (2D)
 slice_generators(array :: Array{T,2}, :: Val{:x}) where T =
@@ -75,10 +74,10 @@ slice_generators(array :: Array{T,2}, :: Val{:y}) where T =
     (array[i,:] for i in 1:size(array, 1))
 
 slice_generators(array :: Array{T,2}, :: Val{:xy_main}) where T =
-    diagonal_slices(array)
+    diagonals(array, (1, 1))
 
 slice_generators(array :: Array{T,2}, :: Val{:xy_anti}) where T =
-    antidiagonal_slices(array)
+    diagonals(array, (-1, 1))
 
 # Trivial slicer for 1D case
 slice_generators(array :: Array{T,1}, :: Val{:x}) where T =
