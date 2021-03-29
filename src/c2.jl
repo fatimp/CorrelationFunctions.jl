@@ -2,8 +2,8 @@
 
 """
 ~~~~{.jl}
-c2(array :: Array{T,3},
-   len   :: Integer,
+c2(array      :: Array,
+   len        :: Integer,
    phase;
    directions :: Vector{Symbol} = default_directions,
    periodic   :: Bool = false) where T
