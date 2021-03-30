@@ -9,11 +9,16 @@ c2(array      :: Array,
    periodic   :: Bool = false) where T
 ~~~~
 
-Calculate C2 correlation function on 3D array `array`. `C2(array, l,
-phase)` equals to probability that two points `X` and `Y` in the array
-with distance `l` between them all belong to the same segment. This
-implementation calculates S2 for all `l`s in the range from zero to
-`len-1`. Points which belong to the segment 0 are rejected.
+Calculate C2 correlation function for one-, two- or three-dimensional
+array `array`. `C2(array, l, phase)` equals to probability that corner
+elements of a line segment with the length `l` belong to the same
+cluster. This implementation calculates C2 for all `l`s in the range
+from `1` to `len`. Also, points which belong to the cluster `0` are
+rejected.
+
+For a list of possible directions in which line segments are cut, see
+documentation to `direction1Dp`, `direction2Dp` or `direction3Dp` for
+1D, 2D and 3D arrays respectively.
 """
 function c2(array      :: Array,
             len        :: Integer;

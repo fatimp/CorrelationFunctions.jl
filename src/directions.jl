@@ -12,12 +12,10 @@ function direction1Dp end
 Return true is `sym` is 2D direction or false otherwise. Known
 directions are:
 
-* `x` and `y`. Correlation functions computed in those directions are
-   computed on slices taken along those axes.
-* `xy_main`. Correlation functions are computed in the direction
-   parallel to the main diagonal on the array.
-* `xy_anti`. Correlation functions are computed in the direction
-   parallel to the antidiagonal on the array.
+* `:x` and `:y`. Correlation functions are computed along unit vectors
+   `(0, 1)` and `(1, 0)` respectively.
+* `:xy_main` and `:xy_anti`. Correlation functions are computed in
+   diagonal directions `(1, 1)` and `(-1, 1)` respectively.
 """
 function direction2Dp end
 
@@ -27,16 +25,16 @@ function direction2Dp end
 Return true is `sym` is 3D direction or false otherwise. Known
 directions are:
 
-* `x`, `y` and `z`. Correlation functions computed in those directions
-   are computed on slices taken along those axes.
-* `xy_main`, `xz_main` and `yz_main`. To compute correlation functions
-   in those directions 2D planes with equations `z = const`, `y = const`
-   and `x = const` respectively are cut from the input data and
-   computations are done in direction parallel to the main diagonal of
-   those slices.
-* `xy_anti`, `xz_anti` and `yz_anti`. The same as above, only
-   computations are done in directions parallel to the antidiagonal of
-   slices.
+* `:x`, `:y` and `:z`. Correlation functions are computed along unit
+   vectors `(1, 0, 0)`, `(0, 1, 0)` and `(0, 0, 1)` respectively.
+* `:xy_main`, `:xz_main` and `:yz_main`. Correlation functions are
+   computed in diagonal directions `(1, 1, 0)`, `(1, 0, 1)` and
+   `(0, 1, 1)` respectively.
+* `:xy_anti`, `:xz_anti` and `:yz_anti`. Correlation functions are
+   computed in diagonal directions `(-1, 1, 0)`, `(-1, 0, 1)` and
+   `(0, -1, 1)` respectively.
+* From `:diag1` to `:diag4`. Corresponding directions are `(1, 1, 1)`,
+   `(-1, 1, 1)`, `(1, -1, 1)` and `(1, 1, -1)`.
 """
 function direction3Dp end
 

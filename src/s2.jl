@@ -7,11 +7,15 @@ s2(array      :: Array,
    periodic   :: Bool = false) where T
 ~~~~
 
-Calculate S2 correlation function on 3D array `array`. `S2(array, l,
-phase)` equals to probability that two points `X` and `Y` in the array
-with distance `l` between them all belong to the same phase `phase`.
-This implementation calculates S2 for all `l`s in the range from zero
-to `len-1`.
+Calculate S2 correlation function for one-, two- or three-dimensional
+array `array`. `S2(array, l, phase)` equals to probability that corner
+elements of a line segment with the length `l` belong to the same
+phase `phase`. This implementation calculates S2 for all `l`s in the
+range from `1` to `len`.
+
+For a list of possible directions in which line segments are cut, see
+documentation to `direction1Dp`, `direction2Dp` or `direction3Dp` for
+1D, 2D and 3D arrays respectively.
 """
 function s2(array      :: Array,
             len        :: Integer,

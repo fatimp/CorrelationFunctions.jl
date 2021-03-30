@@ -25,11 +25,15 @@ l2(array      :: Array,
    periodic   :: Bool = false) where T
 ~~~~
 
-Calculate L2 correlation function on 3D array `array`. `L2(array, l,
-phase)` equals to probability that a line segment with length `l` cut
-from the array all belong to the same phase `phase`. This
-implementation calculates L2 for all `l`s in the range from zero to
-`len-1`.
+Calculate L2 correlation function for one-, two- or three-dimensional
+array `array`. `L2(array, l, phase)` equals to probability that all
+elements of a line segment with length `l` cut from the array belong
+to the same phase `phase`. This implementation calculates L2 for all
+`l`s in the range from `1` to `len`.
+
+For a list of possible directions in which line segments are cut, see
+documentation to `direction1Dp`, `direction2Dp` or `direction3Dp` for
+1D, 2D and 3D arrays respectively.
 """
 function l2(array      :: Array,
             len        :: Integer,
