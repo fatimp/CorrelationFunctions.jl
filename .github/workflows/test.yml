@@ -1,0 +1,28 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  run_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Julia
+        uses: julia-actions/setup-julia@v1
+        with:
+          version: '1'
+          arch: x64
+      - name: Cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.julia/artifacts
+          key: ${{ runner.os }}-test-cache-artifacts-${{ hashFiles('**/Project.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-test-${{ env.cache-name }}-
+            ${{ runner.os }}-test-
+            ${{ runner.os }}-
+      - name: Build package
+        uses: julia-actions/julia-buildpkg@v1
+      - name: Test package
+        uses: julia-actions/julia-runtest@v1

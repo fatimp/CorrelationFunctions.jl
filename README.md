@@ -1,4 +1,5 @@
 # CorrelationFunctions.jl
+[![CI](https://github.com/shamazmazum/CorrelationFunctions.jl/actions/workflows/test.yml/badge.svg)](https://github.com/shamazmazum/CorrelationFunctions.jl/actions/workflows/test.yml)
 
 Short how-to in examples:
 
