@@ -74,6 +74,12 @@ end
 @def_direction(direction3Dp, :yz_anti)
 @def_direction(direction3Dp, :xz_anti)
 
+# True diagonals (TODO: better names?)
+@def_direction(direction3Dp, :diag1)
+@def_direction(direction3Dp, :diag2)
+@def_direction(direction3Dp, :diag3)
+@def_direction(direction3Dp, :diag4)
+
 """
     default_directions(ndims)
 

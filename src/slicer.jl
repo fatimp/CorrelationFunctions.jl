@@ -24,9 +24,11 @@ end
 """
     diagonals(array, direction)
 
-Return an iterator for diagonal slices of a 2D array. All slices
-follow the direction `direction`.
+Return an iterator for diagonal slices of an array. All slices follow
+the direction `direction`.
 """
+function diagonals end
+
 function diagonals(array     :: Array{T,2},
                    direction :: Tuple{Int, Int}) where T
     h, w = size(array)
@@ -38,7 +40,52 @@ function diagonals(array     :: Array{T,2},
     return flatten(((diagonal(x,sy) for x in 1:h), (diagonal(sx,y) for y in 2:w)))
 end
 
-# Slicers for different directions (3D)
+# Code for 3D diagonals is really hard for understanding.
+# TODO: Try to "fuse" these 4 methods into more simple one (if
+# possible at all).
+function diagonals(array :: Array{T,3}, :: Val{:diag1}) where T
+    # Direction (1, 1, 1)
+    h, w, d = size(array)
+    diagonal(x, y, z) = slice(array, countfrom(x, 1), countfrom(y, 1), countfrom(z, 1))
+    return flatten(((diagonal(1,y,z) for y in 1:w, z in 1:d),
+                    (diagonal(x,1,z) for x in 2:h, z in 1:d),
+                    (diagonal(x,y,1) for x in 2:h, y in 2:w)))
+end
+
+function diagonals(array :: Array{T,3}, :: Val{:diag2}) where T
+    # Direction (-1, 1, 1)
+    h, w, d = size(array)
+    diagonal(x, y, z) = slice(array, countfrom(x, -1), countfrom(y, 1), countfrom(z, 1))
+    return flatten(((diagonal(h,y,z) for y in 1:w,   z in 1:d),
+                    (diagonal(x,1,z) for x in 1:h-1, z in 1:d),
+                    (diagonal(x,y,1) for x in 1:h-1, y in 2:w)))
+end
+
+function diagonals(array :: Array{T,3}, :: Val{:diag3}) where T
+    # Direction (1, -1, 1)
+    h, w, d = size(array)
+    diagonal(x, y, z) = slice(array, countfrom(x, 1), countfrom(y, -1), countfrom(z, 1))
+    return flatten(((diagonal(1,y,z) for y in 1:w, z in 1:d),
+                    (diagonal(x,w,z) for x in 2:h, z in 1:d),
+                    (diagonal(x,y,1) for x in 2:h, y in 1:w-1)))
+end
+
+function diagonals(array :: Array{T,3}, :: Val{:diag4}) where T
+    # Direction (1, 1, -1)
+    h, w, d = size(array)
+    diagonal(x, y, z) = slice(array, countfrom(x, 1), countfrom(y, 1), countfrom(z, -1))
+    return flatten(((diagonal(1,y,z) for y in 1:w, z in 1:d),
+                    (diagonal(x,1,z) for x in 2:h, z in 1:d),
+                    (diagonal(x,y,d) for x in 2:h, y in 2:w)))
+end
+
+# Slicers for "true" diagonals (when there are no zeros in the
+# direction vector).
+TrueDiagonal = Union{Val{:diag1}, Val{:diag2}, Val{:diag3}, Val{:diag4}}
+slice_generators(array :: Array{T,3}, direction :: TrueDiagonal) where T =
+    diagonals(array, direction)
+
+# Slicers for other directions (3D)
 slice_generators(array :: Array{T,3}, :: Val{:x}) where T =
     (array[:,j,k] for j in 1:size(array, 2) for k in 1:size(array, 3))
 
