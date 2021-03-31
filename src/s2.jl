@@ -1,11 +1,6 @@
 """
-~~~~{.jl}
-s2(array      :: Array,
-   len        :: Integer,
-   phase;
-   directions :: Vector{Symbol} = default_directions,
-   periodic   :: Bool = false) where T
-~~~~
+    s2(array, len, phase; directions = default_directions, periodic = false)
+    s2(array, len, χ; directions = default_directions, periodic = false)
 
 Calculate S2 correlation function for one-, two- or three-dimensional
 array `array`. `S2(array, l, phase)` equals to probability that corner
@@ -16,10 +11,16 @@ range from `1` to `len`.
 For a list of possible directions in which line segments are cut, see
 documentation to `direction1Dp`, `direction2Dp` or `direction3Dp` for
 1D, 2D and 3D arrays respectively.
+
+More generally, you can provide predicate `χ` instead of `phase`. In
+this case S2 function calculates probability of `χ(x, y)` returing
+`true` where `x` and `y` are two corners of a line segment.
 """
+function s2 end
+
 function s2(array      :: Array,
             len        :: Integer,
-            phase;
+            χ          :: Function;
             directions :: Vector{Symbol} = array |> ndims |> default_directions,
             periodic   :: Bool = false)
     cd = CorrelationData(len, directions, ndims(array))
@@ -32,11 +33,12 @@ function s2(array      :: Array,
             # Number of shifts (distances between two points for this slice)
             shifts = min(len, slen)
 
-            # Calculate slices where slice[x] == slice[x+y] == phase for all y's from 1 to len
+            # Calculate slices where χ(slice[x]) && χ(slice[x+y]) for
+            # all y's from 1 to len.
             cd.success[direction][1:shifts] .+= imap(1:shifts) do shift
                 # Periodic slice, if needed
                 pslice = periodic ? vcat(slice, slice[1:shift-1]) : slice
-                mapreduce((x, y) -> x == y == phase, +, pslice, pslice[shift:end])
+                mapreduce(χ, +, pslice, pslice[shift:end])
             end
 
             # Calculate total number of slices with lengths from 1 to len
@@ -50,3 +52,12 @@ function s2(array      :: Array,
 
     return cd
 end
+
+s2(array      :: Array,
+   len        :: Integer,
+   phase;
+   directions :: Vector{Symbol} = array |> ndims |> default_directions,
+   periodic   :: Bool = false) =
+       s2(array, len, (x, y) -> x == y == phase;
+          directions = directions,
+          periodic = periodic)

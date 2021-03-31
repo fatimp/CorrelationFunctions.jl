@@ -17,13 +17,7 @@ function count_runs(array :: Vector,
 end
 
 """
-~~~~{.jl}
-l2(array      :: Array,
-   len        :: Integer,
-   phase;
-   directions :: Vector{Symbol} = default_directions,
-   periodic   :: Bool = false) where T
-~~~~
+    l2(array, len, phase; directions = default_directions, periodic = false)
 
 Calculate L2 correlation function for one-, two- or three-dimensional
 array `array`. `L2(array, l, phase)` equals to probability that all
