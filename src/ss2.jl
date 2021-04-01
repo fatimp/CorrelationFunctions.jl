@@ -17,9 +17,19 @@ function ss2(array      :: Array,
              directions :: Vector{Symbol} = array |> ndims |> default_directions,
              periodic   :: Bool = false)
     indicator_field = map(x -> x == phase, array)
-    intfloor(x) = floor(Int, x)
-    featuredist = intfloor.(indicator_field |> feature_transform |> distance_transform)
-    return s2(featuredist, len, (x, y) -> x == y == 1;
+
+    # Kinda calculate gradient of indicator field by applying Sobel operator
+    δx, δy, δz = imgradients(indicator_field, KernelFactors.sobel)
+
+    # Calculate gradient's norm
+    norm = map((x, y, z) -> sqrt(x^2 + y^2 + z^2), δx, δy, δz)
+
+    # FIXME: threshold gradient by median value (exclude zeros when
+    # computing median).
+    m = Statistics.median(filter(x -> x != 0, norm))
+    thr = map(x -> x > m ? 1 : 0, norm)
+
+    return s2(thr, len, (x, y) -> x == y == 1;
               directions = directions,
               periodic   = periodic)
 end

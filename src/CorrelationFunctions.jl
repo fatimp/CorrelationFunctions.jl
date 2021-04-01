@@ -1,4 +1,5 @@
 module CorrelationFunctions
+using Statistics
 using Images
 using ImageSegmentation
 using JSON
