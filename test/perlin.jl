@@ -52,18 +52,27 @@ function perlinnoise(x, y, z)
 end
 # End of GNU FDL code
 
+function two_phase_noise()
+    noise = [perlinnoise(x/10, y/10, z/10) for x in 1:100, y in 1:100, z in 1:100]
+    # Normalize noise (fit in the range [0,1])
+    noise = noise .- minimum(noise)
+    noise = noise ./ maximum(noise)
+    # "Posterize" noise
+    return map(x -> (x < 0.5) ? 1 : 0, noise)
+end
+
 macro testreflect(func, phase_needed :: Bool)
     phase_arg = phase_needed ? [:phase] : []
     test_phase = quote
         f = mean ∘ $func
         # Calculate correlation function on the original image
-        corr1 = f(pnoise, 50, $(phase_arg...))
+        corr1 = f(noise, 50, $(phase_arg...))
         # Reflect from yOz plane and calculate correlation function
-        corr2 = f(pnoise[end:-1:1,:,:], 50, $(phase_arg...))
+        corr2 = f(noise[end:-1:1,:,:], 50, $(phase_arg...))
         # Reflect from xOz plane and calculate correlation function
-        corr3 = f(pnoise[:,end:-1:1,:], 50, $(phase_arg...))
+        corr3 = f(noise[:,end:-1:1,:], 50, $(phase_arg...))
         # Reflect from xOy plane and calculate correlation function
-        corr4 = f(pnoise[:,:,end:-1:1], 50, $(phase_arg...))
+        corr4 = f(noise[:,:,end:-1:1], 50, $(phase_arg...))
         @test corr1 ≈ corr2 ≈ corr3 ≈ corr4
     end
 
@@ -79,12 +88,7 @@ macro testreflect(func, phase_needed :: Bool)
 
     test = quote
         @testset $("$func invariance under mirror transforms") begin
-            noise = [perlinnoise(x/10, y/10, z/10) for x in 1:100, y in 1:100, z in 1:100]
-            # Normalize noise (fit in the range [0,1])
-            noise = noise .- minimum(noise)
-            noise = noise ./ maximum(noise)
-            # "Posterize" noise
-            pnoise = map(x -> (x < 0.5) ? 1 : 0, noise)
+            noise = two_phase_noise()
             $test_body
         end
     end
@@ -95,3 +99,9 @@ end
 @testreflect(s2, true)
 @testreflect(l2, true)
 @testreflect(c2, false)
+
+@testset "Check ss2⁰(a) = ss2¹(a) for two phase media" begin
+    noise = two_phase_noise()
+    f = mean ∘ ss2
+    @test f(noise, 100, 0) ≈ f(noise, 100, 1)
+end
