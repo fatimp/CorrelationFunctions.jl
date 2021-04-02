@@ -18,7 +18,7 @@ this case S2 function calculates probability of `χ(x, y)` returing
 """
 function s2 end
 
-function s2(array      :: Array,
+function s2(array      :: AbstractArray,
             len        :: Integer,
             χ          :: Function;
             directions :: Vector{Symbol} = array |> ndims |> default_directions,
@@ -53,7 +53,7 @@ function s2(array      :: Array,
     return cd
 end
 
-s2(array      :: Array,
+s2(array      :: AbstractArray,
    len        :: Integer,
    phase;
    directions :: Vector{Symbol} = array |> ndims |> default_directions,

@@ -11,7 +11,7 @@ For a list of possible directions in which line segments are cut, see
 documentation to `direction1Dp`, `direction2Dp` or `direction3Dp` for
 1D, 2D and 3D arrays respectively.
 """
-function ss2(array      :: Array,
+function ss2(array      :: AbstractArray,
              len        :: Integer,
              phase;
              directions :: Vector{Symbol} = array |> ndims |> default_directions,

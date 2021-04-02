@@ -1,4 +1,4 @@
-function count_runs(array :: Vector,
+function count_runs(array :: AbstractVector,
                     len   :: Integer,
                     phase)
     result = zeros(Int, len)
@@ -29,7 +29,7 @@ For a list of possible directions in which line segments are cut, see
 documentation to `direction1Dp`, `direction2Dp` or `direction3Dp` for
 1D, 2D and 3D arrays respectively.
 """
-function l2(array      :: Array,
+function l2(array      :: AbstractArray,
             len        :: Integer,
             phase;
             directions :: Vector{Symbol} = array |> ndims |> default_directions,
