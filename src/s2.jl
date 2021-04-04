@@ -38,7 +38,8 @@ function s2(array      :: AbstractArray,
             cd.success[direction][1:shifts] .+= imap(1:shifts) do shift
                 # Periodic slice, if needed
                 pslice = periodic ? vcat(slice, slice[1:shift-1]) : slice
-                mapreduce(χ, +, pslice, pslice[shift:end])
+                plen = periodic ? slen+shift-1 : slen
+                mapreduce(χ, +, pslice, view(pslice, shift:plen))
             end
 
             # Calculate total number of slices with lengths from 1 to len
