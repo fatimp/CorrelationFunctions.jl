@@ -100,8 +100,8 @@ end
 @testreflect(l2, true)
 @testreflect(c2, false)
 
-@testset "Check ss2⁰(a) = ss2¹(a) for two phase media" begin
+@testset "Check surfsurf⁰(a) = surfsurf¹(a) for two phase media" begin
     noise = two_phase_noise()
-    f = mean ∘ ss2
+    f = mean ∘ surfsurf
     @test f(noise, 100, 0) ≈ f(noise, 100, 1)
 end

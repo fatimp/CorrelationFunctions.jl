@@ -18,7 +18,7 @@ end
 
 @testcase "Check that corr(a, len1, phase) = corr(a, len2, phase)[1:len1] for len2>len1" begin
     for phase in (0, 1)
-        for func in (s2, l2, ss2)
+        for func in (s2, l2, surfsurf)
             mfunc = mean ∘ func
             corr1 = mfunc(rand_array, 40, phase)
             corr2 = mfunc(rand_array, 70, phase)

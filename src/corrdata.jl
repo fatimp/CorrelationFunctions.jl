@@ -57,3 +57,9 @@ end
 function mean(data :: CorrelationData)
     return mean(data, data.directions)
 end
+
+function Base.merge(d1 :: CorrelationData, d2 :: CorrelationData)
+    return CorrelationData(unique(vcat(d1.directions, d2.directions)),
+                           merge(d1.success, d2.success),
+                           merge(d1.total,   d2.total))
+end
