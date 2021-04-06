@@ -16,6 +16,7 @@ c2(array      :: AbstractArray,
    len        :: Integer;
    directions :: Vector{Symbol} = array |> ndims |> default_directions,
    periodic   :: Bool = false) =
-       s2(label_components(array), len, (x, y) -> x == y != 0;
+       s2(label_components(array), len,
+          InseparableIndicator((x, y) -> x == y != 0);
           directions = directions,
           periodic = periodic)

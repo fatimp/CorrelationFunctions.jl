@@ -6,10 +6,12 @@ using JSON
 using PrettyTables
 using Base.Iterators
 using IterTools
+using DSP
 
 include("directions.jl")
 include("corrdata.jl")
 include("slicer.jl")
+include("indicator.jl")
 include("l2.jl")
 include("s2.jl")
 include("c2.jl")

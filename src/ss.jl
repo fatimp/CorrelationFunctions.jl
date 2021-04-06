@@ -45,7 +45,7 @@ function surfsurf(array      :: AbstractArray,
 
         edge = abs.(blur - indicator_field)
         q = quantile(filter(x -> x != 0, edge), threshold)
-        s2(edge, len, (x, y) -> x > q && y > q;
+        s2(edge, len, SeparableIndicator(x -> x > q);
            directions = [direction],
            periodic   = periodic)
     end
