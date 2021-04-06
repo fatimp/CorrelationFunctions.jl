@@ -53,7 +53,7 @@ end
 # End of GNU FDL code
 
 function two_phase_noise()
-    noise = [perlinnoise(x/10, y/10, z/10) for x in 1:100, y in 1:100, z in 1:100]
+    noise = [perlinnoise(x/10, y/10, z/10) for x in 1:50, y in 1:50, z in 1:50]
     # Normalize noise (fit in the range [0,1])
     noise = noise .- minimum(noise)
     noise = noise ./ maximum(noise)
@@ -66,13 +66,13 @@ macro testreflect(func, phase_needed :: Bool)
     test_phase = quote
         f = mean ∘ $func
         # Calculate correlation function on the original image
-        corr1 = f(noise, 50, $(phase_arg...))
+        corr1 = f(noise, 25, $(phase_arg...))
         # Reflect from yOz plane and calculate correlation function
-        corr2 = f(noise[end:-1:1,:,:], 50, $(phase_arg...))
+        corr2 = f(noise[end:-1:1,:,:], 25, $(phase_arg...))
         # Reflect from xOz plane and calculate correlation function
-        corr3 = f(noise[:,end:-1:1,:], 50, $(phase_arg...))
+        corr3 = f(noise[:,end:-1:1,:], 25, $(phase_arg...))
         # Reflect from xOy plane and calculate correlation function
-        corr4 = f(noise[:,:,end:-1:1], 50, $(phase_arg...))
+        corr4 = f(noise[:,:,end:-1:1], 25, $(phase_arg...))
         @test corr1 ≈ corr2 ≈ corr3 ≈ corr4
     end
 
@@ -103,5 +103,5 @@ end
 @testset "Check surfsurf⁰(a) = surfsurf¹(a) for two phase media" begin
     noise = two_phase_noise()
     f = mean ∘ surfsurf
-    @test f(noise, 100, 0) ≈ f(noise, 100, 1)
+    @test f(noise, 50, 0) ≈ f(noise, 50, 1)
 end
