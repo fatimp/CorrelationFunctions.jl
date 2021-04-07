@@ -36,11 +36,10 @@ function s2_sep_np(array      :: AbstractArray,
             # Number of shifts (distances between two points for this slice)
             shifts = min(len, slen)
 
-            # This case seems very unoptimized: I calculate reverse of
-            # a slice, then convolve the slice with itself, then drop
-            # at least half-1 numbers from the result of
-            # convolution. However, this gives a significant
-            # improvement in speed for cubes with a side > 100
+            # Calculate cross-correlation of slice with itself, then
+            # drop at least half-1 numbers from the result. Despite
+            # that some data is dropped, this gives a significant
+            # improvement in speed for cubes with a side > 250
             # compared with the old version, which is now called
             # s2_generic.
 
@@ -48,8 +47,8 @@ function s2_sep_np(array      :: AbstractArray,
             # especially beautiful: Z^-1[f(z) * f(z^-1)], where
             # f(z) is Z-transform of your slice.
 
-            # Convolve our slice with itself reversed
-            c = conv(slice, reverse(slice))
+            # Compute cross-correlation
+            c = xcorr(slice, slice; padmode = :none)
 
             # Update correlation data
             cd.success[direction][1:shifts] .+= view(c, slen:slen+shifts-1)
@@ -106,7 +105,10 @@ function s2(array      :: AbstractArray,
             directions :: Vector{Symbol} = array |> ndims |> default_directions,
             periodic   :: Bool = false)
     # For short arrays generic version is faster
-    if isa(indicator, SeparableIndicator) && !periodic && array |> size |> minimum > 250
+    if isa(indicator, SeparableIndicator) &&
+        !periodic                         &&
+        array |> size |> minimum > 250    &&
+        all(direction -> direction ∈ [:x, :y, :z], directions)
         cd = s2_sep_np(array, len, indicator, directions)
     else
         cd = s2_generic(array, len, indicator, directions, periodic)
