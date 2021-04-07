@@ -19,13 +19,28 @@ function CorrelationData(len        :: Integer,
     return CorrelationData(directions, success, total)
 end
 
-function Base.show(io :: IO, x :: CorrelationData)
-    corr = mapreduce(hcat, x.directions) do direction
-        # Define correlation function f(a, x) = 0 for x > dimension of a
-        total = (x -> max(x, 1)).(x.total[direction])
-        x.success[direction] ./ total
+function Base.getindex(x :: CorrelationData, i)
+    directions = x.directions
+    if i ∉ directions
+        error("Requested direction $i is not among calculated directions $directions")
     end
-    pretty_table(io, corr, x.directions)
+
+    success = x.success[i]
+    # Define correlation function f(a, x) = 0 for x > dimension of a
+    total = (x -> max(x, 1)).(x.total[i])
+    return success ./ total
+end
+
+function Base.show(io :: IO, x :: CorrelationData)
+    directions = x.directions
+    corr = reduce(hcat, x[direction] for direction in directions)
+    pretty_table(io, corr, directions)
+end
+
+function Base.merge(d1 :: CorrelationData, d2 :: CorrelationData)
+    return CorrelationData(unique(vcat(d1.directions, d2.directions)),
+                           merge(d1.success, d2.success),
+                           merge(d1.total,   d2.total))
 end
 
 """
@@ -56,10 +71,4 @@ end
 
 function mean(data :: CorrelationData)
     return mean(data, data.directions)
-end
-
-function Base.merge(d1 :: CorrelationData, d2 :: CorrelationData)
-    return CorrelationData(unique(vcat(d1.directions, d2.directions)),
-                           merge(d1.success, d2.success),
-                           merge(d1.total,   d2.total))
 end
