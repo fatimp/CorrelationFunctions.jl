@@ -8,17 +8,14 @@ function update_runs!(array :: AbstractVector{Int}, runs, n)
     array[1:n] .+= take(countfrom(runs, -1), n)
 end
 
-function update_runs_periodic!(array :: AbstractVector{Int}, runs, n)
-    if iseven(runs)
-        half = runs÷2
-        iter = flatten((take(countfrom(0), half),
-                        take(countfrom(half, -1), half)))
-    else
-        iter = flatten((take(countfrom(0), (runs+1)÷2),
-                        take(countfrom((runs-1)÷2, -1), (runs-1)÷2)))
-    end
-
-    array[1:n] .+= take(iter, n)
+function update_runs_periodic!(array :: AbstractVector{Int},
+                               left  :: Integer,
+                               right :: Integer,
+                               len   :: Integer)
+    sum = left + right
+    nupdate = min(len, sum)
+    f(n) = min(n - 1, left, right, sum - (n - 1))
+    array[1:nupdate] .+= (f(n) for n in 1:nupdate)
 end
 
 function count_runs(array :: AbstractVector,
@@ -79,9 +76,9 @@ function l2(array      :: AbstractArray,
 
             if periodic
                 if (slice[begin] == slice[end] == phase)
-                    tail_runs = first(runs) + last(runs)
-                    update_runs_periodic!(cd.success[direction], tail_runs,
-                                          min(len, tail_runs))
+                    update_runs_periodic!(cd.success[direction],
+                                          first(runs), last(runs),
+                                          len)
                 end
 
                 # Update total number of slices
