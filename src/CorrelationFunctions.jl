@@ -1,12 +1,12 @@
 module CorrelationFunctions
-using Statistics
-using Images
-using ImageSegmentation
-using JSON
-using PrettyTables
+using Statistics: quantile
+using Images: Kernel, imfilter
+using ImageSegmentation: label_components
+using JSON: JSON, parse
+using PrettyTables: pretty_table
 using Base.Iterators
 using IterTools
-using DSP
+using DSP: xcorr
 
 include("directions.jl")
 include("corrdata.jl")
