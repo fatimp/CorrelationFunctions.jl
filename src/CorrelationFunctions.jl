@@ -7,6 +7,7 @@ using PrettyTables: pretty_table
 using Base.Iterators
 using IterTools
 using DSP: xcorr
+using LinkedLists: SLinkedList
 
 include("directions.jl")
 include("corrdata.jl")

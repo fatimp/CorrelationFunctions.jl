@@ -1,14 +1,3 @@
-# Where to put this function?
-"""
-    update_runs!(array, runs, n)
-
-Add a sequence which start with the first element `runs` and decreases
-by one to the first `n` elements of the vector `array`.
-"""
-function update_runs!(array :: AbstractVector{Int}, runs, n)
-    array[1:n] .+= take(countfrom(runs, -1), n)
-end
-
 """
     slice(array, iterators...)
 
