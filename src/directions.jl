@@ -13,7 +13,7 @@ Return true is `sym` is 2D direction or false otherwise. Known
 directions are:
 
 * `:x` and `:y`. Correlation functions are computed along unit vectors
-   `(0, 1)` and `(1, 0)` respectively.
+   `(1, 0)` and `(0, 1)` respectively.
 * `:xy_main` and `:xy_anti`. Correlation functions are computed in
    diagonal directions `(1, 1)` and `(-1, 1)` respectively.
 """

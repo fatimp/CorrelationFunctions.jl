@@ -1,6 +1,6 @@
 """
     s2(array, len, phase; directions = default_directions, periodic = false)
-    s2(array, len, χ, separable = false; directions = default_directions, periodic = false)
+    s2(array, len, χ; directions = default_directions, periodic = false)
 
 Calculate S2 correlation function for one-, two- or three-dimensional
 array `array`. `S2(array, l, phase)` equals to probability that corner
@@ -15,7 +15,9 @@ documentation to `direction1Dp`, `direction2Dp` or `direction3Dp` for
 More generally, you can provide indicator function `χ` instead of
 `phase`. In this case S2 function calculates probability of `χ(x, y)`
 returing `true` where `x` and `y` are two corners of a line
-segment.
+segment. Indicator functions must be wrapped in either
+`SeparableIndicator` or `InseparableIndicator`. Some computation for
+separable indicator functions are optimized.
 """
 function s2 end
 

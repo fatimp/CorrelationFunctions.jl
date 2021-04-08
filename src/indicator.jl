@@ -1,13 +1,22 @@
-# Indicator functions ℝ^2 -> {0,1}
-
+"Abstract type for indicator functions ℝ^2 -> {0,1}"
 abstract type AbstractIndicator end
 
-# Can be written as χ(x,y) = χ(x)χ(y)
+"""
+    SeparableIndicator(χ¹)
+
+Type for separable indicator function, that is for such an indicator
+function which can be written as `χ(x,y) = χ¹(x)χ¹(y)`.
+"""
 struct SeparableIndicator <: AbstractIndicator
     χ :: Function
 end
 
-# Cannot be written as χ(x,y) = χ(x)χ(y)
+"""
+    InseparableIndicator(χ)
+
+Type for inseparable indicator function, that is for such an indicator
+function which cannot be written as `χ(x,y) = χ¹(x)χ¹(y)`.
+"""
 struct InseparableIndicator <: AbstractIndicator
     χ :: Function
 end
