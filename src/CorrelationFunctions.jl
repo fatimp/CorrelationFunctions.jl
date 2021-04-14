@@ -1,6 +1,7 @@
 module CorrelationFunctions
-using Statistics: quantile
-using Images: Kernel, imfilter
+using StatsBase: quantile, fit, Histogram
+using LinearAlgebra: normalize
+using Images: Kernel, imfilter, feature_transform, distance_transform
 using ImageSegmentation: label_components
 using JSON: JSON, parse
 using PrettyTables: pretty_table
@@ -17,10 +18,11 @@ include("l2.jl")
 include("s2.jl")
 include("c2.jl")
 include("ss.jl")
+include("poresize.jl")
 include("utility.jl")
 
-export read_cuboid, l2, s2, c2, surfsurf, mean,
-    SeparableIndicator, InseparableIndicator
+export read_cuboid, l2, s2, c2, surfsurf, pore_size
+export mean, SeparableIndicator, InseparableIndicator
 
 # These are exported for their docstrings.
 export direction1Dp, direction2Dp, direction3Dp
