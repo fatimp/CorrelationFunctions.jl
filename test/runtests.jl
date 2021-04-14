@@ -1,8 +1,10 @@
 using CorrelationFunctions
 using XUnit
 using PoissonRandom
+using Base.Iterators: zip, drop
 
-relerr(x, truex) = abs((x - truex) / truex)
+# Test utilities
+include("utility.jl")
 
 @testset "Diagonal slicing"  begin include("diagonals.jl") end
 @testset "Short sequences"   begin include("short.jl") end

@@ -91,7 +91,7 @@ end
               collect(990001:-9899:10000))
     directions = (:diag1, :diag2, :diag3, :diag4)
 
-    for (direction, ldiag) in Iterators.zip(directions, ldiags)
+    for (direction, ldiag) in zip(directions, ldiags)
         diags = collect(CorrelationFunctions.diagonals(array, Val(direction)))
         flatdiags = reduce(vcat, diags)
         @test length(flatdiags) == length(unique(flatdiags)) == 100^3

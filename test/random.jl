@@ -73,3 +73,9 @@ end
         end
     end
 end
+
+@testcase "Check pore size sum" begin
+    for phase in 0:1
+        @test sum(pore_size(rand_array, phase).weights) ≈ 1
+    end
+end
