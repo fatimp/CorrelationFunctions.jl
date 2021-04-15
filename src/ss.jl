@@ -1,21 +1,3 @@
-unit_vector(x :: Symbol, dim :: Int) = unit_vector(Val(x), Val(dim))
-
-macro def_unit_vector(direction, dim, vector)
-    return :(unit_vector(:: Val{$direction}, :: Val{$dim}) = $vector)
-end
-
-# 3D
-@def_unit_vector(:x, 3, (1.0, 0.0, 0.0))
-@def_unit_vector(:y, 3, (0.0, 1.0, 0.0))
-@def_unit_vector(:z, 3, (0.0, 0.0, 1.0))
-
-# 2D
-@def_unit_vector(:x, 2, (1.0, 0.0))
-@def_unit_vector(:y, 2, (0.0, 1.0))
-
-# 1D
-@def_unit_vector(:x, 1, (1.0))
-
 """
     surfsurf(array, len, phase; directions = default_directions, periodic = false)
 

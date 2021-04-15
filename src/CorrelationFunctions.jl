@@ -18,10 +18,11 @@ include("l2.jl")
 include("s2.jl")
 include("c2.jl")
 include("ss.jl")
-include("poresize.jl")
+include("pore-size.jl")
+include("chord-length.jl")
 include("utility.jl")
 
-export read_cuboid, l2, s2, c2, surfsurf, pore_size
+export read_cuboid, l2, s2, c2, surfsurf, pore_size, chord_length
 export mean, SeparableIndicator, InseparableIndicator
 
 # These are exported for their docstrings.
