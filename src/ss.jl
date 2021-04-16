@@ -1,20 +1,21 @@
 """
-    surfsurf(array, len, phase; directions = default_directions, periodic = false)
+    surfsurf(array, phase[; len = L][, directions = default_directions][, periodic = false])
 
 Calculate surface-surface correlation function for one-, two- or
-three-dimensional array `array`. `surfsurf(array, l, phase)` equals to
-probability that corner elements of a line segment with the length `l`
-belong to the boundary of a cluster with the phase `phase`. This
-implementation calculates SS2 for all `l`s in the range from `1` to
-`len`.
+three-dimensional array `array`. `surfsurf(x)` equals to probability
+that corner elements of a line segment with the length `x` cut from
+the array belong to the boundary of a cluster with the phase
+`phase`. This implementation calculates SS2 for all `x`s in the range
+from `1` to `len` which defaults to half of the minimal dimension of
+the array.
 
 For a list of possible directions in which line segments are cut, see
 documentation to `direction1Dp`, `direction2Dp` or `direction3Dp` for
 1D, 2D and 3D arrays respectively.
 """
 function surfsurf(array      :: AbstractArray,
-                  len        :: Integer,
                   phase;
+                  len        :: Integer = (array |> size |> minimum) ÷ 2,
                   directions :: Vector{Symbol} = array |> ndims |> default_directions,
                   periodic   :: Bool = false,
                   radius     :: AbstractFloat = 0.25,
@@ -27,7 +28,8 @@ function surfsurf(array      :: AbstractArray,
 
         edge = abs.(blur - indicator_field)
         q = quantile(filter(x -> x != 0, edge), threshold)
-        s2(edge, len, SeparableIndicator(x -> x > q);
+        s2(edge, SeparableIndicator(x -> x > q);
+           len        = len,
            directions = [direction],
            periodic   = periodic)
     end

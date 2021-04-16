@@ -11,10 +11,11 @@ a = rand(0:1, (200, 250, 150));
 ~~~~
 
 Now you can calculate, for example, `L2(x)` for the phase `1` of the array `a`
-where `x` runs from `1` to `10`.
+where `x` runs from `1` to `10`. `len` is an optional argument and defaults to
+half of the minimal direction of the array (`75` in this case).
 
 ~~~~{.jl}
-l = l2(a, 10, 1)
+l = l2(a, 1; len = 10)
 ┌────────────┬─────────────┬─────────────┐
 │          x │           y │           z │
 ├────────────┼─────────────┼─────────────┤
@@ -56,7 +57,7 @@ calculate them along diagonals too, for example, let's calculate `L2` along
 `(1,1,0)` and `(1, -1, 0)` directions.
 
 ~~~~{.jl}
-l = l2(a,10,1; directions = [:xy_main, :xy_anti])
+l = l2(a, 1; len = 10, directions = [:xy_main, :xy_anti])
 ┌─────────────┬─────────────┐
 │     xy_main │     xy_anti │
 ├─────────────┼─────────────┤
@@ -80,7 +81,7 @@ You can impose periodic boundary conditions onto `array` by calling `L2` with
 `periodic = true` argument.
 
 ~~~~{.jl}
-l = CorrelationFunctions.l2(a, 10, 1; periodic = true)
+l = CorrelationFunctions.l2(a, 1; len = 10, periodic = true)
 ┌─────────────┬─────────────┬─────────────┐
 │           x │           y │           z │
 ├─────────────┼─────────────┼─────────────┤

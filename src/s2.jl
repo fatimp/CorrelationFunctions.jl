@@ -1,12 +1,13 @@
 """
-    s2(array, len, phase; directions = default_directions, periodic = false)
-    s2(array, len, χ; directions = default_directions, periodic = false)
+    s2(array, phase[; len = L][, directions = default_directions][, periodic = false])
+    s2(array, χ[; len = L][,directions = default_directions][, periodic = false])
 
 Calculate S2 correlation function for one-, two- or three-dimensional
-array `array`. `S2(array, l, phase)` equals to probability that corner
-elements of a line segment with the length `l` belong to the same
-phase `phase`. This implementation calculates S2 for all `l`s in the
-range from `1` to `len`.
+array `array`. `S2(x)` equals to probability that corner elements of a
+line segment with the length `x` cut from the array belong to the same
+phase `phase`. This implementation calculates S2 for all `x`es in the
+range from `1` to `len` which defaults to half of the minimal
+dimenstion of the array.
 
 For a list of possible directions in which line segments are cut, see
 documentation to `direction1Dp`, `direction2Dp` or `direction3Dp` for
@@ -16,7 +17,7 @@ More generally, you can provide indicator function `χ` instead of
 `phase`. In this case S2 function calculates probability of `χ(x, y)`
 returing `true` where `x` and `y` are two corners of a line
 segment. Indicator functions must be wrapped in either
-`SeparableIndicator` or `InseparableIndicator`. Some computation for
+`SeparableIndicator` or `InseparableIndicator`. Some computations for
 separable indicator functions are optimized.
 """
 function s2 end
@@ -102,8 +103,8 @@ function s2_generic(array      :: AbstractArray,
 end
 
 function s2(array      :: AbstractArray,
-            len        :: Integer,
             indicator  :: AbstractIndicator;
+            len        :: Integer = (array |> size |> minimum) ÷ 2,
             directions :: Vector{Symbol} = array |> ndims |> default_directions,
             periodic   :: Bool = false)
     # For short arrays generic version is faster
@@ -120,10 +121,11 @@ function s2(array      :: AbstractArray,
 end
 
 s2(array      :: AbstractArray,
-   len        :: Integer,
    phase;
+   len        :: Integer = (array |> size |> minimum) ÷ 2,
    directions :: Vector{Symbol} = array |> ndims |> default_directions,
    periodic   :: Bool = false) =
-       s2(array, len, SeparableIndicator(x -> x == phase);
+       s2(array, SeparableIndicator(x -> x == phase);
+          len        = len,
           directions = directions,
-          periodic = periodic)
+          periodic   = periodic)

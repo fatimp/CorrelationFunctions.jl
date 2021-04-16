@@ -1,5 +1,5 @@
 """
-    pore_size(array[, phase]; nbins = 10)
+    pore_size(array[, phase = 0][; nbins = 10])
 
 Calculate pore size correlation function for the multiphase system
 `array`. Pore size correlation function `P(x)` equals to probability

@@ -1,10 +1,10 @@
 """
 ~~~~
 chord_length(array, phase;
-             directions = default_directions,
-             nbins = 10,
-             radius = 0.25,
-             threshold = 0.3)
+             [directions = default_directions,]
+             [nbins = 10,]
+             [radius = 0.25,]
+             [threshold = 0.3])
 ~~~~
 
 Calculate chord length correlation function for a multiphase system
