@@ -96,9 +96,11 @@ macro testreflect(func, phase_needed :: Bool)
     return test
 end
 
-@testreflect(s2, true)
-@testreflect(l2, true)
-@testreflect(c2, false)
+@testreflect(s2,       true)
+@testreflect(l2,       true)
+@testreflect(c2,       false)
+@testreflect(surfsurf, true)
+# TODO: somehow test histograms returned by pore_size and chord_length
 
 @testset "Check surfsurf⁰(a) = surfsurf¹(a) for two phase media" begin
     noise = two_phase_noise()
