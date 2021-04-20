@@ -110,7 +110,7 @@ function check_directions(directions :: Vector{Symbol},
     directions = unique(directions)
 
     if !all(predicate, directions)
-        error("Unknown dimensions found.")
+        error("Unknown directions found.")
     end
 
     return directions
