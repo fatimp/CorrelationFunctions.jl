@@ -75,19 +75,20 @@ function l2(array      :: AbstractArray,
                 update_runs!(cd.success[direction], run, min(run, len))
             end
 
+            total_updates = min(slen, len)
             if periodic
                 if (slice[begin] == slice[end] == phase)
                     update_runs_periodic!(cd.success[direction],
                                           first(runs), last(runs),
-                                          len)
+                                          total_updates)
                 end
 
                 # Update total number of slices
-                cd.total[direction] .+= slen
+                cd.total[direction][1:total_updates] .+= slen
             else
                 # Calculate total number of slices with lengths from 1
                 # to len
-                update_runs!(cd.total[direction], slen, min(slen, len))
+                update_runs!(cd.total[direction], slen, total_updates)
             end
         end
     end

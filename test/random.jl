@@ -1,8 +1,3 @@
-const known_directions = [:x,       :y,       :z,
-                          :yz_main, :xz_main, :xy_main,
-                          :yz_anti, :xz_anti, :xy_anti,
-                          :diag1,   :diag2,   :diag3, :diag4]
-
 # Random array with two phases
 rand_array = rand(Float32, (50, 51, 52))
 rand_array = map(x -> (x<0.3) ? 0 : 1, rand_array)

@@ -92,7 +92,7 @@ function s2_generic(array      :: AbstractArray,
 
             # Calculate total number of slices with lengths from 1 to len
             if periodic
-                cd.total[direction] .+= slen
+                cd.total[direction][1:shifts] .+= slen
             else
                 update_runs!(cd.total[direction], slen, shifts)
             end

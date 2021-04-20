@@ -41,3 +41,20 @@ end
     @test l2(a, 1; len = 5).success ==
           l2(a, 1; len = 5, periodic = true).success
 end
+
+@testset "Test on array with all elements equal to 1" begin
+    a = fill(1, (50, 50, 50))
+    for p in (false, true)
+        for func in (s2, l2)
+            @test all(x -> x ≈ 1,
+                      mean(func(a, 1; periodic = p, directions = known_directions)))
+        end
+    end
+
+    for p in (false, true)
+        @test all(x -> x ≈ 1,
+                  mean(c2(a; periodic = p, directions = known_directions)))
+    end
+
+    @test length(pore_size(a, 0).weights) == 0
+end
