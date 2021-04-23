@@ -2,6 +2,7 @@ using CorrelationFunctions
 using XUnit
 using PoissonRandom
 using Base.Iterators: zip, drop
+using StatsBase: mean
 
 # Test utilities
 include("utility.jl")

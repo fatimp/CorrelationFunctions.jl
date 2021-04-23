@@ -43,6 +43,7 @@ function Base.merge(d1 :: CorrelationData, d2 :: CorrelationData)
                            merge(d1.total,   d2.total))
 end
 
+import StatsBase: mean
 """
     mean(data :: CorrelationData, directions::Vector{Symbol})
     mean(data :: CorrelationData)

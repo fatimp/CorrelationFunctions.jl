@@ -23,7 +23,7 @@ include("chord-length.jl")
 include("utility.jl")
 
 export read_cuboid, l2, s2, c2, surfsurf, pore_size, chord_length
-export mean, SeparableIndicator, InseparableIndicator
+export SeparableIndicator, InseparableIndicator
 
 # These are exported for their docstrings.
 export direction1Dp, direction2Dp, direction3Dp
