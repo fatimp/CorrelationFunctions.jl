@@ -104,16 +104,13 @@ function s2_generic(array      :: AbstractArray{T},
     return cd
 end
 
-function s2(array      :: AbstractArray,
+function s2(array      :: AbstractArray{T},
             indicator  :: AbstractIndicator;
             len        :: Integer = (array |> size |> minimum) ÷ 2,
             directions :: Vector{Symbol} = array |> ndims |> default_directions,
-            periodic   :: Bool = false)
+            periodic   :: Bool = false) where T
     # For short arrays generic version is faster
-    if isa(indicator, SeparableIndicator) &&
-        !periodic                         &&
-        array |> size |> minimum > 250    &&
-        all(direction -> direction ∈ [:x, :y, :z], directions)
+    if isa(indicator, SeparableIndicator) && !periodic
         cd = s2_sep_np(array, len, indicator, directions)
     else
         cd = s2_generic(array, len, indicator, directions, periodic)

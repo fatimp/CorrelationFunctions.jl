@@ -17,20 +17,17 @@ function surfsurf(array      :: AbstractArray,
                   phase;
                   len        :: Integer = (array |> size |> minimum) ÷ 2,
                   directions :: Vector{Symbol} = array |> ndims |> default_directions,
-                  periodic   :: Bool = false,
-                  radius     :: AbstractFloat = 0.25,
-                  threshold  :: AbstractFloat = 0.3)
+                  radius     :: AbstractFloat = 0.25)
     indicator_field = map(x -> x == phase, array)
+    param = Tuple(fill(radius, ndims(array)))
+    # Blur a bit to avoid discontinuities
+    blur = imfilter(indicator_field, Kernel.gaussian(param))
 
-    mapreduce(merge, directions) do direction
-        param = radius .* unit_vector(direction, ndims(array))
-        blur = imfilter(indicator_field, Kernel.gaussian(param))
+    # Extract gradient norm
+    norm(x) = sqrt.(sum(map(x -> x.^2, x)))
+    gradnorm = norm(imgradients(blur, Kernel.scharr))
 
-        edge = abs.(blur - indicator_field)
-        q = quantile(filter(x -> x != 0, edge), threshold)
-        s2(edge, SeparableIndicator(x -> x > q);
-           len        = len,
-           directions = [direction],
-           periodic   = periodic)
-    end
+    return s2(gradnorm, SeparableIndicator(identity);
+              len        = len,
+              directions = directions)
 end
