@@ -29,13 +29,14 @@ function s2_sep_np(array      :: AbstractArray{T},
                    directions :: Vector{Symbol}) where T <: Number
     acc_type = promote_accumulator_type(T)
     cd = CorrelationData{acc_type}(len, directions, ndims(array))
-    χ = indicator_function(indicator)
+    χ1, χ2 = indicator_function(indicator)
 
     for direction in directions
         slicer = slice_generators(array, Val(direction))
 
         for slice in slicer
-            slice = map(χ, slice)
+            f1 = map(χ1, slice)
+            f2 = map(χ2, slice)
             slen = length(slice)
             # Number of shifts (distances between two points for this slice)
             shifts = min(len, slen)
@@ -52,13 +53,15 @@ function s2_sep_np(array      :: AbstractArray{T},
             # f(z) is Z-transform of your slice.
 
             # Compute cross-correlation
-            c = xcorr(slice, slice; padmode = :none)
+            c = xcorr(f1, f2; padmode = :none)
 
             # Update correlation data
-            cd.success[direction][1:shifts] .+= view(c, slen:slen+shifts-1)
+            cd.success[direction][1]         += 2c[slen]
+            cd.success[direction][2:shifts] .+= c[slen + 1:slen + shifts - 1]
+            cd.success[direction][2:shifts] .+= c[slen - 1:-1:slen - shifts + 1]
 
             # Calculate total number of slices with lengths from 1 to len
-            update_runs!(cd.total[direction], slen, shifts)
+            update_runs!(cd.total[direction], 2slen, shifts, 2)
         end
     end
 
