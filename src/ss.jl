@@ -1,17 +1,17 @@
 """
-    surfsurf(array, phase[; len = L][, directions = default_directions])
+    surfsurf(array, phase[; len,][directions])
 
-Calculate surface-surface correlation function for one-, two- or
-three-dimensional array `array`. `surfsurf(x)` equals to probability
-that corner elements of a line segment with the length `x` cut from
-the array belong to the boundary of a cluster with the phase
-`phase`. This implementation calculates surface-surface function for
-all `x`s in the range from `1` to `len` which defaults to half of the
-minimal dimension of the array.
+Calculate `Fss(x)` (surface-surface) correlation function for one-,
+two- or three-dimensional multiphase system. 
 
-For a list of possible directions in which line segments are cut, see
-documentation to `direction1Dp`, `direction2Dp` or `direction3Dp` for
-1D, 2D and 3D arrays respectively.
+`Fss(x)` equals to probability that corner elements of a line segment
+with the length `x` cut from the array belong to the boundary of a
+cluster with the phase `phase`. This implementation calculates
+surface-surface function for all `x`s in the range from `1` to `len`
+which defaults to half of the minimal dimension of the array.
+
+For a list of possible dimensions, see also: [`direction1Dp`](@ref),
+[`direction2Dp`](@ref), [`direction3Dp`](@ref).
 """
 function surfsurf(array      :: AbstractArray,
                   phase;
@@ -33,19 +33,22 @@ function surfsurf(array      :: AbstractArray,
 end
 
 """
-    surfvoid(array, phase[; len = L][, directions = default_directions][, periodic = false])
+    surfvoid(array, phase[; len,][directions,] periodic = false)
 
-Calculate surface-void correlation function for one-, two- or
-three-dimensional array `array`. `surfvoid(x)` equals to probability
-that one corner of a line segment with the length `x` cut from the
-array belongs to the boundary of a cluster with the phase `phase` and
-the other belongs to the void phase `0`. This implementation
-calculates surface-void function for all `x`s in the range from `1` to
-`len` which defaults to half of the minimal dimension of the array.
+Calculate `Fsv(x)` (surface-void) correlation function for one-, two-
+or three-dimensional multiphase system.
 
-For a list of possible directions in which line segments are cut, see
-documentation to `direction1Dp`, `direction2Dp` or `direction3Dp` for
-1D, 2D and 3D arrays respectively.
+`Fsv(x)` equals to probability that one corner of a line segment with
+the length `x` cut from the array belongs to the boundary of a cluster
+with the phase `phase` and the other belongs to the void phase
+`0`. This implementation calculates surface-void function for all `x`s
+in the range from `1` to `len` which defaults to half of the minimal
+dimension of the array.
+
+For a list of possible dimensions, see also: [`direction1Dp`](@ref),
+[`direction2Dp`](@ref), [`direction3Dp`](@ref).
+
+**NB**: this function is considered experimental.
 """
 function surfvoid(array      :: AbstractArray,
                   phase;

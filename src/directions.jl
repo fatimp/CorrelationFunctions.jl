@@ -1,16 +1,18 @@
 """
     direction1Dp(sym)
 
-Return true is `sym` is 1D direction or false otherwise. Only returns
-`true` if `sym` is `:x`.
+Return true if `sym` is 1D direction or false otherwise.
+
+The only possible 1D direction is `:x`.
 """
 function direction1Dp end
 
 """
     direction2Dp(sym)
 
-Return true is `sym` is 2D direction or false otherwise. Known
-directions are:
+Return true if `sym` is 2D direction or false otherwise.
+
+ Known directions are:
 
 * `:x` and `:y`. Correlation functions are computed along unit vectors
    `(1, 0)` and `(0, 1)` respectively.
@@ -22,8 +24,9 @@ function direction2Dp end
 """
     direction3Dp(sym)
 
-Return true is `sym` is 3D direction or false otherwise. Known
-directions are:
+Return true if `sym` is 3D direction or false otherwise.
+
+ Known directions are:
 
 * `:x`, `:y` and `:z`. Correlation functions are computed along unit
    vectors `(1, 0, 0)`, `(0, 1, 0)` and `(0, 0, 1)` respectively.

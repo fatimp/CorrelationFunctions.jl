@@ -1,15 +1,16 @@
 """
-    pore_size(array[, phase = 0][; nbins = 10])
+    pore_size(array, phase = 0; nbins = 10)
 
-Calculate pore size correlation function for the multiphase system
-`array`. Pore size correlation function `P(x)` equals to probability
-of inserting a ball with radius `R ∈ [x, x + δx]` into a system so
-that it lies entirely in the phase `phase`.
+Calculate pore size correlation function for one-, two- or
+three-dimensional multiphase system.
+
+Pore size correlation function `P(x)` equals to probability of
+inserting a ball with radius `R ∈ [x, x + δx]` into a system so that
+it lies entirely in the phase `phase`.
 
 This implementation divides the range of possible radii into `nbins`
-subranges and returns a normalized histogram of radii.
-
-This is roughly equal to integrating `P(x)` for each subrange.
+subranges and returns a normalized histogram of radii. This is roughly
+equal to integrating `P(x)` for each subrange.
 """
 function pore_size(array :: AbstractArray,
                    phase = 0;

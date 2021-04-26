@@ -42,18 +42,30 @@ function count_runs(array :: AbstractVector,
 end
 
 """
-    l2(array, phase; [len = L][, directions = default_directions][, periodic = false])
+    l2(array, phase; [len][, directions,] periodic = false)
 
-Calculate L2 (lineal path) correlation function for one-, two- or
-three-dimensional array `array`. `L2(x)` equals to probability that
-all elements of a line segment with length `x` cut from the array
-belong to the same phase. This implementation calculates L2 for all
-`x`es in the range from `1` to `len` which defaults to half of the
-minimal dimension of the array.
+Calculate `L₂` (lineal path) correlation function for one-, two- or
+three-dimensional multiphase system.
 
-For a list of possible directions in which line segments are cut, see
-documentation to `direction1Dp`, `direction2Dp` or `direction3Dp` for
-1D, 2D and 3D arrays respectively.
+`L₂(x)` equals to probability that all elements of a line segment with
+length `x` cut from the array belong to the same phase. This
+implementation calculates `L₂(x)` for all `x`es in the range from `1`
+to `len` which defaults to half of the minimal dimension of the array.
+
+# Examples
+```jldoctest
+julia> l2([1,1,1,0,1,1], 1; len = 6)[:x]
+6-element Array{Float64,1}:
+ 0.8333333333333334
+ 0.6
+ 0.25
+ 0.0
+ 0.0
+ 0.0
+```
+
+For a list of possible dimensions, see also: [`direction1Dp`](@ref),
+[`direction2Dp`](@ref), [`direction3Dp`](@ref).
 """
 function l2(array      :: AbstractArray,
             phase;

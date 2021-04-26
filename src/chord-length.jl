@@ -1,26 +1,31 @@
 """
-~~~~
-chord_length(array, phase;
-             [directions = default_directions,]
-             [nbins = 10,]
-             [radius = 0.25,]
-             [threshold = 0.3])
-~~~~
+    chord_length(array, phase[; directions,] nbins = 10)
 
-Calculate chord length correlation function for a multiphase system
-`array` and a phase `phase`.
+Calculate chord length correlation function for one-, two- or
+three-dimensional multiphase system.
 
-Cord length function equals to probability of finding a chord whose
-length is in the range `[l, l+δl]` and which lies entirely in the
-phase `phase`. A chord is a line segment which touches boundary of the
-phase `phase` with its ends.
+Cord length function `p(x)` equals to probability of finding a chord
+whose length is in the range `[x, x+δx]` and which lies entirely in the
+phase `phase`. A chord is a line segment which touches the boundary of
+a same-phase cluster with its ends.
 
 This implementation bins chord lengths into `nbins` bins and returns
 normalized histogram on collected data and the mean chord length in a
 tuple.
 
-`radius` and `threshold` parameters are used in edge detection
-step. Do not change them if you don't know what you are doing.
+# Examples
+```jldoctest
+julia> chord_length([1, 0, 0, 0, 0, 1], 0)
+(StatsBase.Histogram{Float64,1,Tuple{StepRangeLen{Float64,Base.TwicePrecision{Float64},Base.TwicePrecision{Float64}}}}
+edges:
+  4.0:1.0:5.0
+weights: [1.0]
+closed: left
+isdensity: false, 4.0)
+```
+
+For a list of possible dimensions, see also: [`direction1Dp`](@ref),
+[`direction2Dp`](@ref), [`direction3Dp`](@ref).
 """
 function chord_length(array      :: AbstractArray,
                       phase;

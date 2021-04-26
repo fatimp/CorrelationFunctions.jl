@@ -1,24 +1,39 @@
 """
-    s2(array, phase[; len = L][, directions = default_directions][, periodic = false])
-    s2(array, χ[; len = L][,directions = default_directions][, periodic = false])
+    s2(array, phase[; len][, directions,] periodic = false)
+    s2(array, SeparableIndicator(χ₁, χ₂)[; len][,directions,] periodic = false)
+    s2(array, InseparableIndicator(χ)[; len][,directions,] periodic = false)
 
-Calculate S2 correlation function for one-, two- or three-dimensional
-array `array`. `S2(x)` equals to probability that corner elements of a
-line segment with the length `x` cut from the array belong to the same
-phase `phase`. This implementation calculates S2 for all `x`es in the
-range from `1` to `len` which defaults to half of the minimal
-dimenstion of the array.
+Calculate `S₂` (two point) correlation function for one-, two- or
+three-dimensional multiphase system.
 
-For a list of possible directions in which line segments are cut, see
-documentation to `direction1Dp`, `direction2Dp` or `direction3Dp` for
-1D, 2D and 3D arrays respectively.
+`S₂(x)` equals to probability that corner elements of a line segment
+with the length `x` cut from the array belong to the same phase. This
+implementation calculates `S₂(x)` for all `x`es in the range from `1`
+to `len` which defaults to half of the minimal dimenstion of the
+array.
 
 More generally, you can provide indicator function `χ` instead of
-`phase`. In this case S2 function calculates probability of `χ(x, y)`
-returing `true` where `x` and `y` are two corners of a line
+`phase`. In this case `S₂` function calculates probability of `χ(x,
+y)` returing `true` where `x` and `y` are two corners of a line
 segment. Indicator functions must be wrapped in either
 `SeparableIndicator` or `InseparableIndicator`. Some computations for
 separable indicator functions are optimized.
+
+# Examples
+```jldoctest
+julia> s2([1,1,1,0,1,1], 1; len = 6)[:x]
+6-element Array{Float64,1}:
+ 0.8333333333333334
+ 0.6
+ 0.5
+ 0.6666666666666666
+ 1.0
+ 1.0
+```
+
+See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
+[`direction3Dp`](@ref), [`SeparableIndicator`](@ref),
+[`InseparableIndicator`](@ref).
 """
 function s2 end
 
