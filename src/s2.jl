@@ -23,11 +23,12 @@ separable indicator functions are optimized.
 function s2 end
 
 # Nonperiodic case with χ(x,y) = χ(x)χ(y)
-function s2_sep_np(array      :: AbstractArray,
+function s2_sep_np(array      :: AbstractArray{T},
                    len        :: Integer,
                    indicator  :: SeparableIndicator,
-                   directions :: Vector{Symbol})
-    cd = CorrelationData(len, directions, ndims(array))
+                   directions :: Vector{Symbol}) where T <: Number
+    acc_type = promote_accumulator_type(T)
+    cd = CorrelationData{acc_type}(len, directions, ndims(array))
     χ = indicator_function(indicator)
 
     for direction in directions
@@ -65,12 +66,13 @@ function s2_sep_np(array      :: AbstractArray,
 end
 
 # Case with periodic boundary conditions or inseparable χ(x,y)
-function s2_generic(array      :: AbstractArray,
+function s2_generic(array      :: AbstractArray{T},
                     len        :: Integer,
                     indicator  :: AbstractIndicator,
                     directions :: Vector{Symbol},
-                    periodic   :: Bool)
-    cd = CorrelationData(len, directions, ndims(array))
+                    periodic   :: Bool) where T <: Number
+    acc_type = promote_accumulator_type(T)
+    cd = CorrelationData{acc_type}(len, directions, ndims(array))
     χ = indicator_function(InseparableIndicator(indicator))
 
     for direction in directions

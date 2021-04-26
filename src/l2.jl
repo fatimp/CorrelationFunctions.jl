@@ -4,14 +4,14 @@
 Add a sequence which start with the first element `runs` and decreases
 by one to the first `n` elements of the vector `array`.
 """
-function update_runs!(array :: AbstractVector{Int}, runs, n)
+function update_runs!(array :: AbstractVector{T}, runs, n) where T <: Number
     array[1:n] .+= take(countfrom(runs, -1), n)
 end
 
-function update_runs_periodic!(array :: AbstractVector{Int},
+function update_runs_periodic!(array :: AbstractVector{T},
                                left  :: Integer,
                                right :: Integer,
-                               len   :: Integer)
+                               len   :: Integer) where T <: Number
     sum = left + right
     nupdate = min(len, sum)
     f(n) = min(n - 1, left, right, sum - (n - 1))
@@ -59,7 +59,7 @@ function l2(array      :: AbstractArray,
             len        :: Integer = (array |> size |> minimum) ÷ 2,
             directions :: Vector{Symbol} = array |> ndims |> default_directions,
             periodic   :: Bool = false)
-    cd = CorrelationData(len, directions, ndims(array))
+    cd = CorrelationData{Int}(len, directions, ndims(array))
 
     for direction in directions
         slicer = slice_generators(array, Val(direction))

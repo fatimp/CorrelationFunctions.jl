@@ -4,19 +4,19 @@ Structure returned by correlation functions (`l2`, `s2` and `c2`).
 This structure holds correlation data computated along specified
 directions. To access those data use the `mean` function.
 """
-struct CorrelationData
+struct CorrelationData{T}
     directions :: Vector{Symbol}
-    success    :: Dict{Symbol, Vector{Int}}
-    total      :: Dict{Symbol, Vector{Int}}
+    success    :: Dict{Symbol, Vector{T}}
+    total      :: Dict{Symbol, Vector{T}}
 end
 
-function CorrelationData(len        :: Integer,
-                         directions :: Vector{Symbol},
-                         ndims      :: Integer)
+function CorrelationData{T}(len          :: Integer,
+                            directions   :: Vector{Symbol},
+                            ndims        :: Integer) where T
     directions = check_directions(directions, ndims)
-    success = Dict(map(x -> x => zeros(Int, len), directions))
-    total   = Dict(map(x -> x => zeros(Int, len), directions))
-    return CorrelationData(directions, success, total)
+    success = Dict(map(x -> x => zeros(T, len), directions))
+    total   = Dict(map(x -> x => zeros(T, len), directions))
+    return CorrelationData{T}(directions, success, total)
 end
 
 function Base.getindex(x :: CorrelationData, i)
@@ -73,3 +73,5 @@ end
 function mean(data :: CorrelationData)
     return mean(data, data.directions)
 end
+
+promote_accumulator_type(T :: Type) = (T <: Integer) ? Int : Float64
