@@ -37,19 +37,13 @@ function chord_length(array      :: AbstractArray,
     # List of chord lengths
     lengths = SLinkedList{Int}()
 
+    # Poor man's edge detection
+    dist = ph |> feature_transform |> distance_transform
+    edge = edge_phase * map(x -> x == 1.0, dist)
+
+    # Combine the edge with the original picture
+    combo = min.(edge + array, edge_phase)
     for direction in directions
-        # Edge detection along direction (like directional derivative)
-        param = radius .* unit_vector(direction, ndims(array)) # Radii for Gauss filter
-        blur = imfilter(ph, Kernel.gaussian(param))
-        edge = abs.(blur - ph)
-
-        # Apply threshold to the edge
-        q = quantile(filter(x -> x != 0, edge), threshold)
-        edge = map(x -> x > q ? edge_phase : 0, edge)
-
-        # Combine the edge with the original picture
-        combo = min.(edge + array, edge_phase)
-
         slicer = slice_generators(combo, Val(direction))
         for slice in slicer
             len = 0
