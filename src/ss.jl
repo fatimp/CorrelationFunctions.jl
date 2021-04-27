@@ -60,7 +60,7 @@ function surfvoid(array      :: AbstractArray,
     χ1(x) = x == 1.0
     χ2(x) = x >= 1.0
     return CorrelationFunctions.s2(dist, CorrelationFunctions.SeparableIndicator(χ1, χ2);
-           len        = len,
-           directions = directions,
-           periodic   = periodic)
+                                   len        = len,
+                                   directions = directions,
+                                   periodic   = periodic)
 end
