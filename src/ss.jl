@@ -53,7 +53,7 @@ For a list of possible dimensions, see also: [`direction1Dp`](@ref),
 function surfvoid(array      :: AbstractArray,
                   phase;
                   len        :: Integer = (array |> size |> minimum) ÷ 2,
-                  directions :: Vector{Symbol} = [:x, :y],
+                  directions :: Vector{Symbol} = array |> ndims |> default_directions,
                   periodic   :: Bool = false)
     indicator_field = map(x -> x != phase, array)
     dist = indicator_field |> feature_transform |> distance_transform
