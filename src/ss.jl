@@ -33,7 +33,7 @@ function surfsurf(array      :: AbstractArray,
 end
 
 """
-    surfvoid(array, phase[; len,][directions,] periodic = false)
+    surfvoid(array, phase[; len,][directions])
 
 Calculate `Fsv(x)` (surface-void) correlation function for one-, two-
 or three-dimensional multiphase system.
@@ -47,8 +47,6 @@ dimension of the array.
 
 For a list of possible dimensions, see also: [`direction1Dp`](@ref),
 [`direction2Dp`](@ref), [`direction3Dp`](@ref).
-
-**NB**: this function is considered experimental.
 """
 function surfvoid(array      :: AbstractArray,
                   phase;
