@@ -37,12 +37,12 @@ See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
 """
 function s2 end
 
-# Nonperiodic case with χ(x,y) = χ(x)χ(y)
-function s2_sep_np(array      :: AbstractArray{T},
+# Nonperiodic case with separable indicator
+function s2_sep_np(array      :: AbstractArray,
                    len        :: Integer,
                    indicator  :: SeparableIndicator,
-                   directions :: Vector{Symbol}) where T <: Number
-    acc_type = promote_accumulator_type(T)
+                   directions :: Vector{Symbol})
+    acc_type = accumulator_type(array)
     cd = CorrelationData{acc_type}(len, directions, ndims(array))
     χ1, χ2 = indicator_function(indicator)
 
@@ -88,12 +88,12 @@ function s2_sep_np(array      :: AbstractArray{T},
 end
 
 # Case with periodic boundary conditions or inseparable χ(x,y)
-function s2_generic(array      :: AbstractArray{T},
+function s2_generic(array      :: AbstractArray,
                     len        :: Integer,
                     indicator  :: AbstractIndicator,
                     directions :: Vector{Symbol},
-                    periodic   :: Bool) where T <: Number
-    acc_type = promote_accumulator_type(T)
+                    periodic   :: Bool)
+    acc_type = accumulator_type(array)
     cd = CorrelationData{acc_type}(len, directions, ndims(array))
     χ = indicator_function(InseparableIndicator(indicator))
 
@@ -126,11 +126,11 @@ function s2_generic(array      :: AbstractArray{T},
     return cd
 end
 
-function s2(array      :: AbstractArray{T},
+function s2(array      :: AbstractArray,
             indicator  :: AbstractIndicator;
             len        :: Integer = (array |> size |> minimum) ÷ 2,
             directions :: Vector{Symbol} = array |> ndims |> default_directions,
-            periodic   :: Bool = false) where T
+            periodic   :: Bool = false)
     # For short arrays generic version is faster
     if isa(indicator, SeparableIndicator) && !periodic
         cd = s2_sep_np(array, len, indicator, directions)
