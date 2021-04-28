@@ -46,9 +46,6 @@ function s2_sep_np(array      :: AbstractArray,
     cd = CorrelationData{acc_type}(len, directions, ndims(array))
     χ1, χ2 = indicator_function(indicator)
 
-    # Check is χ1 = χ2 in mathematical sense
-    indicators_equal = χ1 == χ2 || χ1.(array) == χ2.(array)
-
     for direction in directions
         slicer = slice_generators(array, Val(direction))
 
@@ -74,11 +71,9 @@ function s2_sep_np(array      :: AbstractArray,
             c = xcorr(f1, f2; padmode = :none)
 
             # Update correlation data
+            # We do not take the first half of c even if f1 ≠ f2. For
+            # the reason of this, see @doc SeparableIndicator.
             cd.success[direction][1:shifts] .+= c[slen:slen + shifts - 1]
-            if !indicators_equal
-                cd.success[direction][2:shifts] .+= c[slen - 1:-1:slen - shifts + 1]
-            end
-
             # Calculate total number of slices with lengths from 1 to len
             update_runs!(cd.total[direction], slen, shifts)
         end
