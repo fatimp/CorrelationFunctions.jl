@@ -8,7 +8,8 @@ abstract type AbstractIndicator end
     SeparableIndicator(χ₁, χ₂)
 
 Type for separable indicator function, that is for such an indicator
-function which can be written as $χ(x,y) = χ₁(x)χ₂(y)χ₁(y)χ₂(x)$.
+function which can be written as $\chi(x,y) = \max(\Chi(x, y), \Chi(y,
+x))$, where $\Chi(x, y) = \chi_1(x)\chi_2(y)$.
 
 `χ1` and `χ2` must be functions of one argument which return a value
 of `Bool` type.
@@ -29,9 +30,10 @@ SeparableIndicator(χ :: Function) = SeparableIndicator(χ, χ)
     InseparableIndicator(χ)
 
 Type for inseparable indicator function, that is for such an indicator
-function which cannot be written as $χ(x,y) = χ₁(x)χ₂(y)χ₁(y)χ₂(x)$.
+function which cannot be written as $\chi(x,y) = \max(\Chi(x, y), \Chi(y,
+x))$, where $\Chi(x, y) = \chi_1(x)\chi_2(y)$.
 
-`χ`must be a function of two arguments which returns a value of `Bool`
+`χ` must be a function of two arguments which returns a value of `Bool`
 type.
 """
 struct InseparableIndicator <: AbstractIndicator
