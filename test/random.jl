@@ -13,7 +13,7 @@ end
 
 @testcase "Check that corr(a, len1, phase) = corr(a, len2, phase)[1:len1] for len2>len1" begin
     for phase in (0, 1)
-        for func in (s2, l2, surfsurf)
+        for func in (s2, l2, surfsurf, surfvoid)
             corr1 = mean(func(rand_array, phase; len = 30))
             corr2 = mean(func(rand_array, phase; len = 35))
             @test corr1 == corr2[1:30]

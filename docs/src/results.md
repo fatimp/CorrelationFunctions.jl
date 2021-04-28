@@ -49,6 +49,12 @@ are calculated for the corresponding cummulative distribution functions.
 |-------------------|-------|
 | ![ss](img/ss.png) | ![ss error](img/sserr.png) |
 
+## Surface-void $F_{sv}(x)$ function
+
+| Surface-void     | Error |
+|-------------------|-------|
+| ![ss](img/sv.png) | ![ss error](img/sverr.png) |
+
 ## Pore size $P(x)$ function
 
 | Pore size   | Error |
