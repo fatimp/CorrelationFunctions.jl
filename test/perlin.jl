@@ -61,49 +61,41 @@ function two_phase_noise()
     return map(x -> (x < 0.5) ? 1 : 0, noise)
 end
 
-macro testreflect(func, phase_needed :: Bool)
-    phase_arg = phase_needed ? [:phase] : []
-    test_phase = quote
-        f = mean ∘ $func
-        # Calculate correlation function on the original image
-        corr1 = f(noise, $(phase_arg...))
-        # Reflect from yOz plane and calculate correlation function
-        corr2 = f(noise[end:-1:1,:,:], $(phase_arg...))
-        # Reflect from xOz plane and calculate correlation function
-        corr3 = f(noise[:,end:-1:1,:], $(phase_arg...))
-        # Reflect from xOy plane and calculate correlation function
-        corr4 = f(noise[:,:,end:-1:1], $(phase_arg...))
-        @test corr1 ≈ corr2 ≈ corr3 ≈ corr4
-    end
-
-    test_body = test_phase
-    if phase_needed
-        # Run test_phase for two phases
-        test_body = quote
+macro testreflect(func)
+    quote
+        @testset $("$func invariance under mirror transforms") begin
+            noise = two_phase_noise()
             for phase in 0:1
-                $test_phase
+                f = mean ∘ $func
+                # Calculate correlation function on the original image
+                corr1 = f(noise, phase)
+                # Reflect from yOz plane and calculate correlation function
+                corr2 = f(noise[end:-1:1,:,:], phase)
+                # Reflect from xOz plane and calculate correlation function
+                corr3 = f(noise[:,end:-1:1,:], phase)
+                # Reflect from xOy plane and calculate correlation function
+                corr4 = f(noise[:,:,end:-1:1], phase)
+                @test corr1 ≈ corr2 ≈ corr3 ≈ corr4
             end
         end
     end
-
-    test = quote
-        @testset $("$func invariance under mirror transforms") begin
-            noise = two_phase_noise()
-            $test_body
-        end
-    end
-
-    return test
 end
 
-@testreflect(s2,       true)
-@testreflect(l2,       true)
-@testreflect(c2,       false)
-@testreflect(surfsurf, true)
+@testreflect s2
+@testreflect l2
+@testreflect c2
+@testreflect surfsurf
 # TODO: somehow test histograms returned by pore_size and chord_length
 
-@testset "Check surfsurf⁰(a) = surfsurf¹(a) for two phase media" begin
-    noise = two_phase_noise()
-    @test mean(surfsurf(noise, 0; len = 50)) ≈
-          mean(surfsurf(noise, 1; len = 50))
+macro testsurface(func)
+    quote
+        @testset $("Check $(func)⁰(a) = $(func)¹(a) for two phase media") begin
+            noise = two_phase_noise()
+            @test mean($func(noise, 0; len = 50)) ≈
+                  mean($func(noise, 1; len = 50))
+        end
+    end
 end
+
+@testsurface surfsurf
+@testsurface surfvoid

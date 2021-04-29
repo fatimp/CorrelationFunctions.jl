@@ -34,7 +34,7 @@ end
 # C2 behaves exactly as L2 with segmentation algorithm chosen which
 # does not join segments in diagonal directions.
 @testset "C2" begin
-    c = (mean∘c2)(cb)
+    c = (mean∘c2)(cb, 1)
     @test c[1] ≈ 1/2
     # Would be 1/4 exactly on infinite checkboard
     @test isapprox(c[2], 1/4; atol = 10^-2)
