@@ -48,12 +48,3 @@ end
 
 indicator_function(x :: InseparableIndicator) = x.χ
 indicator_function(x :: SeparableIndicator)   = x.χ1, x.χ2
-
-# Construct "pseudo-inseparable" indicator from a separable one
-function InseparableIndicator(indicator :: SeparableIndicator)
-    χ1, χ2 = indicator_function(indicator)
-    return InseparableIndicator((x, y) -> χ1(x) && χ2(y))
-end
-
-# Identity
-InseparableIndicator(indicator :: InseparableIndicator) = indicator

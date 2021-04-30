@@ -73,6 +73,3 @@ end
 function mean(data :: CorrelationData)
     return mean(data, data.directions)
 end
-
-accumulator_type(:: AbstractArray{<: Integer}) = Int
-accumulator_type(:: AbstractArray) = Float64

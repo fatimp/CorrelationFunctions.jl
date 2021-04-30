@@ -26,7 +26,7 @@ cb = gen_checkboard(60)
         l = (mean∘l2)(cb, phase)
         @test l[1] ≈ 1/2
         # Would be 1/4 exactly on infinite checkboard
-        @test isapprox(l[2], 1/4; atol = 10^-2)
+        @test isapprox(l[2], 1/4; atol = 1e-2)
         @test all(x -> x == 0, l[3:end])
     end
 end
@@ -45,7 +45,7 @@ end
     for phase in 0:1
         s = mean(s2(cb, phase; periodic = true))
         @test all(x -> x ≈ 1/4, s[2:2:end])
-        @test all(x -> x == 0,  s[3:4:end])
+        @test all(x -> isapprox(x, 0; atol = 1e-2), s[3:4:end])
         @test all(x -> x ≈ 1/2, s[1:4:end])
     end
 end

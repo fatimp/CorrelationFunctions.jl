@@ -1,5 +1,5 @@
 """
-    surfsurf(array, phase[; len,][directions])
+    surfsurf(array, phase[; len,][directions,] periodic = false)
 
 Calculate `Fss(x)` (surface-surface) correlation function for one-,
 two- or three-dimensional multiphase system. 
@@ -17,6 +17,7 @@ function surfsurf(array      :: AbstractArray,
                   phase;
                   len        :: Integer = (array |> size |> minimum) ÷ 2,
                   directions :: Vector{Symbol} = array |> ndims |> default_directions,
+                  periodic   :: Bool = false,
                   radius     :: AbstractFloat = 0.25)
     indicator_field = map(x -> x == phase, array)
     param = Tuple(fill(radius, ndims(array)))
@@ -29,11 +30,12 @@ function surfsurf(array      :: AbstractArray,
 
     return s2(gradnorm, SeparableIndicator(identity);
               len        = len,
-              directions = directions)
+              directions = directions,
+              periodic   = periodic)
 end
 
 """
-    surfvoid(array, phase[; len,][directions])
+    surfvoid(array, phase[; len,][directions,] periodic = false)
 
 Calculate `Fsv(x)` (surface-void) correlation function for one-, two-
 or three-dimensional multiphase system.
@@ -52,6 +54,7 @@ function surfvoid(array      :: AbstractArray,
                   phase;
                   len        :: Integer = (array |> size |> minimum) ÷ 2,
                   directions :: Vector{Symbol} = array |> ndims |> default_directions,
+                  periodic   :: Bool = false,
                   radius     :: AbstractFloat = 0.25)
     indicator_field = map(x -> x == phase, array)
     param = Tuple(fill(radius, ndims(array)))
@@ -64,8 +67,8 @@ function surfvoid(array      :: AbstractArray,
 
     χ1(x) = array[x] == 0
     χ2(x) = gradnorm[x]
-    return CorrelationFunctions.s2(CartesianIndices(array),
-                                   CorrelationFunctions.SeparableIndicator(χ1, χ2);
-                                   len        = len,
-                                   directions = directions)
+    return s2(CartesianIndices(array), SeparableIndicator(χ1, χ2);
+              len        = len,
+              directions = directions,
+              periodic   = periodic)
 end

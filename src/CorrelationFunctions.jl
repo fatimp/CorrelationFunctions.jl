@@ -1,5 +1,5 @@
 module CorrelationFunctions
-using StatsBase: quantile, fit, Histogram
+using StatsBase: fit, Histogram
 using LinearAlgebra: normalize
 using Images: Kernel, imfilter, imgradients, feature_transform, distance_transform
 using ImageSegmentation: label_components
@@ -8,6 +8,7 @@ using PrettyTables: pretty_table
 using Base.Iterators
 using IterTools
 using DSP: xcorr
+using FFTW: fft, ifft
 using LinkedLists: SLinkedList
 
 include("directions.jl")
