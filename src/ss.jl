@@ -17,16 +17,12 @@ function surfsurf(array      :: AbstractArray,
                   phase;
                   len        :: Integer = (array |> size |> minimum) ÷ 2,
                   directions :: Vector{Symbol} = array |> ndims |> default_directions,
-                  periodic   :: Bool = false,
-                  radius     :: AbstractFloat = 0.25)
-    indicator_field = map(x -> x == phase, array)
-    param = Tuple(fill(radius, ndims(array)))
-    # Blur a bit to avoid discontinuities
-    blur = imfilter(indicator_field, Kernel.gaussian(param))
+                  periodic   :: Bool = false)
+    ph = map(x -> x == phase, array)
 
     # Extract gradient norm
     norm(x) = sqrt.(sum(map(x -> x.^2, x)))
-    gradnorm = norm(imgradients(blur, Kernel.scharr))
+    gradnorm = norm(imgradients(ph, Kernel.scharr))
 
     return s2(gradnorm, SeparableIndicator(identity);
               len        = len,
@@ -54,16 +50,12 @@ function surfvoid(array      :: AbstractArray,
                   phase;
                   len        :: Integer = (array |> size |> minimum) ÷ 2,
                   directions :: Vector{Symbol} = array |> ndims |> default_directions,
-                  periodic   :: Bool = false,
-                  radius     :: AbstractFloat = 0.25)
-    indicator_field = map(x -> x == phase, array)
-    param = Tuple(fill(radius, ndims(array)))
-    # Blur a bit to avoid discontinuities
-    blur = imfilter(indicator_field, Kernel.gaussian(param))
+                  periodic   :: Bool = false)
+    ph = map(x -> x == phase, array)
 
     # Extract gradient norm
     norm(x) = sqrt.(sum(map(x -> x.^2, x)))
-    gradnorm = norm(imgradients(blur, Kernel.scharr))
+    gradnorm = norm(imgradients(ph, Kernel.scharr))
 
     χ1(x) = array[x] == 0
     χ2(x) = gradnorm[x]

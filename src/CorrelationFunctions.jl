@@ -1,7 +1,7 @@
 module CorrelationFunctions
 using StatsBase: fit, Histogram
 using LinearAlgebra: normalize
-using Images: Kernel, imfilter, imgradients, feature_transform, distance_transform
+using Images: Kernel, imgradients, feature_transform, distance_transform
 using ImageSegmentation: label_components
 using JSON: JSON, parse
 using PrettyTables: pretty_table
