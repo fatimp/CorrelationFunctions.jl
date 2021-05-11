@@ -26,17 +26,13 @@ function read_cuboid(cfgpath :: String)
         Vector{Int64}(json["dimensions"]), json["datapath"]
     end
 
-    if length(dim) != 3
-        error("$dim has not the length 3")
-    end
-
     datapath = joinpath(dirname(cfgpath), datapath)
     s = stat(datapath)
     if s.size != prod(dim)
         error("File size mismatch. Got $(s.size), expected $(prod(dim))")
     end
 
-    data = Array{Int8,3}(undef, dim[1], dim[2], dim[3])
+    data = Array{Int8, length(dim)}(undef, dim...)
     open(datapath) do input
         read!(input, data)
     end
