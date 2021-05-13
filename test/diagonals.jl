@@ -1,3 +1,5 @@
+diagonals = Directional.diagonals
+
 @testcase "Check diagonal slicer for 2D arrays" begin
     array = Array(reshape(1:40, (5, 8)))
     #5×8 Array{Int64,2}:
@@ -6,7 +8,7 @@
     # 3   8  13  18  23  28  33  38
     # 4   9  14  19  24  29  34  39
     # 5  10  15  20  25  30  35  40
-    diag = collect(CorrelationFunctions.diagonals(array, (1, 1)))
+    diag = collect(diagonals(array, (1, 1)))
 
     # Expected diagonal slices are
     exp_diag = [[1, 7, 13, 19, 25],
@@ -23,7 +25,7 @@
                 [36]]
     @test diag == exp_diag
 
-    diag = collect(CorrelationFunctions.diagonals(array, (-1, 1)))
+    diag = collect(diagonals(array, (-1, 1)))
     # Expected diagonal slices are
     exp_diag = [[1],
                 [2, 6],
@@ -50,7 +52,7 @@
     # 6  14  22  30  38
     # 7  15  23  31  39
     # 8  16  24  32  40
-    diag = collect(CorrelationFunctions.diagonals(array, (1, 1)))
+    diag = collect(diagonals(array, (1, 1)))
     exp_diag = [[1, 10, 19, 28, 37],
                 [2, 11, 20, 29, 38],
                 [3, 12, 21, 30, 39],
@@ -65,7 +67,7 @@
                 [33]]
     @test diag == exp_diag
 
-    diag = collect(CorrelationFunctions.diagonals(array, (-1, 1)))
+    diag = collect(diagonals(array, (-1, 1)))
     exp_diag = [[1],
                 [2, 9],
                 [3, 10, 17],
@@ -92,7 +94,7 @@ end
     directions = (:diag1, :diag2, :diag3, :diag4)
 
     for (direction, ldiag) in zip(directions, ldiags)
-        diags = collect(CorrelationFunctions.diagonals(array, Val(direction)))
+        diags = collect(diagonals(array, Val(direction)))
         flatdiags = reduce(vcat, diags)
         @test length(flatdiags) == length(unique(flatdiags)) == 100^3
         @test ldiag ∈ diags
