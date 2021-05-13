@@ -22,7 +22,7 @@ function surfsurf(array      :: AbstractArray,
 
     # Extract gradient norm
     norm(x) = sqrt.(sum(map(x -> x.^2, x)))
-    gradnorm = norm(imgradients(ph, Kernel.scharr))
+    gradnorm = norm(imgradients(ph, Kernel.sobel))
 
     return s2(gradnorm, SeparableIndicator(identity);
               len        = len,
@@ -55,7 +55,7 @@ function surfvoid(array      :: AbstractArray,
 
     # Extract gradient norm
     norm(x) = sqrt.(sum(map(x -> x.^2, x)))
-    gradnorm = norm(imgradients(ph, Kernel.scharr))
+    gradnorm = norm(imgradients(ph, Kernel.sobel))
 
     χ1(x) = array[x] == 0
     χ2(x) = gradnorm[x]
