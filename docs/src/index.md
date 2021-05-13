@@ -7,19 +7,17 @@ functions can be calculated for one-, two- or three-dimensional multiphase
 systems using closed walls (CW) or periodic boundary conditions (PBC) along
 multiple directions.
 
-The documentation is divided onto the following topics:
+Correlation functions can be calculated using two slightly different ways. The
+first way is to calculate them across several predefined directions (e.g. axial
+directions of an array). Another way is to build a correlation map, in other
+words to calculate a correlation function in all possible directions in a given
+array. The first way is implemented in `CorrelationFunctions.Directional` module
+and the second is implemented in `CorrelationFunctions.Map` module.
 
-* **[Functions](@ref)** page contains the exhaustive list of correlation
-  functions supported by this package.
-* **[Accessing Data](@ref)** page describes how to access data returned by
-  correlation functions.
-* **[Boundary Conditions](@ref)** page describes boundary conditions when
-  calculations cross the boundary of a system.
-* **[Directions](@ref)** page describes directions along which the correlation
-  functions are computed.
-* **[Indicator Functions](@ref)** page describes how to construct customary
-  indicator functions.
-* **[Utilities](@ref)** page describes various miscellaneous functions and
-  helpers.
-* **[Results](@ref)** page contains comparison of correlation functions from
-  this package with some known theoretical results.
+Here is a documentation for each of those modules and some helper functions.
+
+* **[Directional Functions](@ref)**. Correlation functions across predefined
+  directions.
+* **[Correlation Maps](@ref)**. Correlation maps or correlation functions in all
+  directions.
+* **[Utilities](@ref)**. Utility functions.
