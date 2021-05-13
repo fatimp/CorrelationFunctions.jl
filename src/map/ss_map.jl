@@ -18,7 +18,7 @@ function ss(img; periodic::Bool=true)
 
     # scale factor
     n = size(img, 1)
-    total = cnt_total(img, periodic) ./ length(img) .* n^(ndims(img) - 2)
+    total = cnt_total(img, periodic) ./ length(img) .* n^(ndims(img) - 2.)
 
     p = Params_SS(
         periodic,
