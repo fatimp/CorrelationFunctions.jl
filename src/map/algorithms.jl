@@ -22,12 +22,8 @@ function cnt_total(img_size::Tuple{Vararg{Int}}, periodic::Bool)
 end
 
 
-function gradient_norm(img::Array)
-    N = ndims(img)
-    params = Tuple([true for _ in 1:N])
-    sobels = [Kernel.sobel(params, i) for i in 1:N]
-
-    dimgs = [imfilter(img, sobel) for sobel in sobels]
+function gradient_norm(img)
+    dimgs = imgradients(img, KernelFactors.sobel)
 
     map((x...) -> norm(x), dimgs...)
 end

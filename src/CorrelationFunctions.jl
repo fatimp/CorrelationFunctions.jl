@@ -38,7 +38,7 @@ using LinearAlgebra: norm
 using CUDA: CuArray, cu, @cuda
 using CUDA.CUFFT: fft!, ifft!
 using ImageSegmentation: label_components
-using Images: imfilter, Kernel
+using Images: imgradients, KernelFactors
 
 include("map/general_map.jl")
 include("map/algorithms.jl")
