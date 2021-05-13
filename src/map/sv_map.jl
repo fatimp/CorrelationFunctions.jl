@@ -18,8 +18,7 @@ function sv(img; periodic::Bool=true)
     complex_box = periodic ? box : box .* 2
 
     # scale factor
-    n = size(img, 1)
-    total = cnt_total(img, periodic) ./ length(img) .* n^(ndims(img) - 1)
+    total = cnt_total(img, periodic)
 
     p = Params_SV(
         periodic,
