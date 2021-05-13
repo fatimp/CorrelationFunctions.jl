@@ -20,9 +20,9 @@ include("directional/indicator.jl")
 include("directional/l2.jl")
 include("directional/s2.jl")
 include("directional/c2.jl")
-include("directional/ss.jl")
+include("directional/surface.jl")
 include("directional/chord-length.jl")
- # FIXME: not actually directional, but uses the same set of functions
+# FIXME: not actually directional, but uses the same set of functions
 include("directional/pore-size.jl")
 
 export l2, s2, c2,

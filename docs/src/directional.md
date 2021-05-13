@@ -156,6 +156,9 @@ averaging a theoretical function across each bin of a histogram returned by
 functions decrease to zero with increase of their arguments, the relative errors
 are calculated for the corresponding cummulative distribution functions.
 
+All functions are called with default optional arguments unless explicitly
+stated otherwise.
+
 #### Two point $S_2(x)$ function
 
 | S2  | Error |
@@ -187,6 +190,8 @@ are calculated for the corresponding cummulative distribution functions.
 | ![ss](img/2d/ps.png) | ![ss error](img/2d/pserr.png) |
 
 #### Chord length $p(x)$ function
+
+Chord length function `chord_length` was called with parameter `nbins = 30`.
 
 | Chord length   | Error |
 |----------------|-------|
@@ -232,6 +237,8 @@ with ball radius $R = 20$ and Poisson process parameter $\lambda = 3 \cdot
 | ![ss](img/3d/ps.png) | ![ss error](img/3d/pserr.png) |
 
 #### Chord length $p(x)$ function
+
+Chord length function `chord_length` was called with parameter `nbins = 30`.
 
 | Chord length   | Error |
 |----------------|-------|
