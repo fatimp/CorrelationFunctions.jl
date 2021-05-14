@@ -1,7 +1,7 @@
 macro testreflect(func)
     quote
         @testset $("$func invariance under mirror transforms") begin
-            noise = two_phase_noise()
+            noise = two_phase_noise_3d()
             for phase in 0:1
                 f = mean ∘ $func
                 # Calculate correlation function on the original image
@@ -27,7 +27,7 @@ end
 macro testsurface(func)
     quote
         @testset $("Check $(func)⁰(a) = $(func)¹(a) for two phase media") begin
-            noise = two_phase_noise()
+            noise = two_phase_noise_3d()
             @test mean($func(noise, 0; len = 50)) ≈
                   mean($func(noise, 1; len = 50))
         end
