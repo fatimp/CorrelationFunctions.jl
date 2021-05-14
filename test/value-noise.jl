@@ -18,10 +18,10 @@ macro testreflect(func)
     end
 end
 
-@testreflect s2
-@testreflect l2
-@testreflect c2
-@testreflect surfsurf
+@testreflect Directional.s2
+@testreflect Directional.l2
+@testreflect Directional.c2
+@testreflect Directional.surfsurf
 # TODO: somehow test histograms returned by pore_size and chord_length
 
 macro testsurface(func)
@@ -34,5 +34,5 @@ macro testsurface(func)
     end
 end
 
-@testsurface surfsurf
-@testsurface surfvoid
+@testsurface Directional.surfsurf
+@testsurface Directional.surfvoid

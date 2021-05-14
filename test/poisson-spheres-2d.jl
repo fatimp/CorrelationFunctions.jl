@@ -80,7 +80,7 @@ mean_chord_length(R, λ) = 1/(2λ*R)
     # Poisson parameter = λ
     S = 7000; R = 40; λ = 5e-5;
 
-    f = mean ∘ s2
+    f = mean ∘ Directional.s2
     calc = f(gendisks(S, R, λ), 0)
     theory = [s2_theory(r-1, R, λ) for r in 0:length(calc) - 1]
 
@@ -93,7 +93,7 @@ end
     # Poisson parameter = λ
     S = 7000; R = 40; λ = 5e-5; N = 700
 
-    calc = log.(mean(l2(gendisks(S, R, λ), 0; len = N)))
+    calc = log.(mean(Directional.l2(gendisks(S, R, λ), 0; len = N)))
     theory = [(log ∘ l2_theory)(r-1, R, λ) for r in 0:N - 1]
 
     err = relerr.(calc, theory)
@@ -105,7 +105,7 @@ end
     # Poisson parameter = λ
     S = 7000; R = 30; λ = 4e-4;
 
-    f = mean ∘ surfsurf
+    f = mean ∘ Directional.surfsurf
     calc = f(gendisks(S, R, λ), 0)
     theory = [ss_theory(r, R, λ) for r in 0:length(calc) - 1]
 
@@ -120,7 +120,7 @@ end
     # Poisson parameter = λ
     S = 7000; R = 30; λ = 4e-4;
 
-    f = mean ∘ surfvoid
+    f = mean ∘ Directional.surfvoid
     calc = f(gendisks(S, R, λ), 0)
     theory = [sv_theory(r, R, λ) for r in 0:length(calc) - 1]
 
@@ -153,7 +153,7 @@ end
     S = 7000; R = 60; λ = 1e-4
     disks = gendisks(S, R, λ)
 
-    calc, mc = chord_length(disks, 0; nbins = 35)
+    calc, mc = Directional.chord_length(disks, 0; nbins = 35)
     edges = calc.edges[1]
     s = step(edges)
     theory = [integrate(x -> chord_length_theory(x, R, λ), n:0.05:n+s)

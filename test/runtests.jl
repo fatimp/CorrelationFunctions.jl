@@ -1,5 +1,4 @@
-using CorrelationFunctions.Directional
-using CorrelationFunctions: pore_size
+using CorrelationFunctions
 using XUnit
 using PoissonRandom
 using Base.Iterators: zip, drop, countfrom
