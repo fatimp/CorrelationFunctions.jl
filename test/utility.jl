@@ -108,11 +108,13 @@ value_noise(x        :: Number,
                           countfrom(0)) ./ 2*(1 - 2.0^(-octaves))
 
 two_phase_noise_3d() =
-    let noise = [value_noise(x/10, y/10, z/10, 6, 1) for x in 1:50, y in 1:50, z in 1:50]
+    let noise = [value_noise(x/10, y/10, z/10, 6, rand(UInt32))
+                 for x in 1:50, y in 1:50, z in 1:50]
         noise .< 0.5
     end
 
 two_phase_noise_2d() =
-    let noise = [value_noise(x/10, y/10, 0, 6, 1) for x in 1:50, y in 1:50]
+    let noise = [value_noise(x/10, y/10, 0, 6, rand(UInt32))
+                 for x in 1:50, y in 1:50]
         noise .< 0.5
     end
