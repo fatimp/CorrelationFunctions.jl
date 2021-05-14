@@ -37,10 +37,14 @@ function Base.show(io :: IO, x :: CorrelationData)
     pretty_table(io, corr, directions)
 end
 
-function Base.merge(d1 :: CorrelationData, d2 :: CorrelationData)
-    return CorrelationData(unique(vcat(d1.directions, d2.directions)),
-                           merge(d1.success, d2.success),
-                           merge(d1.total,   d2.total))
+function Base.iterate(x :: CorrelationData, state = nothing)
+    next = state != nothing ? iterate(x.directions, state) : iterate(x.directions)
+    if next != nothing
+        direction, next = next
+        return (direction, x[direction]), next
+    else
+        return nothing
+    end
 end
 
 import StatsBase: mean
