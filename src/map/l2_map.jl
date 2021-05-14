@@ -6,11 +6,11 @@ Compute L2 over vector `img` and *add* to `result`.
 Simple and fast L2 algorithm,
 `O(n), n = length(img)`.
 
-`img` is interpreted as `Array{Bool, 1}` or `BitArray{1}`,
+`img` is interpreted as `AbstractArray` or `BitArray{1}`,
 `result` is interpreted as `Array{Int, 1}`,
 `length(result) ≥ depth`.
 """
-function base_L2!(result, img::AbstractArray{Bool}, depth)
+function base_L2!(result, img::AbstractArray, depth)
     n = length(img)
 
     len = 0
@@ -169,7 +169,7 @@ end
 
 function L2_positive_sides!(
     side_results,
-    img::AbstractArray{Bool,N},
+    img::AbstractArray{<:Integer, N},
     side_depths,
     side_align_results,
     side_align_imgs;
@@ -241,7 +241,7 @@ struct Params_L2{Total,Result,AlignImg,N}
 end
 
 
-function l2(img::AbstractArray{Bool,N};
+function l2(img::AbstractArray{<:Integer, N};
             periodic::Bool=true,
             depth::Int=img |> size |> maximum) where N
     
