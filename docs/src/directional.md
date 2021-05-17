@@ -104,6 +104,7 @@ directions and their meaning are described in the documentation for
 Directional.direction1Dp
 Directional.direction2Dp
 Directional.direction3Dp
+Directional.default_directions
 ```
 ## Indicator Functions
 

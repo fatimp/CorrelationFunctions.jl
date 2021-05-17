@@ -27,7 +27,7 @@ For a list of possible dimensions, see also: [`direction1Dp`](@ref),
 """
 function c2(array      :: AbstractArray,
             phase;
-            directions :: Vector{Symbol} = array |> ndims |> default_directions,
+            directions :: Vector{Symbol} = array |> default_directions,
             len        :: Integer = (array |> size |> minimum) ÷ 2,
             periodic   :: Bool = false)
     field = map(x -> x == phase, array)

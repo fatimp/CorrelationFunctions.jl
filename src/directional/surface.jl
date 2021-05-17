@@ -33,7 +33,7 @@ For a list of possible dimensions, see also: [`direction1Dp`](@ref),
 function surfsurf(array      :: AbstractArray,
                   phase;
                   len        :: Integer        = (array |> size  |> minimum) ÷ 2,
-                  directions :: Vector{Symbol} =  array |> ndims |> default_directions,
+                  directions :: Vector{Symbol} =  array |> default_directions,
                   periodic   :: Bool           = false,
                   edgemode   :: Symbol         = :Sobel)
     ph = map(x -> x == phase, array)
@@ -68,7 +68,7 @@ For a list of possible dimensions, see also: [`direction1Dp`](@ref),
 function surfvoid(array      :: AbstractArray,
                   phase;
                   len        :: Integer        = (array |> size  |> minimum) ÷ 2,
-                  directions :: Vector{Symbol} =  array |> ndims |> default_directions,
+                  directions :: Vector{Symbol} =  array |> default_directions,
                   periodic   :: Bool           = false,
                   edgemode   :: Symbol         = :Sobel)
     ph = map(x -> x != phase, array)

@@ -29,7 +29,7 @@ For a list of possible dimensions, see also: [`direction1Dp`](@ref),
 """
 function chord_length(array      :: AbstractArray,
                       phase;
-                      directions :: Vector{Symbol} = array |> ndims |> default_directions,
+                      directions :: Vector{Symbol} = array |> default_directions,
                       nbins      :: Integer       = 10,
                       radius     :: AbstractFloat = 0.25,
                       threshold  :: AbstractFloat = 0.3)

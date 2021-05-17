@@ -82,14 +82,14 @@ end
 @def_direction(direction3Dp, :diag4)
 
 """
-    default_directions(ndims)
+    default_directions(array)
 
 Get default direction in which correlation functions are calculated
-for array of this number of dimensions.
+for the given array.
 """
 function default_directions end
 
-default_directions(x :: Integer) = x |> Val |> default_directions
+default_directions(x :: AbstractArray) = x |> ndims |> Val |> default_directions
 default_directions(:: Val{3}) = [:x, :y, :z]
 default_directions(:: Val{2}) = [:x, :y]
 default_directions(:: Val{1}) = [:x]

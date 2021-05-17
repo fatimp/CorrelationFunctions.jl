@@ -40,7 +40,7 @@ function s2 end
 function s2(array      :: AbstractArray,
             indicator  :: SeparableIndicator;
             len        :: Integer = (array |> size |> minimum) ÷ 2,
-            directions :: Vector{Symbol} = array |> ndims |> default_directions,
+            directions :: Vector{Symbol} = array |> default_directions,
             periodic   :: Bool = false)
     cd = CorrelationData{Float64}(len, directions, ndims(array))
     χ1, χ2 = indicator_function(indicator)
@@ -97,7 +97,7 @@ end
 function s2(array      :: AbstractArray,
             indicator  :: InseparableIndicator;
             len        :: Integer = (array |> size |> minimum) ÷ 2,
-            directions :: Vector{Symbol} = array |> ndims |> default_directions,
+            directions :: Vector{Symbol} = array |> default_directions,
             periodic   :: Bool = false)
     cd = CorrelationData{Int}(len, directions, ndims(array))
     χ = indicator_function(indicator)
@@ -134,7 +134,7 @@ end
 s2(array      :: AbstractArray,
    phase;
    len        :: Integer = (array |> size |> minimum) ÷ 2,
-   directions :: Vector{Symbol} = array |> ndims |> default_directions,
+   directions :: Vector{Symbol} = array |> default_directions,
    periodic   :: Bool = false) =
        s2(array, SeparableIndicator(x -> x == phase);
           len        = len,
