@@ -47,6 +47,8 @@ function Base.iterate(x :: CorrelationData, state = nothing)
     end
 end
 
+Base.length(x :: CorrelationData) = length(x[:x])
+
 import StatsBase: mean
 """
     mean(data :: CorrelationData, directions::Vector{Symbol})
