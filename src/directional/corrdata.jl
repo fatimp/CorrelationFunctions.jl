@@ -34,7 +34,7 @@ end
 function Base.show(io :: IO, x :: CorrelationData)
     directions = x.directions
     corr = reduce(hcat, x[direction] for direction in directions)
-    pretty_table(io, corr, directions)
+    pretty_table(io, corr; header = directions)
 end
 
 function Base.iterate(x :: CorrelationData, state = nothing)
