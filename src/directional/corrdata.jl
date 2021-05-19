@@ -47,7 +47,7 @@ function Base.iterate(x :: CorrelationData, state = nothing)
     end
 end
 
-Base.length(x :: CorrelationData) = length(x[:x])
+Base.length(x :: CorrelationData) = let dir = first(x.directions); length(x[dir]) end
 
 import StatsBase: mean
 """
