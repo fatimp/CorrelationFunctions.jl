@@ -46,7 +46,7 @@ function s2(array      :: AbstractArray,
     χ1, χ2 = indicator_function(indicator)
 
     for direction in directions
-        slicer = slice_generators(array, Val(direction))
+        slicer = slice_generators(array, periodic, Val(direction))
 
         for slice in slicer
             f1 = map(χ1, slice)
@@ -103,7 +103,7 @@ function s2(array      :: AbstractArray,
     χ = indicator_function(indicator)
 
     for direction in directions
-        slicer = slice_generators(array, Val(direction))
+        slicer = slice_generators(array, periodic, Val(direction))
 
         for slice in slicer
             slen = length(slice)

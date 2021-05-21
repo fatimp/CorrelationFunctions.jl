@@ -74,7 +74,7 @@ function l2(array      :: AbstractArray,
     cd = CorrelationData{Int}(len, directions, ndims(array))
 
     for direction in directions
-        slicer = slice_generators(array, Val(direction))
+        slicer = slice_generators(array, periodic, Val(direction))
 
         for slice in slicer
             slen = length(slice)
