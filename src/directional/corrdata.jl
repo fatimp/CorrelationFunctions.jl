@@ -10,10 +10,8 @@ struct CorrelationData{T}
     total      :: Dict{Symbol, Vector{T}}
 end
 
-function CorrelationData{T}(len          :: Integer,
-                            directions   :: Vector{Symbol},
-                            ndims        :: Integer) where T
-    directions = check_directions(directions, ndims)
+function CorrelationData{T}(len        :: Integer,
+                            directions :: Vector{Symbol}) where T
     success = Dict(map(x -> x => zeros(T, len), directions))
     total   = Dict(map(x -> x => zeros(T, len), directions))
     return CorrelationData{T}(directions, success, total)

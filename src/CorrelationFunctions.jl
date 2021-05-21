@@ -12,6 +12,7 @@ using IterTools: imap
 using DSP: xcorr
 using LinkedLists: SLinkedList
 using FFTW: fft, ifft
+using CircularArrays: CircularArray
 
 include("directional/directions.jl")
 include("directional/corrdata.jl")

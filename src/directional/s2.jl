@@ -42,7 +42,7 @@ function s2(array      :: AbstractArray,
             len        :: Integer = (array |> size |> minimum) ÷ 2,
             directions :: Vector{Symbol} = array |> default_directions,
             periodic   :: Bool = false)
-    cd = CorrelationData{Float64}(len, directions, ndims(array))
+    cd = CorrelationData{Float64}(len, check_directions(directions, size(array), periodic))
     χ1, χ2 = indicator_function(indicator)
 
     for direction in directions
@@ -99,7 +99,7 @@ function s2(array      :: AbstractArray,
             len        :: Integer = (array |> size |> minimum) ÷ 2,
             directions :: Vector{Symbol} = array |> default_directions,
             periodic   :: Bool = false)
-    cd = CorrelationData{Int}(len, directions, ndims(array))
+    cd = CorrelationData{Int}(len, check_directions(directions, size(array), periodic))
     χ = indicator_function(indicator)
 
     for direction in directions

@@ -1,5 +1,5 @@
 # Random array with two phases
-rand_array = rand(Float32, (50, 51, 52))
+rand_array = rand(Float32, (50, 50, 50))
 rand_array = map(x -> (x<0.3) ? 0 : 1, rand_array)
 
 @testcase "Check s²(a, x) = l²(a, x) = 0 for all x where a is an array without phase 2." begin
