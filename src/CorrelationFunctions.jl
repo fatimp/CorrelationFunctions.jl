@@ -8,7 +8,7 @@ using Images: Kernel, imgradients, feature_transform, distance_transform
 using ImageSegmentation: label_components
 using PrettyTables: pretty_table
 using Base.Iterators
-using IterTools
+using IterTools: imap
 using DSP: xcorr
 using LinkedLists: SLinkedList
 using FFTW: fft, ifft

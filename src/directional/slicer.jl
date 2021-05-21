@@ -6,7 +6,7 @@ Return a slice from an array calculating indices iterating over
 """
 function slice(array :: AbstractArray, iterators...)
     indices = zip(iterators...)
-    stop_iter = Iterators.takewhile(pair -> checkbounds(Bool, array, pair...), indices)
+    stop_iter = takewhile(pair -> checkbounds(Bool, array, pair...), indices)
     return @inbounds [array[indices...] for indices in stop_iter]
 end
 
