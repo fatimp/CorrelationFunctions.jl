@@ -108,12 +108,20 @@ direction_predicate(:: Val{1}) = direction1Dp
 direction_predicate(:: Any) = error("Wrong number of dimensions")
 
 function check_directions(directions :: Vector{Symbol},
-                          ndims      :: Integer)
+                          shape      :: Tuple,
+                          periodic   :: Bool)
+    ndims = length(shape)
     predicate = direction_predicate(ndims)
     directions = unique(directions)
 
     if !all(predicate, directions)
         error("Unknown directions found.")
+    end
+
+    cubic = all(x -> x == shape[1], shape)
+    axial = all(x -> x ∈ [:x, :y, :z], directions)
+    if periodic && !axial && !cubic
+        error("Periodic diagonals for non-cubic arrays are not supported")
     end
 
     return directions

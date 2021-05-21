@@ -25,14 +25,12 @@ function testmap_2d(func, mapfunc)
     @testset "$func 2D map" begin
         testset = two_phase_noise_2d()
         for p in (false, true)
-            # TODO: Fix periodic diagonals
-            directions = p ? [:x, :y] : [:x, :y, :xy_main, :xy_anti]
+            directions = [:x, :y, :xy_main, :xy_anti]
             directional = func(testset, 1; len = 50, periodic = p, directions = directions)
             cmap = mapfunc(testset, p)
 
             for (direction, data) in directional
-                # ! FIXME l2 on diagonals are broken
-                if func == Directional.l2 && direction ∈ [:xy_main, :xy_anti] 
+                if func == Directional.l2 && direction ∈ [:xy_main, :xy_anti] && !p
                     @test_broken cut_direction(cmap, direction) ≈ data
                 else
                     @test cut_direction(cmap, direction) ≈ data

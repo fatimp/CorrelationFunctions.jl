@@ -49,7 +49,7 @@ function chord_length(array      :: AbstractArray,
     # Combine the edge with the original picture
     combo = min.(edge + array, edge_phase)
     for direction in directions
-        slicer = slice_generators(combo, Val(direction))
+        slicer = slice_generators(combo, false, Val(direction))
         for slice in slicer
             len = 0
             startonedge = false
