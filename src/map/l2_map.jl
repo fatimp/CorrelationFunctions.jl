@@ -1,45 +1,18 @@
 """
-    base_L2!(result, img, depth=length(img))
+    base_L2!(result, img, depth=length(result))
 
-Compute L2 over vector `img` and *add* to `result`.
+Compute L2 over vector `img` and *add* it to `result`.
 
 Simple and fast L2 algorithm,
 `O(n), n = length(img)`.
 
-`img` is interpreted as `AbstractArray` or `BitArray{1}`,
-`result` is interpreted as `Array{Int, 1}`,
-`length(result) ≥ depth`.
+Meaningfull values for elements of `img`:
+* -1 -- not a part of the image
+* 0 -- void
+* 1 -- solid, inside original boundaries
+* 2 -- solid, outside original boundaries
 """
-function base_L2!(result, img::AbstractArray, depth)
-    n = length(img)
-
-    len = 0
-    for (i, x) in enumerate(img)
-        if x
-            len += 1
-        end
-
-        if !x || i == n
-            for r in 1:min(depth, len)
-                result[r] += len - r + 1
-            end
-            len = 0
-        end
-    end
-    return
-end
-
-
-"""
-    base_L2!(result, img::AbstractArray{<:Integer}, depth)
-
-when applied to Integers, interprets elements of img as periodic:
-* -1 not a part of img
-* 0 zero-phase
-* 1 phase in img boundaries
-* 2 phase outside boundaries
-"""
-function base_L2!(result, img::AbstractArray{<:Signed}, depth)
+function base_L2!(result, img, depth=length(result))
     len = 0
     len_in_original = 0
     
@@ -63,14 +36,14 @@ end
 
 
 """
-    x_L2!(result::AbstractArray, img, depth)
+    x_L2!(result, img, depth)
 
 Compute L2 over first dim of `img` and *add* it to `result`.
 
 Simple and fast single-CPU algorithm: `O(N)`,  
 where `N = length(img)`.
 """
-function x_L2!(result::AbstractArray, img, depth)
+function x_L2!(result, img, depth)
     result .= 0
 
     indxs = CartesianIndices(size_slice(img, 1))
@@ -90,13 +63,12 @@ Compute L2 over first dim of `img` and *add* it to `result`
 using CUDA.
 """
 function x_L2_CUDA!(result, img, depth)
-    nx = size(img, 1)
     indxs = CartesianIndices(size_slice(img, 1))
     nindxs = length(indxs)
     
     cu_index = (blockIdx().x - 1) * blockDim().x + threadIdx().x
     cu_stride = blockDim().x * gridDim().x
-    
+
     for i in cu_index:cu_stride:nindxs
         indx = indxs[i]
         vres = view(result, :, indx)
@@ -110,18 +82,24 @@ end
 """
 when applied to CuArrays, performs computations on GPU
 """
-function x_L2!(result::CuArray, img, depth)
+function x_L2!(result::CuArray, img::CuArray, depth)
     result .= 0
 
     NTHREADS = 256
-    N = *(size_slice(img, 1)...)
-    NBLOCKS = ceil(Int, N)
+    N = reduce(*, size_slice(img, 1); init=1)
+    
+    NBLOCKS = div(N - 1, NTHREADS) + 1
     @cuda threads = NTHREADS blocks = NBLOCKS x_L2_CUDA!(result, img, depth)
 end
 
 
+"""
+    align!(aimg, img, side, ray; periodic=true)
+
+"""
 function align!(aimg, img, side, ray; periodic=true)
-    n = size(img, side)
+# TODO well documented align
+n = size(img, side)
     for i in 1:n
         aslice = selectdim(aimg, 1, i)
         slice = selectdim(img, side, i)
@@ -136,10 +114,26 @@ function align!(aimg, img, side, ray; periodic=true)
             circshift!(aslice2, slice, .-k)
             aslice2 .*= 2
         else
-            ix = CartesianIndices(slice) .+ CartesianIndex(j)
+            ix = CartesianIndex(size(slice)) .+ CartesianIndices(slice) .- CartesianIndex(j)
             aslice .= -1
             aslice[ix] .= slice
         end
+    end
+    aimg
+end
+
+"""
+    align!(aimg, img, side, ray; periodic=true)
+
+Simple align for 1D
+"""
+function align!(aimg::AbstractVector, img::AbstractVector, side, ray; periodic=true)
+    if periodic
+        n = length(img)
+        aimg[1:n] .= img
+        aimg[n + 1:end] .= 2 .* img
+    else
+        aimg .= img
     end
     aimg
 end
@@ -169,7 +163,7 @@ end
 
 function L2_positive_sides!(
     side_results,
-    img::AbstractArray{<:Integer, N},
+    img::AbstractArray{<:Integer,N},
     side_depths,
     side_align_results,
     side_align_imgs;
@@ -233,7 +227,7 @@ struct Params_L2{Total,Result,AlignImg,N}
     # algorithm-specific
 
     side_results::Vector{Result}
-    side_depths::Tuple{Vararg{Int, N}}
+    side_depths::Tuple{Vararg{Int,N}}
     side_align_imgs::Vector{AlignImg}
     side_align_results::Vector{Result}
     original_ixs::Vector{Vector{CartesianIndex{N}}}
@@ -241,7 +235,7 @@ struct Params_L2{Total,Result,AlignImg,N}
 end
 
 
-function l2(img::AbstractArray{<:Integer, N};
+function l2(img::AbstractArray{<:Integer,N};
             periodic::Bool=true,
             depth::Int=img |> size |> maximum) where N
     

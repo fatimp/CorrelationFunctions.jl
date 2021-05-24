@@ -1,5 +1,5 @@
-label(img :: AbstractArray) = label_components(img)
-label(img :: CuArray)       = cu(label_components(Array(img)))
+label(img::AbstractArray) = label_components(img)
+label(img::CuArray)       = cu(label_components(Array(img)))
 
 
 struct Params_C2{LabelImage,ComplexArray,Total}

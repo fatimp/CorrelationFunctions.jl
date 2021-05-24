@@ -93,6 +93,13 @@ function corr_function_map!(
 end
 
 
+"""
+    corr_function_map(img, CF_constructor; parameters...)
+
+Compute correlation function map in all meaningfull directions.
+
+CF_constructor ∈ {Map.s2, Map.l2, Map.c2, Map.ss, Map.sv}
+"""
 function corr_function_map(
     img::AbstractArray{T,N}, 
     CF_constructor; 

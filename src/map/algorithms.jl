@@ -54,7 +54,8 @@ end
     self_correlation!(f)
 
 Compute self correlation using FFT for xᵢ ≥ 0
-and periodic boundary conditions
+and periodic boundary conditions.
+Store result in `f`.
 """
 function self_correlation!(f)
     fft!(f)
@@ -71,7 +72,7 @@ function size_slice(img::AbstractArray{T, 3}, dim::Int) where T
     elseif dim == 3
         size(img)[1:2]
     else
-        error("dim not in {1, 2, 3}")
+        error("dim is not in {1, 2, 3}")
     end
 end
 
@@ -82,6 +83,15 @@ function size_slice(img::AbstractArray{T, 2}, dim::Int) where T
     elseif dim == 2
         (size(img, 1),)
     else
-        error("dim not in {1, 2}")
+        error("dim is not in {1, 2}")
+    end
+end
+
+
+function size_slice(img::AbstractVector, dim::Int)
+    if dim == 1
+        ()
+    else
+        error("dim is not 1")
     end
 end
