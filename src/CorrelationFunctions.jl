@@ -37,7 +37,7 @@ end # Directional
 
 module Map
 using LinearAlgebra: norm
-using CUDA: CuArray, cu, @cuda
+using CUDA: CuArray, cu, @cuda, blockIdx, blockDim, threadIdx, gridDim
 using CUDA.CUFFT: fft!, ifft!
 using ImageSegmentation: label_components
 using Images: imgradients, KernelFactors
