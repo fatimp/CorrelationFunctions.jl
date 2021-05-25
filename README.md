@@ -4,8 +4,12 @@
 `CorrelationFunctions.jl` is a library of correlation functions as described in
 Salvatore Torquato's book "Random Heterogeneous Materials".
 
-To build a documentation do `cd docs && julia
-make.jl`. Also the documentation is available on 
+To build a documentation do the following.
+
+1. From Julia REPL: `import Pkg; Pkg.add("Documenter")`
+2. From shell, this directory being the working directory: `cd docs && julia make.jl`
+
+Also the documentation for the most recent release is available on
 [GitHub Pages](https://shamazmazum.github.io/CorrelationFunctions.jl/dev/).
 
 ## Acknowledgements
