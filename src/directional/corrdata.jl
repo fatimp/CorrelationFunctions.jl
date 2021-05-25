@@ -77,3 +77,18 @@ end
 function mean(data :: CorrelationData)
     return mean(data, data.directions)
 end
+
+"""
+    directions(data :: CorrelationData)
+
+Return directions along which a correlation function is computed.
+
+# Examples
+```jldoctest
+julia> directions(l2(rand(0:1, (50, 10)), 1))
+2-element Vector{Symbol}:
+ :x
+ :y
+```
+"""
+directions(data :: CorrelationData) = data.directions
