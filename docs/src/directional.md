@@ -76,6 +76,11 @@ mean(a, [:x, :y])
 Calling `StatsBase.mean` without the second argument averages along all computed
 directions.
 
+Another useful function is `Directional.direction`:
+```@docs
+Directional.directions
+```
+
 ## Boundary Conditions
 
 When calculating the value of correlation functions like $S_2$ or $L_2$ it may

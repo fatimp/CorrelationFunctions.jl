@@ -1,8 +1,8 @@
 function slice(array :: AbstractArray, periodic :: Bool, iterators...)
     indices = zip(iterators...)
+    array = CircularArray(array)
 
     if periodic
-        array = CircularArray(array)
         # Since periodic diagonals work only on cubic arrays you can
         # call size(a, i) with any i to get side of a cube.
         stop_iter = take(indices, size(array, 1))
@@ -38,9 +38,9 @@ function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:diag1}
                               countfrom(x, 1),
                               countfrom(y, 1),
                               countfrom(z, 1))
-    part1 = (diagonal(1,y,z) for y in 1:w, z in 1:d)
-    part2 = (diagonal(x,1,z) for x in 2:h, z in 1:d)
-    part3 = (diagonal(x,y,1) for x in 2:h, y in 2:w)
+    part1 = (diagonal(1,y,z) for y in 1:w for z in 1:d)
+    part2 = (diagonal(x,1,z) for x in 2:h for z in 1:d)
+    part3 = (diagonal(x,y,1) for x in 2:h for y in 2:w)
     return periodic ? part1 : flatten((part1, part2, part3))
 end
 
@@ -51,9 +51,9 @@ function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:diag2}
                               countfrom(x, -1),
                               countfrom(y,  1),
                               countfrom(z,  1))
-    part1 = (diagonal(h,y,z) for y in 1:w,   z in 1:d)
-    part2 = (diagonal(x,1,z) for x in 1:h-1, z in 1:d)
-    part3 = (diagonal(x,y,1) for x in 1:h-1, y in 2:w)
+    part1 = (diagonal(h,y,z) for y in 1:w   for z in 1:d)
+    part2 = (diagonal(x,1,z) for x in 1:h-1 for z in 1:d)
+    part3 = (diagonal(x,y,1) for x in 1:h-1 for y in 2:w)
     return periodic ? part1 : flatten((part1, part2, part3))
 end
 
@@ -64,9 +64,9 @@ function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:diag3}
                               countfrom(x,  1),
                               countfrom(y, -1),
                               countfrom(z,  1))
-    part1 = (diagonal(1,y,z) for y in 1:w, z in 1:d)
-    part2 = (diagonal(x,w,z) for x in 2:h, z in 1:d)
-    part3 = (diagonal(x,y,1) for x in 2:h, y in 1:w-1)
+    part1 = (diagonal(1,y,z) for y in 1:w for z in 1:d)
+    part2 = (diagonal(x,w,z) for x in 2:h for z in 1:d)
+    part3 = (diagonal(x,y,1) for x in 2:h for y in 1:w-1)
     return periodic ? part1 : flatten((part1, part2, part3))
 end
 
@@ -77,9 +77,9 @@ function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:diag4}
                               countfrom(x,  1),
                               countfrom(y,  1),
                               countfrom(z, -1))
-    part1 = (diagonal(1,y,z) for y in 1:w, z in 1:d)
-    part2 = (diagonal(x,1,z) for x in 2:h, z in 1:d)
-    part3 = (diagonal(x,y,d) for x in 2:h, y in 2:w)
+    part1 = (diagonal(1,y,z) for y in 1:w for z in 1:d)
+    part2 = (diagonal(x,1,z) for x in 2:h for z in 1:d)
+    part3 = (diagonal(x,y,d) for x in 2:h for y in 2:w)
     return periodic ? part1 : flatten((part1, part2, part3))
 end
 

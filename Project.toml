@@ -20,7 +20,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 [compat]
 CUDA = "3.2"
 CircularArrays = "1.2"
-DSP = "0.6"
+DSP = "0.6, 0.7"
 FFTW = "1.4"
 ImageSegmentation = "1.5"
 Images = "0.24"
