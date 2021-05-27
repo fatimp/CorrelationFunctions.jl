@@ -42,6 +42,7 @@ using CUDA.CUFFT: fft!, ifft!
 using ImageSegmentation: label_components
 using Images: imgradients, KernelFactors
 
+include("map/result.jl")
 include("map/general_map.jl")
 include("map/algorithms.jl")
 include("map/iterators.jl")

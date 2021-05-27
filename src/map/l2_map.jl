@@ -261,7 +261,7 @@ function l2(img::AbstractArray{<:Integer,N};
     ray_ixs = Vector{Vector{CartesianIndex{N}}}(undef, N)
     map_ix!(original_ixs, ray_ixs, img)
     
-    asymmetric = false
+    
     p = Params_L2(
         periodic,
         cnt_total(img, periodic),
@@ -272,7 +272,8 @@ function l2(img::AbstractArray{<:Integer,N};
         original_ixs,
         ray_ixs
     )
-    p, asymmetric
+    cf_type = :central_symmetry
+    p, cf_type
 end
 
 

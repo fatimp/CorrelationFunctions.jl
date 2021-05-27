@@ -26,8 +26,8 @@ function sv(img; periodic::Bool=true)
         similar(img, ComplexF64, complex_box),
         similar(img, ComplexF64, complex_box)
     )
-    asymmetric = true
-    p, asymmetric
+    cf_type = :full
+    p, cf_type
 end
 
 

@@ -1,72 +1,39 @@
-cut_direction(x::Any, d::Symbol) = cut_direction(x, Val(d))
+cfs_map = [:s2, :l2, :c2, :ss, :sv]
+cfs_dir = [:s2, :l2, :c2, :surfsurf, :surfvoid]
+dirs = Dict(
+    1 => [:x],
+    2 => [:x, :y, :xy_main, :xy_anti],
+    3 => [:x, :y, :z]
+)
 
-cut_direction(array::AbstractMatrix, :: Val{:x}) =
-    let (x, y) = size(array); array[x ÷ 2 + 1:end, 1] end
 
-cut_direction(array::AbstractMatrix, :: Val{:y}) =
-    let (x, y) = size(array); array[x ÷ 2 + 1, :] end
+function test_cf_on_img(img, cf_map, cf_dir)
+    for periodic in [true, false]
+        cmap = Map.corr_function_map(img, cf_map; periodic)
+        cdir = cf_dir(img, true; len=size(img, 1), periodic, directions=dirs[ndims(img)])
 
-cut_direction(array::AbstractMatrix, :: Val{:xy_main}) =
-    let n = size(array, 2); [array[n + i, i] for i in 1:n] end
+        for (direction, data) in cdir
+            @test Map.dir_from_map(cmap, direction) ≈ data
+        end
+    end
+end
 
-cut_direction(array::AbstractMatrix, :: Val{:xy_anti}) =
-    let n = size(array, 2); [array[n - i + 1, i] for i in 1:n] end
 
-cut_direction(array::AbstractArray{<:Any,3}, :: Val{:x}) =
-    let (x, y, z) = size(array); array[x ÷ 2 + 1:end, y ÷ 2 + 1, 1] end
+function test_all()
+    dims = [1, 2, 3]
+    n = 10
 
-cut_direction(array::AbstractArray{<:Any,3}, :: Val{:y}) =
-    let (x, y, z) = size(array); array[x ÷ 2 + 1, y ÷ 2 + 1:end, 1] end
-
-cut_direction(array::AbstractArray{<:Any,3}, :: Val{:z}) =
-    let (x, y, z) = size(array); array[x ÷ 2, y ÷ 2, :] end
-
-function testmap_2d(func, mapfunc)
-    @testset "$func 2D map" begin
-        testset = two_phase_noise_2d()
-        for p in (false, true)
-            directions = [:x, :y, :xy_main, :xy_anti]
-            directional = func(testset, 1; len=50, periodic=p, directions=directions)
-            cmap = mapfunc(testset, p)
-
-            for (direction, data) in directional
-                if func == Directional.l2 && direction ∈ [:xy_main, :xy_anti] && !p
-                    @test cut_direction(cmap, direction) ≈ data
-                else
-                    @test cut_direction(cmap, direction) ≈ data
-                end
+    for dim in dims
+        ns = Tuple(ones(Int, dim) * n)
+        img = rand(Bool, ns)
+        
+        for (cf_map, cf_dir) in zip(cfs_map, cfs_dir)
+            @testset "random $(dim)D image, $(cf_map)" begin
+                test_cf_on_img(img, Map.eval(cf_map), Directional.eval(cf_dir))
             end
         end
     end
 end
 
-mapfn(map) = (x, p) -> Map.corr_function_map(x, map; periodic=p)
-testmap_2d(Directional.l2,       mapfn(Map.l2))
-testmap_2d(Directional.s2,       mapfn(Map.s2))
-testmap_2d(Directional.c2,       mapfn(Map.c2))
-testmap_2d(Directional.surfsurf, mapfn(Map.ss))
-testmap_2d(Directional.surfvoid,
-           (x -> let n = size(x, 2); x[:, n ÷ 2 + 1:end] end) ∘ mapfn(Map.sv))
 
-function testmap_3d(func, mapfunc)
-    @testset "$func 3D map" begin
-        testset = two_phase_noise_3d()
-        for p in (false, true)
-            directional = func(testset, 1; len=50, periodic=p)
-            cmap = mapfunc(testset, p)
-
-            for (direction, data) in directional
-                @test cut_direction(cmap, direction) ≈ data
-            end
-        end
-    end
-end
-
-# Takes a whole eternity to execute
-# testmap_3d(Directional.l2,       mapfn(Map.l2))
-testmap_3d(Directional.s2,       mapfn(Map.s2))
-# Takes a whole eternity to execute
-# testmap_3d(Directional.c2,       mapfn(Map.c2))
-testmap_3d(Directional.surfsurf, mapfn(Map.ss))
-testmap_3d(Directional.surfvoid,
-           (x -> let n = size(x, 3); x[:, :, n ÷ 2 + 1:end] end) ∘ mapfn(Map.sv))
+test_all()

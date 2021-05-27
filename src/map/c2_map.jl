@@ -28,8 +28,8 @@ function c2(img; periodic::Bool=true)
         similar(img, Int),
         similar(img, ComplexF64, complex_box),
     )
-    asymmetric = false
-    p, asymmetric
+    cf_type = periodic ? :periodic_point_point : :central_symmetry
+    p, cf_type
 end
 
 
