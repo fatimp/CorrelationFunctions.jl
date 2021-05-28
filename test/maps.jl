@@ -1,5 +1,4 @@
-cfs_map = [:s2, :l2, :c2, :ss, :sv]
-cfs_dir = [:s2, :l2, :c2, :surfsurf, :surfvoid]
+cfs = [:s2, :l2, :c2, :surfsurf, :surfvoid]
 dirs = Dict(
     1 => [:x],
     2 => [:x, :y, :xy_main, :xy_anti],
@@ -9,7 +8,7 @@ dirs = Dict(
 
 function test_cf_on_img(img, cf_map, cf_dir)
     for periodic in [true, false]
-        cmap = Map.corr_function_map(img, cf_map; periodic)
+        cmap = cf_map(img; periodic)
         cdir = cf_dir(img, true; len=size(img, 1), periodic, directions=dirs[ndims(img)])
 
         for (direction, data) in cdir
@@ -27,9 +26,9 @@ function test_all()
         ns = Tuple(ones(Int, dim) * n)
         img = rand(Bool, ns)
         
-        for (cf_map, cf_dir) in zip(cfs_map, cfs_dir)
-            @testset "random $(dim)D image, $(cf_map)" begin
-                test_cf_on_img(img, Map.eval(cf_map), Directional.eval(cf_dir))
+        for cf in cfs
+            @testset "random $(dim)D image, $(cf)" begin
+                test_cf_on_img(img, Map.eval(cf), Directional.eval(cf))
             end
         end
     end

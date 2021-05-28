@@ -16,7 +16,7 @@ struct Params_C2{LabelImage,ComplexArray,Total}
 end
 
 
-function c2(img; periodic::Bool=true)
+function Params_C2(img; periodic::Bool=true)
     box = size(img)
     complex_box = periodic ? box : box .* 2
     
@@ -54,4 +54,25 @@ function correllation_function!(res, img, params::Params_C2)
         res .+= real.(v_f)
     end
     res ./= params.total
+end
+
+
+"""
+    c2(image; periodic = false)
+
+Calculate `C₂` (cluster) correlation function map 
+for the N-dimensional image and return a `CFMap` object.
+
+The `image` contains the probability of the voxel being in the correct phase.
+
+# Examples
+```jldoctest
+julia> c2([1 0; 0 1]; periodic=true).result
+2×2 Matrix{Float64}:
+ 0.5  0.0
+ 0.0  0.0
+```
+"""
+function c2(image; periodic::Bool=false)
+    corr_function_map(image, Params_C2; periodic)
 end

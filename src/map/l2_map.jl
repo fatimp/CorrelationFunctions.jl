@@ -235,7 +235,7 @@ struct Params_L2{Total,Result,AlignImg,N}
 end
 
 
-function l2(img::AbstractArray{<:Integer,N};
+function Params_L2(img::AbstractArray{<:Integer,N};
             periodic::Bool=true,
             depth::Int=img |> size |> maximum) where N
     
@@ -293,4 +293,34 @@ function correllation_function!(res, img, params::Params_L2)
     )
     restore!(res, params.side_results, params.original_ixs, params.ray_ixs)
     res ./= params.total
+end
+
+
+"""
+    l2(image; periodic = false)
+
+Calculate `L₂` (lineal path) correlation function map 
+for the 1,2,3-dimensional image and return a `CFMap` object.
+
+The `image` contains the probability of the voxel being in the correct phase.
+
+*For L2, only probabilities 0 and 1 are currently implemented.*
+
+# Examples
+```jldoctest
+julia> l2([1 0; 0 1]; periodic=true).result
+3×2 Matrix{Float64}:
+ 0.0  0.5
+ 0.5  0.0
+ 0.0  0.5
+```
+"""
+function l2(image; periodic=false)
+    if !(eltype(image) <: Integer)
+        error("For L2, only arrays of integers and Boolean are supported")
+    elseif !(eltype(image) == Bool) && any(s -> s ∉ [0, 1], image)
+        @warn ("Correct work is possible only for 0 and 1")
+    end
+
+    corr_function_map(image, Params_L2; periodic)
 end

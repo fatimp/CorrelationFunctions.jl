@@ -31,7 +31,7 @@ function CFMap(img, cf_type)
 end
 
 
-function dir_from_map(cfmap::CFMap{T,N}, dir::Tuple{Vararg{Int,N}}) where T where N
+function dir_from_map(cfmap, dir)
     n = maximum(abs, dir)
     
     way = collect(0:n) / (n == 0 ? 1 : n)

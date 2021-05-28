@@ -13,7 +13,7 @@ struct Params_SV{ComplexArray,Total}
 end
 
 
-function sv(img; periodic::Bool=true)
+function Params_SV(img; periodic::Bool=true)
     box = size(img)
     complex_box = periodic ? box : box .* 2
 
@@ -49,4 +49,26 @@ function correllation_function!(res, img, params::Params_SV)
     cross_correlation!(f, g)
 
     res .= real.(v_f) ./ params.total
+end
+
+
+"""
+    surfvoid(image; periodic = false)
+
+Calculate `Fsv(x)` (surface-void) correlation function map 
+for the N-dimensional image and return a `CFMap` object.
+
+The `image` contains the probability of the voxel being in the correct phase.
+
+# Examples
+```jldoctest
+julia> surfvoid([1 0; 0 1]; periodic=true).result
+3×3 Matrix{Float64}:
+ 0.176777  0.176777  0.176777
+ 0.176777  0.176777  0.176777
+ 0.176777  0.176777  0.176777
+```
+"""
+function surfvoid(image; periodic::Bool=false)
+    corr_function_map(image, Params_SV; periodic)
 end
