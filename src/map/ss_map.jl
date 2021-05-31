@@ -3,7 +3,7 @@ struct Params_SS{ComplexArray,Total}
     periodic::Bool
     # normalization
     total::Total
-    
+
 
     # algorithm-specific
 
@@ -52,7 +52,7 @@ end
 """
     surfsurf(image; periodic = false)
 
-Calculate `Fss(x)` (surface-surface) correlation function map 
+Calculate `Fss(x)` (surface-surface) correlation function map
 for the N-dimensional image and return a `CFMap` object.
 
 The `image` contains the probability of the voxel being in the correct phase.

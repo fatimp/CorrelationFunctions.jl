@@ -33,8 +33,8 @@ end
 
 function corr_function_map!(
     result::CFMap{T1, N},
-    img::AbstractArray{T2,N}, 
-    map_params::Params_map, 
+    img::AbstractArray{T2,N},
+    map_params::Params_map,
     cf_params
 ) where T1 where T2 where N
     mirror_img = map_params.mirror_img
@@ -46,8 +46,8 @@ function corr_function_map!(
         elseif result.cf_type == :periodic_point_point && any(mask)
             continue
         end
-        
-        
+
+
         mirror_img .= mirror(img, mask)
         mirror_result .= 0
 
@@ -68,14 +68,14 @@ Compute correlation function map in all meaningfull directions.
 CF_constructor ∈ {Map.s2, Map.l2, Map.c2, Map.ss, Map.sv}
 """
 function corr_function_map(
-    img::AbstractArray{T,N}, 
-    CF_constructor; 
+    img::AbstractArray{T,N},
+    CF_constructor;
     parameters...
 ) where T where N
     cf_params, cf_type = CF_constructor(img; parameters...)
-    
+
     map_params = Params_map(img)
     result = CFMap(img, cf_type)
-    
+
     corr_function_map!(result, img, map_params, cf_params)
 end
