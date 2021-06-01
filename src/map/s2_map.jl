@@ -3,18 +3,18 @@ struct Params_S2{ComplexArray,Total}
     periodic::Bool
     # normalization
     total::Total
-    
+
     # algorithm-specific
-    
+
     # fft buffers
     complex_img::ComplexArray
 end
 
 
-function s2(img; periodic::Bool=true)
+function Params_S2(img; periodic::Bool=true)
     box = size(img)
     complex_box = periodic ? box : box .* 2
-    
+
     total = cnt_total(img, periodic)
 
     p = Params_S2(
@@ -22,8 +22,8 @@ function s2(img; periodic::Bool=true)
         total,
         similar(img, ComplexF64, complex_box),
     )
-    asymmetric = false
-    p, asymmetric
+    cf_type = periodic ? :periodic_point_point : :central_symmetry
+    p, cf_type
 end
 
 
@@ -43,4 +43,25 @@ function correllation_function!(res, img, params::Params_S2)
     self_correlation!(f)
 
     res .= real.(v_f) ./ params.total
+end
+
+
+"""
+    s2(image; periodic = false)
+
+Calculate `S₂` (two point) correlation function map
+for the N-dimensional image and return a `CFMap` object.
+
+The `image` contains the probability of the voxel being in the correct phase.
+
+# Examples
+```jldoctest
+julia> s2([1 0; 0 1]; periodic=true).result
+2×2 Matrix{Float64}:
+ 0.5  0.0
+ 0.0  0.5
+```
+"""
+function s2(image; periodic::Bool=false)
+    corr_function_map(image, Params_S2; periodic)
 end

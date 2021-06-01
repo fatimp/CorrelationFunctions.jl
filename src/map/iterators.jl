@@ -15,8 +15,8 @@ function Base.iterate(BM::BoolMask, state::Int=0)
     if state == 2^n
         return
     end
-    
+
     mask = digits(Bool, state, base=2, pad=n)
-    
+
     return (mask, state + 1)
 end

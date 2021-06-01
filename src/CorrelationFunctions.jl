@@ -42,6 +42,7 @@ using CUDA.CUFFT: fft!, ifft!
 using ImageSegmentation: label_components
 using Images: imgradients, KernelFactors
 
+include("map/result.jl")
 include("map/general_map.jl")
 include("map/algorithms.jl")
 include("map/iterators.jl")
@@ -51,8 +52,8 @@ include("map/c2_map.jl")
 include("map/ss_map.jl")
 include("map/sv_map.jl")
 
-export corr_function_map,
-    l2, s2, c2, sv, ss
+export l2, s2, c2, surfsurf, surfvoid, 
+    dir_from_map, restore_full_map, to_tuple_dir
 end # Map
 
 include("utility.jl")
