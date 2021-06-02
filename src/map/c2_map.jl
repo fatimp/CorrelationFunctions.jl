@@ -7,9 +7,9 @@ struct Params_C2{LabelImage,ComplexArray,Total}
     periodic::Bool
     # normalization
     total::Total
-    
+
     # algorithm-specific
-    
+
     # fft buffers
     labeled_img::LabelImage
     complex_img::ComplexArray
@@ -19,7 +19,7 @@ end
 function Params_C2(img; periodic::Bool=true)
     box = size(img)
     complex_box = periodic ? box : box .* 2
-    
+
     total = cnt_total(img, periodic)
 
     p = Params_C2(
@@ -60,7 +60,7 @@ end
 """
     c2(image; periodic = false)
 
-Calculate `C₂` (cluster) correlation function map 
+Calculate `C₂` (cluster) correlation function map
 for the N-dimensional image and return a `CFMap` object.
 
 The `image` contains the probability of the voxel being in the correct phase.

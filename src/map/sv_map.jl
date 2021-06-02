@@ -3,10 +3,10 @@ struct Params_SV{ComplexArray,Total}
     periodic::Bool
     # normalization
     total::Total
-    
+
 
     # algorithm-specific
-    
+
     # fft buffers
     complex_surface::ComplexArray
     complex_void::ComplexArray
@@ -55,7 +55,7 @@ end
 """
     surfvoid(image; periodic = false)
 
-Calculate `Fsv(x)` (surface-void) correlation function map 
+Calculate `Fsv(x)` (surface-void) correlation function map
 for the N-dimensional image and return a `CFMap` object.
 
 The `image` contains the probability of the voxel being in the correct phase.

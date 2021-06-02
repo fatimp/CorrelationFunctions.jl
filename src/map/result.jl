@@ -8,11 +8,11 @@ end
 
 function CFMap(img, cf_type)
     img_size = size(img)
-    
+
     if cf_type == :full
         zero_index = img_size
         result_size = @. 2 * img_size - 1
-        
+
     elseif cf_type == :central_symmetry
         zero_index = (img_size[1:end - 1]..., 1)
         result_size = (2 .* img_size[1:end - 1] .- 1 ..., img_size[end])
@@ -33,15 +33,15 @@ end
 
 function dir_ixs(cfmap, dir)
     n = maximum(abs, dir)
-    
+
     way = collect(0:n) / (n == 0 ? 1 : n)
-    
+
     if cfmap.cf_type == :central_symmetry && dir[end] < 0
         dir = .- dir
     end
-    
+
     ixs = map((z, d) -> way .* d, cfmap.zero_index, dir)
-    
+
     if cfmap.cf_type == :periodic_point_point
         for (ix, s) in zip(ixs, cfmap.img_size)
             out_ix = ix .< 0
@@ -122,7 +122,7 @@ function restore_full_map(cfmap::CFMap{T,N}) where T where N
 
     elseif cfmap.cf_type == :periodic_point_point
         circshift(res, div.(size(res) .- 1, 2))
-        
+
     else
         error()
     end

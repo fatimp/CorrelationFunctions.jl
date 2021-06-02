@@ -3,9 +3,9 @@ struct Params_S2{ComplexArray,Total}
     periodic::Bool
     # normalization
     total::Total
-    
+
     # algorithm-specific
-    
+
     # fft buffers
     complex_img::ComplexArray
 end
@@ -14,7 +14,7 @@ end
 function Params_S2(img; periodic::Bool=true)
     box = size(img)
     complex_box = periodic ? box : box .* 2
-    
+
     total = cnt_total(img, periodic)
 
     p = Params_S2(
@@ -49,7 +49,7 @@ end
 """
     s2(image; periodic = false)
 
-Calculate `S₂` (two point) correlation function map 
+Calculate `S₂` (two point) correlation function map
 for the N-dimensional image and return a `CFMap` object.
 
 The `image` contains the probability of the voxel being in the correct phase.
