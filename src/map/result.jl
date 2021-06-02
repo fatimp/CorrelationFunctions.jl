@@ -67,7 +67,8 @@ end
 function dir_from_map(cfmap, dir)
     way = dir_ixs(cfmap, dir)
     itp = itp_map(cfmap)
-    itp.(way...)
+    etp = extrapolate(itp, Periodic())
+    etp.(way...)
 end
 
 
@@ -81,9 +82,28 @@ function surface_dirs(cfmap, dim, ispos)
                 ix[1]
             end
         else
-            ix[:]
+            if d < dim
+                ix[:]
+            else
+                ix[2:end-1]
+            end
         end
     end
+end
+
+
+function all_dirs(cfmap)
+    dirs = Vector{Tuple{Vararg{Int, ndims(cfmap.result)}}}()
+    for i in 1:ndims(cfmap.result)
+        for ispos in [true, false]
+            
+            s_dirs = surface_dirs(cfmap, i, ispos)
+            for dir in Iterators.product(s_dirs...)
+                push!(dirs, dir)
+            end
+        end
+    end
+    dirs
 end
 
 
@@ -92,20 +112,15 @@ function mean_dir(cfmap)
     result = zeros(n)
     
     itp = itp_map(cfmap)
+    extp = extrapolate(itp, Periodic())
     
-    cnt = 0
-    for i in 1:ndims(cfmap.result)
-        for ispos in [true, false]
-            s_dirs = surface_dirs(cfmap, i, ispos)
-            for dir in Iterators.product(s_dirs...)
-                way = dir_ixs(cfmap, dir)
-                
-                cnt += 1
-                result += itp.(way...)
-            end
-        end
+    dirs = all_dirs(cfmap)
+    for dir in dirs
+        scale = maximum(abs, dir) / norm(dir)
+        way = dir_ixs(cfmap, dir) .* scale
+        result += extp.(way...)
     end
-    result ./ cnt
+    result ./ length(dirs)
 end
 
 

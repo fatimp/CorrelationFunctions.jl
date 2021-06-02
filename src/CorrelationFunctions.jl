@@ -41,7 +41,7 @@ using CUDA: CuArray, cu, @cuda, blockIdx, blockDim, threadIdx, gridDim
 using CUDA.CUFFT: fft!, ifft!
 using ImageSegmentation: label_components
 using Images: imgradients, KernelFactors
-using Interpolations: interpolate, Gridded, Linear
+using Interpolations: interpolate, Gridded, Linear, extrapolate, Periodic
 
 include("map/result.jl")
 include("map/general_map.jl")
