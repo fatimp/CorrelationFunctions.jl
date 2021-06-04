@@ -41,6 +41,7 @@ using CUDA: CuArray, cu, @cuda, blockIdx, blockDim, threadIdx, gridDim
 using CUDA.CUFFT: fft!, ifft!
 using ImageSegmentation: label_components
 using Images: imgradients, KernelFactors
+using Interpolations: interpolate, Gridded, Linear, extrapolate, Periodic
 
 include("map/result.jl")
 include("map/general_map.jl")
@@ -53,7 +54,7 @@ include("map/ss_map.jl")
 include("map/sv_map.jl")
 
 export l2, s2, c2, surfsurf, surfvoid, 
-    dir_from_map, restore_full_map, to_tuple_dir
+    dir_from_map, restore_full_map, mean_dir
 end # Map
 
 include("utility.jl")
