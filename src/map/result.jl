@@ -80,6 +80,13 @@ function itp_map(cfmap)
 end
 
 
+"""
+    dir_from_map(cfmap, dir)
+
+Return CF on one direcion using interpolations.
+
+`CF.(r...)`, where `r = Map.dir_ixs(cfmap, dir)`. 
+"""
 function dir_from_map(cfmap, dir)
     way = dir_ixs(cfmap, dir)
     itp = itp_map(cfmap)
@@ -122,22 +129,41 @@ function all_dirs(cfmap)
 end
 
 
-function mean_dir(cfmap)
-    n = cfmap.img_size[1]
-    result = zeros(n)
+"""
+    mean_dir(cfmap::CFMap)
+
+Return averaged correlation function for r = 0, 1, 2, ...
+"""
+function mean_dir(cfmap::CFMap)
+    data = cfmap.result
     
-    itp = itp_map(cfmap)
+    m = cfmap.img_size .-1 |> norm |> ceil |> Int
+    m += 1
+    cfdir = zeros(m)
+    weights = zeros(m)
     
-    dirs = all_dirs(cfmap)
-    for dir in dirs
-        scale = maximum(abs, dir) / norm(dir)
-        way = dir_ixs(cfmap, dir) .* scale
-        result += itp.(way...)
+    for ix in CartesianIndices(data)
+        tix = Tuple(ix)
+        r = norm(tix .- cfmap.zero_index)
+        
+        q = floor(Int, r) + 1
+        α = q - r
+
+        cfdir[q] += data[ix] * α
+        cfdir[q + 1] += data[ix] * (1 - α)
+        weights[q] += α
+        weights[q + 1] += (1 - α)
     end
-    result ./ length(dirs)
+    
+    cfdir ./= weights
 end
 
 
+"""
+    restore_full_map(cfmap::CFMap)
+
+Return centered full correlation function map.
+"""
 function restore_full_map(cfmap::CFMap{T,N}) where T where N
     res = cfmap.result
 
