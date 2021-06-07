@@ -31,7 +31,7 @@ end
 # Code for 3D diagonals is really hard for understanding.
 # TODO: Try to "fuse" these 4 methods into more simple one (if
 # possible at all).
-function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:diag1}) where T
+function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:xyz}) where T
     # Direction (1, 1, 1)
     h, w, d = size(array)
     diagonal(x, y, z) = slice(array, periodic,
@@ -44,7 +44,7 @@ function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:diag1}
     return periodic ? part1 : flatten((part1, part2, part3))
 end
 
-function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:diag2}) where T
+function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:yxz}) where T
     # Direction (-1, 1, 1)
     h, w, d = size(array)
     diagonal(x, y, z) = slice(array, periodic,
@@ -57,7 +57,7 @@ function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:diag2}
     return periodic ? part1 : flatten((part1, part2, part3))
 end
 
-function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:diag3}) where T
+function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:xzy}) where T
     # Direction (1, -1, 1)
     h, w, d = size(array)
     diagonal(x, y, z) = slice(array, periodic,
@@ -70,7 +70,7 @@ function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:diag3}
     return periodic ? part1 : flatten((part1, part2, part3))
 end
 
-function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:diag4}) where T
+function diagonals(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:zyx}) where T
     # Direction (1, 1, -1)
     h, w, d = size(array)
     diagonal(x, y, z) = slice(array, periodic,
@@ -85,7 +85,7 @@ end
 
 # Slicers for "true" diagonals (when there are no zeros in the
 # direction vector).
-TrueDiagonal = Union{Val{:diag1}, Val{:diag2}, Val{:diag3}, Val{:diag4}}
+TrueDiagonal = Union{Val{:xyz}, Val{:yxz}, Val{:xzy}, Val{:zyx}}
 slice_generators(array :: AbstractArray{T,3}, periodic :: Bool, dir :: TrueDiagonal) where T =
     diagonals(array, periodic, dir)
 
@@ -99,22 +99,22 @@ slice_generators(array :: AbstractArray{T,3}, :: Bool, :: Val{:y}) where T =
 slice_generators(array :: AbstractArray{T,3}, :: Bool, :: Val{:z}) where T =
     (array[i,j,:] for i in 1:size(array, 1) for j in 1:size(array, 2))
 
-slice_generators(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:xy_main}) where T =
+slice_generators(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:xy}) where T =
     flatten(diagonals(array[:,:,k], periodic, (1, 1)) for k in 1:size(array, 3))
 
-slice_generators(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:xz_main}) where T =
+slice_generators(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:xz}) where T =
     flatten(diagonals(array[:,j,:], periodic, (1, 1)) for j in 1:size(array, 2))
 
-slice_generators(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:yz_main}) where T =
+slice_generators(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:yz}) where T =
     flatten(diagonals(array[i,:,:], periodic, (1, 1)) for i in 1:size(array, 1))
 
-slice_generators(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:xy_anti}) where T =
+slice_generators(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:yx}) where T =
     flatten(diagonals(array[:,:,k], periodic, (-1, 1)) for k in 1:size(array, 3))
 
-slice_generators(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:xz_anti}) where T =
+slice_generators(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:zx}) where T =
     flatten(diagonals(array[:,j,:], periodic, (-1, 1)) for j in 1:size(array, 2))
 
-slice_generators(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:yz_anti}) where T =
+slice_generators(array :: AbstractArray{T,3}, periodic :: Bool, :: Val{:zy}) where T =
     flatten(diagonals(array[i,:,:], periodic, (-1, 1)) for i in 1:size(array, 1))
 
 # Slicers for different directions (2D)
@@ -124,10 +124,10 @@ slice_generators(array :: AbstractArray{T,2}, :: Bool, :: Val{:x}) where T =
 slice_generators(array :: AbstractArray{T,2}, :: Bool, :: Val{:y}) where T =
     (array[i,:] for i in 1:size(array, 1))
 
-slice_generators(array :: AbstractArray{T,2}, periodic :: Bool, :: Val{:xy_main}) where T =
+slice_generators(array :: AbstractArray{T,2}, periodic :: Bool, :: Val{:xy}) where T =
     diagonals(array, periodic, (1, 1))
 
-slice_generators(array :: AbstractArray{T,2}, periodic :: Bool, :: Val{:xy_anti}) where T =
+slice_generators(array :: AbstractArray{T,2}, periodic :: Bool, :: Val{:yx}) where T =
     diagonals(array, periodic, (-1, 1))
 
 # Trivial slicer for 1D case

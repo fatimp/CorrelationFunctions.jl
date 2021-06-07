@@ -1,7 +1,7 @@
-const known_directions = [:x,       :y,       :z,
-                          :yz_main, :xz_main, :xy_main,
-                          :yz_anti, :xz_anti, :xy_anti,
-                          :diag1,   :diag2,   :diag3, :diag4]
+const known_directions = [:x,   :y,   :z,
+                          :yz,  :xz,  :xy,
+                          :zy,  :zx,  :yx,
+                          :xyz, :yxz, :xzy, :zyx]
 
 """
     relerr(x, truex)

@@ -172,10 +172,10 @@ function to_tuple_dir(img_size::Tuple{Int,Int}, dir)
         (img_size[1] - 1, 0)
     elseif dir == :y
         (0, img_size[2] - 1)
-    elseif dir == :xy_main
+    elseif dir == :xy
         q = minimum(img_size) - 1
         (q, q)
-    elseif dir == :xy_anti
+    elseif dir == :yx
         q = minimum(img_size) - 1
         (-q, q)
     else

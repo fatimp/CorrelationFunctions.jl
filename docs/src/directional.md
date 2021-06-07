@@ -111,6 +111,21 @@ Directional.direction2Dp
 Directional.direction3Dp
 Directional.default_directions
 ```
+
+These rules can help you to memoize the correspondence between symbolic
+designations and vectors:
+
+* Symbolic designations can contain characters `x`, `y` and `z` and be from one
+  to three symbols long. Each character can occur only once (so `xyz` is a valid
+  designation and `xxy` is not).
+* When a character does not occur is a designation (e.g, `xy`) that coordinate
+  remains constant in a slice (in the example above $z = \text{const}$).
+* The names of the axes have a "natural order" which is `x`, `y`, `z`. In a
+  designation the first axis which breaks that order get the minus sign in the
+  direction vector (e.g. `xzy` equals to `(1, -1, 1)` because `y` is in the
+  third position, not in the second, `zx` equals to `(-1, 0, 1)` because `x` is
+  in the second position, no in the first, etc.)
+
 ## Indicator Functions
 
 Internally, the functions `c2`, `surfsurf` and `surfvoid` (see

@@ -16,8 +16,8 @@ Return true if `sym` is 2D direction or false otherwise.
 
 * `:x` and `:y`. Correlation functions are computed along unit vectors
    `(1, 0)` and `(0, 1)` respectively.
-* `:xy_main` and `:xy_anti`. Correlation functions are computed in
-   diagonal directions `(1, 1)` and `(-1, 1)` respectively.
+* `:xy` and `:yx`. Correlation functions are computed in diagonal
+   directions `(1, 1)` and `(-1, 1)` respectively.
 """
 function direction2Dp end
 
@@ -30,14 +30,14 @@ Return true if `sym` is 3D direction or false otherwise.
 
 * `:x`, `:y` and `:z`. Correlation functions are computed along unit
    vectors `(1, 0, 0)`, `(0, 1, 0)` and `(0, 0, 1)` respectively.
-* `:xy_main`, `:xz_main` and `:yz_main`. Correlation functions are
-   computed in diagonal directions `(1, 1, 0)`, `(1, 0, 1)` and
-   `(0, 1, 1)` respectively.
-* `:xy_anti`, `:xz_anti` and `:yz_anti`. Correlation functions are
-   computed in diagonal directions `(-1, 1, 0)`, `(-1, 0, 1)` and
-   `(0, -1, 1)` respectively.
-* From `:diag1` to `:diag4`. Corresponding directions are `(1, 1, 1)`,
-   `(-1, 1, 1)`, `(1, -1, 1)` and `(1, 1, -1)`.
+* `:xy`, `:xz` and `:yz`. Correlation functions are computed in
+   diagonal directions `(1, 1, 0)`, `(1, 0, 1)` and `(0, 1, 1)`
+   respectively.
+* `:yx`, `:zx` and `:zy`. Correlation functions are computed in
+   diagonal directions `(-1, 1, 0)`, `(-1, 0, 1)` and `(0, -1, 1)`
+   respectively.
+* `xyz`, `yxz`, `xzy` and `zyx`. Corresponding directions are
+   `(1, 1, 1)`, `(-1, 1, 1)`, `(1, -1, 1)` and `(1, 1, -1)`.
 """
 function direction3Dp end
 
@@ -62,24 +62,23 @@ end
 
 @def_direction(direction2Dp, :x)
 @def_direction(direction2Dp, :y)
-@def_direction(direction2Dp, :xy_main)
-@def_direction(direction2Dp, :xy_anti)
+@def_direction(direction2Dp, :xy)
+@def_direction(direction2Dp, :yx)
 
 @def_direction(direction3Dp, :x)
 @def_direction(direction3Dp, :y)
 @def_direction(direction3Dp, :z)
-@def_direction(direction3Dp, :xy_main)
-@def_direction(direction3Dp, :yz_main)
-@def_direction(direction3Dp, :xz_main)
-@def_direction(direction3Dp, :xy_anti)
-@def_direction(direction3Dp, :yz_anti)
-@def_direction(direction3Dp, :xz_anti)
+@def_direction(direction3Dp, :xy)
+@def_direction(direction3Dp, :yz)
+@def_direction(direction3Dp, :xz)
+@def_direction(direction3Dp, :yx)
+@def_direction(direction3Dp, :zy)
+@def_direction(direction3Dp, :zx)
 
-# True diagonals (TODO: better names?)
-@def_direction(direction3Dp, :diag1)
-@def_direction(direction3Dp, :diag2)
-@def_direction(direction3Dp, :diag3)
-@def_direction(direction3Dp, :diag4)
+@def_direction(direction3Dp, :xyz)
+@def_direction(direction3Dp, :yxz)
+@def_direction(direction3Dp, :xzy)
+@def_direction(direction3Dp, :zyx)
 
 """
     default_directions(array)
