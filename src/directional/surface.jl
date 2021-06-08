@@ -13,6 +13,7 @@ extract_edge(array :: AbstractArray, :: Val{:distance_map}) =
 
 """
     surfsurf(array, phase[; len,][directions,] periodic = false, edgemode = :Sobel)
+    surfsurf(array, χ[; len,][directions,] periodic = false, edgemode = :Sobel)
 
 Calculate `Fss(x)` (surface-surface) correlation function for one-,
 two- or three-dimensional multiphase system. 
@@ -27,16 +28,32 @@ You can chose how an edge between phases are selected by passing
 `edgemode` argument which can be either `:Sobel` or
 `:distance_map`. Usually, `:Sobel` gives much better results.
 
+You can specify a custom indicator function `χ(x)` instead of `phase`.
+
 For a list of possible dimensions, see also: [`direction1Dp`](@ref),
 [`direction2Dp`](@ref), [`direction3Dp`](@ref).
 """
+function surfsurf end
+
+surfsurf(array      :: AbstractArray,
+         phase;
+         len        :: Integer        = (array |> size  |> minimum) ÷ 2,
+         directions :: Vector{Symbol} =  array |> default_directions,
+         periodic   :: Bool           = false,
+         edgemode   :: Symbol         = :Sobel) =
+             surfsurf(array, x -> x == phase;
+                      len        = len,
+                      directions = directions,
+                      periodic   = periodic,
+                      edgemode   = edgemode)
+
 function surfsurf(array      :: AbstractArray,
-                  phase;
+                  χ          :: Function;
                   len        :: Integer        = (array |> size  |> minimum) ÷ 2,
                   directions :: Vector{Symbol} =  array |> default_directions,
                   periodic   :: Bool           = false,
                   edgemode   :: Symbol         = :Sobel)
-    ph = map(x -> x == phase, array)
+    ph = map(χ, array)
     edge = extract_edge(ph, edgemode)
 
     return s2(edge, SeparableIndicator(identity);
@@ -47,6 +64,7 @@ end
 
 """
     surfvoid(array, phase[; len,][directions,] periodic = false, edgemode = :Sobel)
+    surfvoid(array, χ[; len,][directions,] periodic = false, edgemode = :Sobel)
 
 Calculate `Fsv(x)` (surface-void) correlation function for one-, two-
 or three-dimensional multiphase system.
@@ -62,16 +80,32 @@ You can chose how an edge between phases are selected by passing
 `edgemode` argument which can be either `:Sobel` or
 `:distance_map`. Usually, `:Sobel` gives much better results.
 
+You can specify a custom indicator function `χ(x)` instead of `phase`.
+
 For a list of possible dimensions, see also: [`direction1Dp`](@ref),
 [`direction2Dp`](@ref), [`direction3Dp`](@ref).
 """
+function surfvoid end
+
+surfvoid(array      :: AbstractArray,
+         phase;
+         len        :: Integer        = (array |> size  |> minimum) ÷ 2,
+         directions :: Vector{Symbol} =  array |> default_directions,
+         periodic   :: Bool           = false,
+         edgemode   :: Symbol         = :Sobel) =
+             surfvoid(array, x -> x != phase;
+                      len        = len,
+                      directions = directions,
+                      periodic   = periodic,
+                      edgemode   = edgemode)
+
 function surfvoid(array      :: AbstractArray,
-                  phase;
+                  χ          :: Function;
                   len        :: Integer        = (array |> size  |> minimum) ÷ 2,
                   directions :: Vector{Symbol} =  array |> default_directions,
                   periodic   :: Bool           = false,
                   edgemode   :: Symbol         = :Sobel)
-    ph = map(x -> x != phase, array)
+    ph = map(χ, array)
     edge = extract_edge(ph, edgemode)
 
     χ1(x) = array[x] == 0
