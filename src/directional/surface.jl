@@ -93,7 +93,7 @@ surfvoid(array      :: AbstractArray,
          directions :: Vector{Symbol} =  array |> default_directions,
          periodic   :: Bool           = false,
          edgemode   :: Symbol         = :Sobel) =
-             surfvoid(array, x -> x != phase;
+             surfvoid(array, x -> x == phase;
                       len        = len,
                       directions = directions,
                       periodic   = periodic,
