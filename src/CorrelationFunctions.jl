@@ -2,8 +2,8 @@ module CorrelationFunctions
 using JSON: JSON, parse
 
 module Directional
-using StatsBase: fit, Histogram
-using LinearAlgebra: normalize
+using StatsBase: fit, Histogram, mean
+using LinearAlgebra: normalize, norm
 using Images: Kernel, imgradients, feature_transform, distance_transform
 using ImageSegmentation: label_components
 using PrettyTables: pretty_table
@@ -27,7 +27,7 @@ include("directional/chord-length.jl")
 include("directional/pore-size.jl")
 
 export l2, s2, c2,
-    surfsurf, surfvoid, chord_length, pore_size,
+    surfsurf, surfvoid, lowfreq_energy_ratio, chord_length, pore_size,
     AbstractIndicator, SeparableIndicator, InseparableIndicator,
     CorrelationData, default_directions, directions
 
@@ -60,6 +60,6 @@ end # Map
 include("utility.jl")
 
 using .Directional
-export read_cuboid, pore_size,
+export read_cuboid, pore_size, lowfreq_energy_ratio,
     Directional, Map
 end # module
