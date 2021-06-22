@@ -4,8 +4,8 @@ using JSON: JSON, parse
 module Directional
 using StatsBase: fit, Histogram, mean
 using LinearAlgebra: normalize, norm
-using Images: Kernel, imgradients, feature_transform, distance_transform
-using ImageSegmentation: label_components
+using Images: Kernel, imgradients, feature_transform,
+    distance_transform, label_components
 using PrettyTables: pretty_table
 using Base.Iterators
 using IterTools: imap
@@ -39,8 +39,7 @@ module Map
 using LinearAlgebra: norm
 using CUDA: CuArray, cu, @cuda, blockIdx, blockDim, threadIdx, gridDim
 using CUDA.CUFFT: fft!, ifft!
-using ImageSegmentation: label_components
-using Images: imgradients, KernelFactors
+using Images: imgradients, KernelFactors, label_components
 using Interpolations: interpolate, Gridded, Linear, extrapolate, Periodic
 
 include("map/result.jl")
