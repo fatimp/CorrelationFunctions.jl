@@ -10,7 +10,6 @@ using PrettyTables: pretty_table
 using Base.Iterators
 using IterTools: imap
 using DSP: xcorr
-using LinkedLists: SLinkedList
 using FFTW: fft, ifft
 using CircularArrays: CircularArray
 

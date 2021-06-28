@@ -37,8 +37,8 @@ function chord_length(array      :: AbstractArray,
     # Find a new "bogus" space for the edge
     edge_phase = maximum(array) + 1
 
-    # List of chord lengths
-    lengths = SLinkedList{Int}()
+    # Arary of chord lengths
+    lengths = Vector{Int}(undef, 0)
 
     # Poor man's edge detection
     dist = ph |> feature_transform |> distance_transform
@@ -54,7 +54,7 @@ function chord_length(array      :: AbstractArray,
             for x in slice
                 # Edge found
                 if x == edge_phase
-                    len > 1 && startonedge && pushfirst!(lengths, len - 1)
+                    len > 1 && startonedge && push!(lengths, len - 1)
                     len = 0
                     startonedge = true
                 # Not our phase
@@ -66,9 +66,7 @@ function chord_length(array      :: AbstractArray,
         end
     end
 
-    # List is not an AbstractVector, what a shame!
-    len_array = [x for x in lengths]
-    hist = fit(Histogram, len_array; nbins = nbins)
-    mean_len = sum(len_array) ./ length(len_array)
+    hist = fit(Histogram, lengths; nbins = nbins)
+    mean_len = sum(lengths) ./ length(lengths)
     return normalize(hist; mode = :probability), mean_len
 end
