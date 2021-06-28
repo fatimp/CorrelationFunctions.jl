@@ -18,27 +18,31 @@ function update_runs_periodic!(array :: AbstractVector{T},
     array[1:nupdate] .+= (f(n) for n in 1:nupdate)
 end
 
-function count_runs(array :: AbstractVector,
-                    len   :: Integer,
-                    phase)
-    runs_list = SLinkedList{Int}()
-    runs = 0
-
-    for x in array
-        if x == phase
-            runs += 1
-        elseif runs != 0
-            pushfirst!(runs_list, runs)
-            runs = 0
-        end
-    end
-
-    if (runs != 0)
-        pushfirst!(runs_list, runs)
-    end
-
-    return runs_list
+struct CountRuns{A, T}
+    array :: A
+    phase :: T
 end
+
+CountRuns(array :: AbstractArray{T}, phase :: T) where T =
+    CountRuns{typeof(array), T}(array, phase)
+
+function Base.iterate(counter :: CountRuns, state = nothing)
+    idx = isnothing(state) ? 1 : state
+    array = counter.array
+    phase = counter.phase
+    len = length(array)
+
+    start = findfirst(x -> x == phase, view(array, idx:len))
+    isnothing(start) && return nothing
+    start = start + idx - 1
+
+    stop = findfirst(x -> x != phase, view(array, start:len))
+    stop = isnothing(stop) ? len + 1 : stop + start - 1
+
+    return stop - start, stop
+end
+
+Base.IteratorSize(:: CountRuns) = Base.SizeUnknown()
 
 """
     l2(array, phase; [len][, directions,] periodic = false)
@@ -78,12 +82,14 @@ function l2(array      :: AbstractArray,
 
         for slice in slicer
             slen = length(slice)
-            # Calculate runs of phase in all slices with lengths from
-            # 1 to len
-            runs = count_runs(slice, len, phase)
+            firstrun = 0
+            lastrun = 0
+
             # Update count of slices which satisfy "all elements
             # belong to phase" condition
-            for run in runs
+            for run in CountRuns(slice, phase)
+                firstrun = (firstrun == 0) ? run : firstrun
+                lastrun = run
                 update_runs!(cd.success[direction], run, min(run, len))
             end
 
@@ -91,7 +97,7 @@ function l2(array      :: AbstractArray,
             if periodic
                 if (slice[begin] == slice[end] == phase)
                     update_runs_periodic!(cd.success[direction],
-                                          first(runs), last(runs),
+                                          firstrun, lastrun,
                                           total_updates)
                 end
 
