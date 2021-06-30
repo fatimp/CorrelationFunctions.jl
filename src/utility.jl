@@ -56,12 +56,6 @@ function wrapidx(idx :: CartesianIndex{N}, array :: AbstractArray{T, N}) where {
     return CartesianIndex(tuple)
 end
 
-# Simply clamp does not work here :(
-clampidx(x  :: CartesianIndex{N},
-         lo :: CartesianIndex{N},
-         hi :: CartesianIndex{N}) where N =
-             min(max(x, lo), hi)
-
 # Pregenerate an array of adjacent elements
 macro gen_adjacent(N :: Int)
     name = Symbol("adj", N, "d")
@@ -90,26 +84,14 @@ end
 
 # Iterate over adjacent element in a "wrapped" torus space
 function iterate_adjacent(index :: CartesianIndex{N},
-                          array :: AbstractArray{T, N},
-                          _     :: Torus) where{T, N}
+                          array :: AbstractArray{T, N}) where{T, N}
     return (wrapidx(index + adj, array)
             for adj in adjacent_elements(N)
             if manhattan_dist(index, index + adj) == 1)
 end
 
-# Iterate over adjacent element in a usual plane space
-function iterate_adjacent(index :: CartesianIndex{N},
-                          array :: AbstractArray{T, N},
-                          _     :: Plane) where{T, N}
-    indices = CartesianIndices(array)
-    fidx, lidx = first(indices), last(indices)
-    return (clampidx(index + adj, fidx, lidx)
-            for adj in adjacent_elements(N)
-            if manhattan_dist(index, clampidx(index + adj, fidx, lidx)) == 1)
-end
-
-function label_components(input    :: AbstractArray{T, N},
-                          topology :: Topology = Plane()) where {T <: Integer, N}
+function Images.label_components(input :: AbstractArray{T, N},
+                                 _     :: Torus) where {T <: Integer, N}
     # -1 means an absence of label
     output = fill(-1, size(input))
     # Current label
@@ -137,7 +119,7 @@ function label_components(input    :: AbstractArray{T, N},
         while length(queue) > 0
             idx = pop_from_queue!()
 
-            for aidx in iterate_adjacent(idx, input, topology)
+            for aidx in iterate_adjacent(idx, input)
                 push_in_queue!(aidx)
             end
         end
@@ -146,3 +128,5 @@ function label_components(input    :: AbstractArray{T, N},
 
     return output
 end
+
+Images.label_components(input, :: Plane) = Images.label_components(input)

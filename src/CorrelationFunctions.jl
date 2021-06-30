@@ -1,5 +1,6 @@
 module CorrelationFunctions
 using JSON: JSON, parse
+import Images
 
 module Directional
 using StatsBase: fit, Histogram, mean
