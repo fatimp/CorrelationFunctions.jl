@@ -23,10 +23,9 @@ cb = gen_checkboard(60)
 
 @testset "L2" begin
     for phase in 0:1
-        l = (mean ∘ Directional.l2)(cb, phase)
+        l = mean(Directional.l2(cb, phase; periodic = true))
         @test l[1] ≈ 1/2
-        # Would be 1/4 exactly on infinite checkboard
-        @test isapprox(l[2], 1/4; atol = 1e-2)
+        @test l[2] ≈ 1/4
         @test all(x -> x == 0, l[3:end])
     end
 end
@@ -34,11 +33,12 @@ end
 # C2 behaves exactly as L2 with segmentation algorithm chosen which
 # does not join segments in diagonal directions.
 @testset "C2" begin
-    c = (mean ∘ Directional.c2)(cb, 1)
-    @test c[1] ≈ 1/2
-    # Would be 1/4 exactly on infinite checkboard
-    @test isapprox(c[2], 1/4; atol = 10^-2)
-    @test all(x -> x == 0, c[3:end])
+    for phase in 0:1
+        c = mean(Directional.c2(cb, phase; periodic = true))
+        @test c[1] ≈ 1/2
+        @test c[2] ≈ 1/4
+        @test all(x -> x == 0, c[3:end])
+    end
 end
 
 @testset "S2" begin

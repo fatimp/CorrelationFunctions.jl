@@ -1,5 +1,7 @@
-label(img::AbstractArray) = label_components(img)
-label(img::CuArray)       = cu(label_components(Array(img)))
+label(img::AbstractArray, periodic::Bool) =
+    label_components(img, periodic ? Torus() : Plane())
+label(img::CuArray, periodic::Bool) =
+    cu(label_components(Array(img), periodic))
 
 
 struct Params_C2{LabelImage,ComplexArray,Total}
@@ -41,7 +43,7 @@ Compute C₂ correlation function in positive directions
 function correllation_function!(res, img, params::Params_C2)
     ix = CartesianIndices(img)
 
-    labeled_img = params.labeled_img .= label(img)
+    labeled_img = params.labeled_img .= label(img, params.periodic)
     n_segments = maximum(labeled_img)
 
     f = params.complex_img

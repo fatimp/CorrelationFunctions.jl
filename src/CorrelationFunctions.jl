@@ -2,6 +2,8 @@ module CorrelationFunctions
 using JSON: JSON, parse
 import Images
 
+include("utility.jl")
+
 module Directional
 using StatsBase: fit, Histogram, mean
 using LinearAlgebra: normalize, norm
@@ -13,6 +15,7 @@ using IterTools: imap
 using DSP: xcorr
 using FFTW: fft, ifft
 using CircularArrays: CircularArray
+import ..Plane, ..Torus
 
 include("directional/directions.jl")
 include("directional/corrdata.jl")
@@ -41,6 +44,7 @@ using CUDA: CuArray, cu, @cuda, blockIdx, blockDim, threadIdx, gridDim
 using CUDA.CUFFT: fft!, ifft!
 using Images: imgradients, KernelFactors, label_components
 using Interpolations: interpolate, Gridded, Linear, extrapolate, Periodic
+import ..Plane, ..Torus
 
 include("map/result.jl")
 include("map/general_map.jl")
@@ -55,8 +59,6 @@ include("map/sv_map.jl")
 export l2, s2, c2, surfsurf, surfvoid, 
     dir_from_map, restore_full_map, mean_dir
 end # Map
-
-include("utility.jl")
 
 using .Directional
 export read_cuboid, pore_size, lowfreq_energy_ratio,
