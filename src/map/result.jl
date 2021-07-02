@@ -25,7 +25,7 @@ function CFMap(img, cf_type)
         error("$cf_type is not supported")
     end
 
-    result = similar(img, Float64, result_size)
+    result = similar(img, Float32, result_size)
 
     CFMap(result, cf_type, img_size, zero_index)
 end
@@ -34,7 +34,7 @@ end
 function dir_ixs(cfmap, dir)
     n = maximum(abs, dir)
 
-    way = collect(0:n) / (n == 0 ? 1 : n)
+    way = Float32.(collect(0:n) / (n == 0 ? 1 : n))
 
     if cfmap.cf_type == :central_symmetry && dir[end] < 0
         dir = .- dir
@@ -139,8 +139,8 @@ function mean_dir(cfmap::CFMap)
     
     m = cfmap.img_size .-1 |> norm |> ceil |> Int
     m += 1
-    cfdir = zeros(m)
-    weights = zeros(m)
+    cfdir = zeros(Float32, m)
+    weights = zeros(Float32, m)
     
     for ix in CartesianIndices(data)
         tix = Tuple(ix)

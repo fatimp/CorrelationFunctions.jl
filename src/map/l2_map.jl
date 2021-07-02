@@ -309,7 +309,7 @@ The `image` contains the probability of the voxel being in the correct phase.
 # Examples
 ```jldoctest
 julia> l2([1 0; 0 1]; periodic=true).result
-3×2 Matrix{Float64}:
+3×2 Matrix{Float32}:
  0.0  0.5
  0.5  0.0
  0.0  0.5

@@ -22,7 +22,7 @@ Return parameters that can be used sequentially for all similar imgs.
 """
 function Params_map(img)
     mirror_img = similar(img)
-    mirror_result = similar(img, Float64)
+    mirror_result = similar(img, Float32)
 
     Params_map(
         mirror_img,
