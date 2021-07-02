@@ -1,7 +1,7 @@
 label(img::AbstractArray, periodic::Bool) =
     label_components(img, periodic ? Torus() : Plane())
 label(img::CuArray, periodic::Bool) =
-    cu(label_components(Array(img), periodic))
+    cu(label(Array(img), periodic))
 
 
 struct Params_C2{LabelImage,ComplexArray,Total}
