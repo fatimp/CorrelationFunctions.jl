@@ -184,6 +184,7 @@ end
 function edt!(array :: AbstractVector{Float64}, :: Plane)
     v, z = lower_envelope(array)
     len = length(array)
+    dist = similar(array)
 
     # Compute EDT by selecting a parabola which belongs to a lower
     # envelope for this line segment
@@ -193,9 +194,10 @@ function edt!(array :: AbstractVector{Float64}, :: Plane)
             k = k + 1
         end
         j = v[k]
-        array[i] = array[j] + (i - j)^2
+        dist[i] = array[j] + (i - j)^2
     end
 
+    array .= dist
     return array
 end
 
