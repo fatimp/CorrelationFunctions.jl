@@ -40,7 +40,10 @@ function read_cuboid(cfgpath :: String)
     return data
 end
 
-# Component labeling
+######################
+# Component labeling #
+######################
+
 # Two components are considered connected if they have manhattan_dist == 1
 manhattan_dist(x :: NTuple{N, Int}, y :: NTuple{N, Int}) where N =
     sum(abs.(x .- y))
@@ -130,3 +133,50 @@ function Images.label_components(input :: AbstractArray{T, N},
 end
 
 Images.label_components(input, :: Plane) = Images.label_components(input)
+
+################################
+# Euclidean distance transform #
+################################
+
+# This code can be rewritten into more beautiful implementation.
+# The bad thing is that Julia is against any beauty.
+
+function edt(array    :: AbstractArray{Bool},
+             topology :: Topology)
+    len = array |> length |> Float64
+    binary = map(x -> len^2*(1-x), array)
+    return edt!(binary, topology) .|> sqrt
+end
+
+function lower_envelope(array :: AbstractVector{Float64})
+    # This code is Fortran-like. 
+    # Proper data structures like lists are required to make it more understandable.
+    # Unfortunately, Julia does not have them, so prepare to suffer.
+    len = length(array)
+    v = zeros(Int, len)
+    z = zeros(Float64, len+1)
+    
+    # Compute the lower envelope of family of parabolas
+    k = 1
+    v[1] = 1
+    z[1] = -Inf
+    z[2] = Inf
+    
+    for i in 2:len
+        s = 0
+        while true
+            j = v[k]
+            s = ((array[i] + i^2) - (array[j] + j^2))/(2i - 2j)
+            if s > z[k]
+                break
+            end
+            k = k - 1
+        end
+        k = k + 1
+        v[k] = i
+        z[k] = s
+        z[k+1] = Inf
+    end
+    
+    return v, z
+end
