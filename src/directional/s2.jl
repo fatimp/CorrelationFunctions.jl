@@ -37,57 +37,85 @@ See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
 """
 function s2 end
 
+function s2slice!(success   :: Vector{Float64},
+                  total     :: Vector{Float64},
+                  slice     :: AbstractVector,
+                  indicator :: SeparableIndicator,
+                  corrlen   :: Integer,
+                  _         :: Val{true})
+    # Calculate s2 for periodic signal using FFT
+    χ1, χ2 = indicator_function(indicator)
+    fft1 = map(χ1, slice) |> fft
+    fft2 = (χ1 === χ2) ? fft1 : (map(χ2, slice) |> fft)
+    s2fft = real.(ifft(fft1 .* conj.(fft2)))
+
+    slen = length(slice)
+    # Number of correlation lengths
+    shifts = min(corrlen, slen)
+
+    success[1:shifts] .+= s2fft[1:shifts]
+    total[1:shifts] .+= slen
+    return nothing
+end
+
+function s2slice!(success   :: Vector{Float64},
+                  total     :: Vector{Float64},
+                  slice     :: AbstractVector,
+                  indicator :: SeparableIndicator,
+                  corrlen   :: Integer,
+                  _         :: Val{false})
+    # Calculate s2 for non-periodic signal using xcorr from DSP.jl
+    χ1, χ2 = indicator_function(indicator)
+    ind1 = map(χ1, slice)
+    ind2 = (χ1 === χ2) ? ind1 : map(χ2, slice)
+
+    slen = length(slice)
+    # Number of correlation lengths
+    shifts = min(corrlen, slen)
+
+    # Calculate cross-correlation of χ₁(slice) and
+    # χ₂(slice), then drop at least half-1 numbers from
+    # the result because the indicator function is not
+    # symmetrical (e.g. "surface-void" function is not the
+    # same as "void-surface"). Despite that some data is
+    # dropped, this gives a significant improvement in
+    # speed for cubes with a side > 250 compared with the
+    # old version, which is now a method for
+    # InseparableIndicator.
+
+    # Note, that in Z-transform notation this code is
+    # especially beautiful: Z^-1[f₁(z) * f₂(z^-1)], where
+    # f₁(z) and f₂(z) are Z-transforms of χ₁(slice) and
+    # χ₂(slice).
+
+    # Compute cross-correlation
+    s2 = xcorr(ind1, ind2; padmode = :none)
+
+    # Update correlation data
+    # We do not take the first half of c even if f1 ≠ f2. For
+    # the reason of this, see @doc SeparableIndicator.
+    success[1:shifts] .+= s2[slen:slen + shifts - 1]
+    # Calculate total number of slices with lengths from 1 to len
+    update_runs!(total, slen, shifts)
+
+    return nothing
+end
+
 function s2(array      :: AbstractArray,
             indicator  :: SeparableIndicator;
             len        :: Integer = (array |> size |> minimum) ÷ 2,
             directions :: Vector{Symbol} = array |> default_directions,
             periodic   :: Bool = false)
     cd = CorrelationData{Float64}(len, check_directions(directions, size(array), periodic))
-    χ1, χ2 = indicator_function(indicator)
 
     for direction in directions
         slicer = slice_generators(array, periodic, Val(direction))
 
         for slice in slicer
-            f1 = map(χ1, slice)
-            f2 = map(χ2, slice)
-            slen = length(slice)
-            # Number of shifts (distances between two points for this slice)
-            shifts = min(len, slen)
-
-            if !periodic
-                # Calculate cross-correlation of χ₁(slice) and
-                # χ₂(slice), then drop at least half-1 numbers from
-                # the result because the indicator function is not
-                # symmetrical (e.g. "surface-void" function is not the
-                # same as "void-surface"). Despite that some data is
-                # dropped, this gives a significant improvement in
-                # speed for cubes with a side > 250 compared with the
-                # old version, which is now a method for
-                # InseparableIndicator.
-
-                # Note, that in Z-transform notation this code is
-                # especially beautiful: Z^-1[f₁(z) * f₂(z^-1)], where
-                # f₁(z) and f₂(z) are Z-transforms of χ₁(slice) and
-                # χ₂(slice).
-
-                # Compute cross-correlation
-                c = xcorr(f1, f2; padmode = :none)
-
-                # Update correlation data
-                # We do not take the first half of c even if f1 ≠ f2. For
-                # the reason of this, see @doc SeparableIndicator.
-                cd.success[direction][1:shifts] .+= c[slen:slen + shifts - 1]
-                # Calculate total number of slices with lengths from 1 to len
-                update_runs!(cd.total[direction], slen, shifts)
-            else
-                # Do the same thing, but using FFT transform for
-                # periodized signal.
-                fft1 = fft(f1)
-                fft2 = fft(f2)
-                cd.success[direction][1:shifts] .+= real.(ifft(fft1 .* conj.(fft2)))[1:shifts]
-                cd.total[direction][1:shifts] .+= slen
-            end
+            s2slice!(cd.success[direction],
+                     cd.total[direction],
+                     slice, indicator, len,
+                     Val(periodic))
         end
     end
 
