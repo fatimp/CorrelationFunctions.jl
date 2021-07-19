@@ -80,8 +80,8 @@ mean_chord_length(R, λ) = 1/(2λ*R)
     # Poisson parameter = λ
     S = 7000; R = 40; λ = 5e-5;
 
-    f = mean ∘ Directional.s2
-    calc = f(gendisks(S, R, λ), 0)
+    disks = gendisks(S, R, λ)
+    calc = Directional.s2(disks, 0; periodic = true) |> mean
     theory = [s2_theory(r-1, R, λ) for r in 0:length(calc) - 1]
 
     err = relerr.(calc, theory)
@@ -93,7 +93,8 @@ end
     # Poisson parameter = λ
     S = 7000; R = 40; λ = 5e-5; N = 700
 
-    calc = log.(mean(Directional.l2(gendisks(S, R, λ), 0; len = N)))
+    disks = gendisks(S, R, λ)
+    calc = Directional.l2(disks, 0; len = N, periodic = true) |> mean .|> log
     theory = [(log ∘ l2_theory)(r-1, R, λ) for r in 0:N - 1]
 
     err = relerr.(calc, theory)
@@ -105,8 +106,8 @@ end
     # Poisson parameter = λ
     S = 7000; R = 30; λ = 4e-4;
 
-    f = mean ∘ Directional.surfsurf
-    calc = f(gendisks(S, R, λ), 0)
+    disks = gendisks(S, R, λ)
+    calc = Directional.surfsurf(disks, 0; periodic = true) |> mean
     theory = [ss_theory(r, R, λ) for r in 0:length(calc) - 1]
 
     err = relerr.(calc, theory)
@@ -120,8 +121,8 @@ end
     # Poisson parameter = λ
     S = 7000; R = 30; λ = 4e-4;
 
-    f = mean ∘ Directional.surfvoid
-    calc = f(gendisks(S, R, λ), 0)
+    disks = gendisks(S, R, λ)
+    calc = Directional.surfvoid(disks, 0; periodic = true) |> mean
     theory = [sv_theory(r, R, λ) for r in 0:length(calc) - 1]
 
     err = relerr.(calc, theory)
