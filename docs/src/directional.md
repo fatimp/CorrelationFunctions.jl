@@ -97,6 +97,10 @@ be necessary to cross a boundary of the input array. There two options how
 PBC is used when you specify `periodic = true` when call a correlation function,
 otherwise CW is used.
 
+```@docs
+Directional.S2FTPlans
+```
+
 ## Directions
 
 Correlation functions can be computed in many directions depending on how test

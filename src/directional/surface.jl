@@ -12,17 +12,18 @@ extract_edge(array :: AbstractArray, :: Val{:distance_map}) =
     end
 
 """
-    surfsurf(array, phase[; len,][directions,] periodic = false, edgemode = :Sobel)
-    surfsurf(array, χ[; len,][directions,] periodic = false, edgemode = :Sobel)
+    surfsurf(array, phase[; len][, directions][, plans,] periodic = false, edgemode = :Sobel)
+    surfsurf(array, χ[; len][, directions][, plans,] periodic = false, edgemode = :Sobel)
 
-Calculate `Fss(x)` (surface-surface) correlation function for one-,
-two- or three-dimensional multiphase system. 
+Calculate surface-surface correlation function for one-, two- or
+three-dimensional multiphase system.
 
-`Fss(x)` equals to probability that corner elements of a line segment
-with the length `x` cut from the array belong to the boundary of a
-cluster with the phase `phase`. This implementation calculates
-surface-surface function for all `x`s in the range from `1` to `len`
-which defaults to half of the minimal dimension of the array.
+Surface-surface CF equals to probability that corner elements of a
+line segment with the length `x` cut from the array belong to the
+boundary of a cluster with the phase `phase`. This implementation
+calculates surface-surface function for all `x`s in the range from `1`
+to `len` which defaults to half of the minimal dimension of the
+array.
 
 You can chose how an edge between phases are selected by passing
 `edgemode` argument which can be either `:Sobel` or
@@ -30,8 +31,12 @@ You can chose how an edge between phases are selected by passing
 
 You can specify a custom indicator function `χ(x)` instead of `phase`.
 
-For a list of possible dimensions, see also: [`direction1Dp`](@ref),
-[`direction2Dp`](@ref), [`direction3Dp`](@ref).
+An argument `plans` can be used to support precomputed FFT plans which
+can be helpful if you call `surfsurf` often with the array of the same
+size. Plans can be computed with `S2FTPlans` constructor.
+
+See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
+[`direction3Dp`](@ref), [`S2FTPlans`](@ref).
 """
 function surfsurf end
 
@@ -40,11 +45,13 @@ surfsurf(array      :: AbstractArray,
          len        :: Integer        = (array |> size  |> minimum) ÷ 2,
          directions :: Vector{Symbol} =  array |> default_directions,
          periodic   :: Bool           = false,
+         plans      :: S2FTPlans      = S2FTPlans(array, periodic),
          edgemode   :: Symbol         = :Sobel) =
              surfsurf(array, x -> x == phase;
                       len        = len,
                       directions = directions,
                       periodic   = periodic,
+                      plans      = plans,
                       edgemode   = edgemode)
 
 function surfsurf(array      :: AbstractArray,
@@ -52,6 +59,7 @@ function surfsurf(array      :: AbstractArray,
                   len        :: Integer        = (array |> size  |> minimum) ÷ 2,
                   directions :: Vector{Symbol} =  array |> default_directions,
                   periodic   :: Bool           = false,
+                  plans      :: S2FTPlans      = S2FTPlans(array, periodic),
                   edgemode   :: Symbol         = :Sobel)
     ph = map(χ, array)
     edge = extract_edge(ph, edgemode)
@@ -59,22 +67,23 @@ function surfsurf(array      :: AbstractArray,
     return s2(edge, SeparableIndicator(identity);
               len        = len,
               directions = directions,
-              periodic   = periodic)
+              periodic   = periodic,
+              plans      = plans)
 end
 
 """
-    surfvoid(array, phase[; len,][directions,] periodic = false, edgemode = :Sobel)
-    surfvoid(array, χ[; len,][directions,] periodic = false, edgemode = :Sobel)
+    surfvoid(array, phase[; len][, directions][, plans,] periodic = false, edgemode = :Sobel)
+    surfvoid(array, χ[; len][, directions][, plans,] periodic = false, edgemode = :Sobel)
 
-Calculate `Fsv(x)` (surface-void) correlation function for one-, two-
-or three-dimensional multiphase system.
+Calculate surface-void correlation function for one-, two- or
+three-dimensional multiphase system.
 
-`Fsv(x)` equals to probability that one corner of a line segment with
-the length `x` cut from the array belongs to the boundary of a cluster
-with the phase `phase` and the other belongs to the void phase
-`0`. This implementation calculates surface-void function for all `x`s
-in the range from `1` to `len` which defaults to half of the minimal
-dimension of the array.
+Surface-void CF equals to probability that one corner of a line
+segment with the length `x` cut from the array belongs to the boundary
+of a cluster with the phase `phase` and the other belongs to the void
+phase `0`. This implementation calculates surface-void function for
+all `x`s in the range from `1` to `len` which defaults to half of the
+minimal dimension of the array.
 
 You can chose how an edge between phases are selected by passing
 `edgemode` argument which can be either `:Sobel` or
@@ -82,8 +91,12 @@ You can chose how an edge between phases are selected by passing
 
 You can specify a custom indicator function `χ(x)` instead of `phase`.
 
-For a list of possible dimensions, see also: [`direction1Dp`](@ref),
-[`direction2Dp`](@ref), [`direction3Dp`](@ref).
+An argument `plans` can be used to support precomputed FFT plans which
+can be helpful if you call `surfvoid` often with the array of the same
+size. Plans can be computed with `S2FTPlans` constructor.
+
+See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
+[`direction3Dp`](@ref), [`S2FTPlans`](@ref).
 """
 function surfvoid end
 
@@ -92,11 +105,13 @@ surfvoid(array      :: AbstractArray,
          len        :: Integer        = (array |> size  |> minimum) ÷ 2,
          directions :: Vector{Symbol} =  array |> default_directions,
          periodic   :: Bool           = false,
+         plans      :: S2FTPlans      = S2FTPlans(array, periodic),
          edgemode   :: Symbol         = :Sobel) =
              surfvoid(array, x -> x == phase;
                       len        = len,
                       directions = directions,
                       periodic   = periodic,
+                      plans      = plans,
                       edgemode   = edgemode)
 
 function surfvoid(array      :: AbstractArray,
@@ -104,6 +119,7 @@ function surfvoid(array      :: AbstractArray,
                   len        :: Integer        = (array |> size  |> minimum) ÷ 2,
                   directions :: Vector{Symbol} =  array |> default_directions,
                   periodic   :: Bool           = false,
+                  plans      :: S2FTPlans      = S2FTPlans(array, periodic),
                   edgemode   :: Symbol         = :Sobel)
     ph = map(χ, array)
     edge = extract_edge(ph, edgemode)
@@ -113,7 +129,8 @@ function surfvoid(array      :: AbstractArray,
     return s2(CartesianIndices(array), SeparableIndicator(χ1, χ2);
               len        = len,
               directions = directions,
-              periodic   = periodic)
+              periodic   = periodic,
+              plans      = plans)
 end
 
 # Frequency analisys of an input data (helps to check how an input is
