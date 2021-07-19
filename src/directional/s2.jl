@@ -37,19 +37,40 @@ See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
 """
 function s2 end
 
-function s2slice!(success   :: Vector{Float64},
-                  total     :: Vector{Float64},
-                  slice     :: AbstractVector,
-                  indicator :: SeparableIndicator,
-                  corrlen   :: Integer,
-                  _         :: Val{true})
+maybe_pad_with_zeros(slice :: AbstractVector, :: Torus) = slice
+maybe_pad_with_zeros(slice :: AbstractVector{T}, :: Plane) where T =
+    let z = zeros(T, length(slice)); vcat(z, slice, z) end
+
+expand_coefficient(:: Plane) = 3
+expand_coefficient(:: Torus) = 1
+
+function compute_fft_plans(array    :: AbstractArray,
+                           topology :: Topology)
+    m = expand_coefficient(topology)
+    fft_plans  = Dict(s => zeros(Float64, m*s) |> plan_rfft for s in size(array))
+    ifft_plans = Dict(s => plan_irfft(fft_plans[s] * zeros(Float64, m*s), m*s) for s in size(array))
+    return fft_plans, ifft_plans
+end
+
+function s2slice!(success    :: Vector{Float64},
+                  total      :: Vector{Float64},
+                  slice      :: AbstractVector,
+                  indicator  :: SeparableIndicator,
+                  corrlen    :: Integer,
+                  _          :: Val{true},
+                  fft_plans  :: Dict{Int, <:Any},
+                  ifft_plans :: Dict{Int, <:Any})
+    # Get plans for FFT and inverse FFT
+    slen = length(slice)
+    fft  = fft_plans[slen]
+    ifft = ifft_plans[slen]
+
     # Calculate s2 for periodic signal using FFT
     χ1, χ2 = indicator_function(indicator)
-    fft1 = map(χ1, slice) |> fft
-    fft2 = (χ1 === χ2) ? fft1 : (map(χ2, slice) |> fft)
-    s2fft = real.(ifft(fft1 .* conj.(fft2)))
+    fft1 = fft * map(χ1, slice)
+    fft2 = (χ1 === χ2) ? fft1 : fft * map(χ2, slice)
+    s2fft = ifft * (fft1 .* conj.(fft2))
 
-    slen = length(slice)
     # Number of correlation lengths
     shifts = min(corrlen, slen)
 
@@ -63,7 +84,9 @@ function s2slice!(success   :: Vector{Float64},
                   slice     :: AbstractVector,
                   indicator :: SeparableIndicator,
                   corrlen   :: Integer,
-                  _         :: Val{false})
+                  _         :: Val{false},
+                  _         :: Any,
+                  _         :: Any)
     # Calculate s2 for non-periodic signal using xcorr from DSP.jl
     χ1, χ2 = indicator_function(indicator)
     ind1 = map(χ1, slice)
@@ -107,15 +130,46 @@ function s2(array      :: AbstractArray,
             directions :: Vector{Symbol} = array |> default_directions,
             periodic   :: Bool = false)
     cd = CorrelationData{Float64}(len, check_directions(directions, size(array), periodic))
+    topology = periodic ? Torus() : Plane()
+    fft_plans, ifft_plans = compute_fft_plans(array, topology)
+    χ1, χ2 = indicator_function(indicator)
 
     for direction in directions
+        success = cd.success[direction]
+        total = cd.total[direction]
         slicer = slice_generators(array, periodic, Val(direction))
 
         for slice in slicer
-            s2slice!(cd.success[direction],
-                     cd.total[direction],
-                     slice, indicator, len,
-                     Val(periodic))
+            # Get plans for FFT and inverse FFT
+            slen = length(slice)
+            local fft, ifft
+
+            ind1 = maybe_pad_with_zeros(map(χ1, slice), topology)
+            ind2 = maybe_pad_with_zeros(map(χ2, slice), topology)
+
+            if slen ∈ keys(fft_plans)
+                fft  = fft_plans[slen]
+                ifft = ifft_plans[slen]
+            else
+                l = length(ind1)
+                fft  = plan_rfft(ind1)
+                ifft = plan_irfft(zeros(ComplexF64, l >> 1 + 1), l)
+            end
+
+            fft1 = fft * ind1
+            fft2 = (χ1 === χ2) ? fft1 : fft * ind2
+            s2 = ifft * (fft1 .* conj.(fft2))
+
+            # Number of correlation lengths
+            shifts = min(len, slen)
+
+            # Update success and total
+            success[1:shifts] .+= s2[1:shifts]
+            if periodic
+                total[1:shifts] .+= slen
+            else
+                update_runs!(total, slen, shifts)
+            end
         end
     end
 

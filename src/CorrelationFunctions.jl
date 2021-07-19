@@ -13,9 +13,9 @@ using PrettyTables: pretty_table
 using Base.Iterators
 using IterTools: imap
 using DSP: xcorr
-using FFTW: fft, ifft
+using FFTW: plan_rfft, plan_irfft
 using CircularArrays: CircularArray
-import ..Plane, ..Torus
+import ..Plane, ..Torus, ..Topology
 
 include("directional/directions.jl")
 include("directional/corrdata.jl")
