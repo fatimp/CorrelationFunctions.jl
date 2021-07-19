@@ -12,7 +12,6 @@ using Images: Kernel, imgradients, feature_transform,
 using PrettyTables: pretty_table
 using Base.Iterators
 using IterTools: imap
-using DSP: xcorr
 using FFTW: plan_rfft, plan_irfft
 using CircularArrays: CircularArray
 import ..Plane, ..Torus, ..Topology
