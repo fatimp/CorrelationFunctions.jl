@@ -155,7 +155,7 @@ function s2(array      :: AbstractArray,
 
             # Calculate slices where χ(slice[x]) && χ(slice[x+y]) for
             # all y's from 1 to len.
-            cd.success[direction][1:shifts] .+= imap(1:shifts) do shift
+            cd.success[direction][1:shifts] .+= Iterators.map(1:shifts) do shift
                 # Periodic slice, if needed
                 pslice = periodic ? vcat(slice, slice[1:shift-1]) : slice
                 plen = periodic ? slen+shift-1 : slen

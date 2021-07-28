@@ -11,7 +11,6 @@ using Images: Kernel, imgradients, feature_transform,
     distance_transform, label_components
 using PrettyTables: pretty_table
 using Base.Iterators
-using IterTools: imap
 using FFTW: plan_rfft, plan_irfft
 using CircularArrays: CircularArray
 import ..Plane, ..Torus, ..Topology
