@@ -1,4 +1,4 @@
-struct Params_SS{ComplexArray,Total}
+struct Params_SS{ComplexArray,Total,KF}
     # boundary conditions
     periodic::Bool
     # normalization
@@ -6,13 +6,14 @@ struct Params_SS{ComplexArray,Total}
 
 
     # algorithm-specific
-
+    # gradient kernel
+    kernelfactor::KF
     # fft buffers
     complex_surface::ComplexArray
 end
 
 
-function Params_SS(img; periodic::Bool=true)
+function Params_SS(img; periodic::Bool=true, kernelfactor=KernelFactors.sobel)
     box = size(img)
     complex_box = periodic ? box : box .* 2
 
@@ -22,6 +23,7 @@ function Params_SS(img; periodic::Bool=true)
     p = Params_SS(
         periodic,
         total,
+        kernelfactor,
         similar(img, ComplexF64, complex_box)
     )
     cf_type = periodic ? :periodic_point_point : :central_symmetry
@@ -41,7 +43,7 @@ function correllation_function!(res, img, params::Params_SS)
 
     v_f = view(f, ix)
 
-    v_f .= gradient_norm(img)
+    v_f .= gradient_norm(img, params.kernelfactor)
 
     self_correlation!(f)
 
@@ -65,6 +67,6 @@ julia> surfsurf([1 0; 0 1]; periodic=true).result
  0.125  0.125
 ```
 """
-function surfsurf(image; periodic::Bool=false)
-    corr_function_map(image, Params_SS; periodic)
+function surfsurf(image; periodic::Bool=false, kernelfactor=KernelFactors.sobel)
+    corr_function_map(image, Params_SS; periodic, kernelfactor)
 end

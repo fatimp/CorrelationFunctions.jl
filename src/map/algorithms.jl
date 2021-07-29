@@ -22,16 +22,16 @@ function cnt_total(img_size::Tuple{Vararg{Int}}, periodic::Bool)
 end
 
 
-function gradient_norm(img)
-    dimgs = imgradients(img, KernelFactors.sobel)
+function gradient_norm(img, kernelfactor=KernelFactors.sobel)
+    dimgs = imgradients(img, kernelfactor)
 
     map((x...) -> norm(x), dimgs...)
 end
 
 
-function gradient_norm(img::CuArray)
+function gradient_norm(img::CuArray, kernelfactor=KernelFactors.sobel)
     imgCPU = Array(img)
-    cu(gradient_norm(imgCPU))
+    cu(gradient_norm(imgCPU, kernelfactor))
 end
 
 
