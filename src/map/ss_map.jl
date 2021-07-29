@@ -24,7 +24,7 @@ function Params_SS(img; periodic::Bool=true, kernelfactor=KernelFactors.sobel)
         periodic,
         total,
         kernelfactor,
-        similar(img, ComplexF64, complex_box)
+        similar(img, ComplexF32, complex_box)
     )
     cf_type = periodic ? :periodic_point_point : :central_symmetry
     p, cf_type
@@ -62,7 +62,7 @@ The `image` contains the probability of the voxel being in the correct phase.
 # Examples
 ```jldoctest
 julia> surfsurf([1 0; 0 1]; periodic=true).result
-2×2 Matrix{Float64}:
+2×2 Matrix{Float32}:
  0.125  0.125
  0.125  0.125
 ```

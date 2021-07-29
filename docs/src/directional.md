@@ -3,8 +3,8 @@
 This is a documentation for `CorrelationFunctions.Directional` module. The
 documentation is divided into the following topics:
 
-* **[Functions](@ref)** page contains the exhaustive list of correlation
-  functions supported by this package.
+* **[Correlation Functions](@ref)** page contains the exhaustive list of
+  correlation functions supported by this package.
 * **[Accessing Data](@ref)** page describes how to access data returned by
   correlation functions.
 * **[Boundary Conditions](@ref)** page describes boundary conditions when
@@ -16,7 +16,7 @@ documentation is divided into the following topics:
 * **[Results](@ref)** page contains comparison of correlation functions from
   this package with some known theoretical results.
 
-## Functions
+## Correlation Functions
 
 The following correlation functions are supported:
 
@@ -97,6 +97,10 @@ be necessary to cross a boundary of the input array. There two options how
 PBC is used when you specify `periodic = true` when call a correlation function,
 otherwise CW is used.
 
+```@docs
+Directional.S2FTPlans
+```
+
 ## Directions
 
 Correlation functions can be computed in many directions depending on how test
@@ -129,10 +133,10 @@ designations and vectors:
 ## Indicator Functions
 
 Internally, the functions `c2`, `surfsurf` and `surfvoid` (see
-[Functions](@ref)) are reduced to `s2` passing more generic indicator functions
-rather than simply a phase. This feature is also exposed to users. If you want
-to use a custom indicator function, you need to wrap it to either
-`SeparableIndicator` or `InseparableIndicator` structure, calling the
+[Correlation Functions](@ref)) are reduced to `s2` passing more generic
+indicator functions rather than simply a phase. This feature is also exposed to
+users. If you want to use a custom indicator function, you need to wrap it to
+either `SeparableIndicator` or `InseparableIndicator` structure, calling the
 corresponding constructor. Note that `s2` performs much better on big arrays
 when using `SeparableIndicator`.
 

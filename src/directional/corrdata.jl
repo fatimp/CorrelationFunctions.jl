@@ -17,6 +17,19 @@ function CorrelationData{T}(len        :: Integer,
     return CorrelationData{T}(directions, success, total)
 end
 
+# Copier
+function CorrelationData{T}(data :: CorrelationData) where T
+    directions = data.directions
+    success    = data.success
+    total      = data.total
+
+    return CorrelationData{T}(directions,
+                              Dict(x => T.(success[x]) for x in directions),
+                              Dict(x => T.(total[x])   for x in directions))
+end
+
+CorrelationData(data :: CorrelationData{T}) where T = CorrelationData{T}(data)
+
 function Base.getindex(x :: CorrelationData, i)
     directions = x.directions
     if i ∉ directions

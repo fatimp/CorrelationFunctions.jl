@@ -31,7 +31,7 @@ function c2(array      :: AbstractArray,
             len        :: Integer = (array |> size |> minimum) ÷ 2,
             periodic   :: Bool = false)
     field = map(x -> x == phase, array)
-    s2(label_components(field),
+    s2(label_components(field, periodic ? Torus() : Plane()),
        InseparableIndicator((x, y) -> x == y != 0);
        len        = len,
        directions = directions,

@@ -10,7 +10,7 @@ To build a documentation do the following.
 2. From shell, this directory being the working directory: `cd docs && julia make.jl`
 
 Also the documentation for the most recent release is available on
-[GitHub Pages](https://shamazmazum.github.io/CorrelationFunctions.jl/v0.2.0/).
+[GitHub Pages](https://shamazmazum.github.io/CorrelationFunctions.jl/dev/).
 
 ## Acknowledgements
 

@@ -1,4 +1,5 @@
 [deps]
+Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 PoissonRandom = "e409e4f3-bfea-5376-8464-e040bb5c01ab"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 XUnit = "3e3c03f2-1a94-11e9-2981-050a4ca824ab"

@@ -1,5 +1,7 @@
-label(img::AbstractArray) = label_components(img)
-label(img::CuArray)       = cu(label_components(Array(img)))
+label(img::AbstractArray, periodic::Bool) =
+    label_components(img, periodic ? Torus() : Plane())
+label(img::CuArray, periodic::Bool) =
+    cu(label(Array(img), periodic))
 
 
 struct Params_C2{LabelImage,ComplexArray,Total}
@@ -26,7 +28,7 @@ function Params_C2(img; periodic::Bool=true)
         periodic,
         total,
         similar(img, Int),
-        similar(img, ComplexF64, complex_box),
+        similar(img, ComplexF32, complex_box),
     )
     cf_type = periodic ? :periodic_point_point : :central_symmetry
     p, cf_type
@@ -41,7 +43,7 @@ Compute C₂ correlation function in positive directions
 function correllation_function!(res, img, params::Params_C2)
     ix = CartesianIndices(img)
 
-    labeled_img = params.labeled_img .= label(img)
+    labeled_img = params.labeled_img .= label(img, params.periodic)
     n_segments = maximum(labeled_img)
 
     f = params.complex_img
@@ -68,7 +70,7 @@ The `image` contains the probability of the voxel being in the correct phase.
 # Examples
 ```jldoctest
 julia> c2([1 0; 0 1]; periodic=true).result
-2×2 Matrix{Float64}:
+2×2 Matrix{Float32}:
  0.5  0.0
  0.0  0.0
 ```

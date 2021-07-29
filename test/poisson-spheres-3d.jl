@@ -82,7 +82,7 @@ mean_chord_length(R, λ) = 1/(λ * π *R^2)
     balls = genballs(S, R, λ)
 
     # Calculate in one direction for speed
-    calc = mean(Directional.s2(balls, 0; directions = [:x]))
+    calc = Directional.s2(balls, 0; periodic = true) |> mean
     theory = [s2_theory(r - 1, R, λ) for r in 0:length(calc) - 1]
     err = relerr.(calc, theory)
 
@@ -96,7 +96,7 @@ end
     balls = genballs(S, R, λ)
 
     # Calculate in one direction for speed
-    calc = mean(Directional.surfsurf(balls, 0; directions = [:x]))
+    calc = Directional.surfsurf(balls, 0; periodic = true) |> mean
     theory = [ss_theory(r - 1, R, λ) for r in 0:length(calc) - 1]
     err = relerr.(calc, theory)
 
@@ -112,7 +112,7 @@ end
     balls = genballs(S, R, λ)
 
     # Calculate in one direction for speed
-    calc = mean(Directional.surfvoid(balls, 0; directions = [:x]))
+    calc = Directional.surfvoid(balls, 0; periodic = true) |> mean
     theory = [sv_theory(r - 1, R, λ) for r in 0:length(calc) - 1]
     err = relerr.(calc, theory)
 
@@ -126,7 +126,7 @@ end
     S = 500; R = 20; λ = 3e-5; N = 100
     balls = genballs(S, R, λ)
 
-    calc = log.(mean(Directional.l2(balls, 0; len = N)))
+    calc = Directional.l2(balls, 0; len = N, periodic = true) |> mean .|> log
     theory = [log(l2_theory(r - 1, R, λ)) for r in 0:N - 1]
     err = relerr.(calc, theory)
 
