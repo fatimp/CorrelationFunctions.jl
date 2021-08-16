@@ -30,7 +30,7 @@ include("directional/pore-size.jl")
 export l2, s2, c2,
     surfsurf, surfvoid, lowfreq_energy_ratio, chord_length, pore_size,
     AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans,
-    CorrelationData, default_directions, directions
+    CorrelationData, default_directions, directions, unit_length
 
 # These are exported for their docstrings.
 export direction1Dp, direction2Dp, direction3Dp

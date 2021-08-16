@@ -125,3 +125,47 @@ function check_directions(directions :: Vector{Symbol},
 
     return directions
 end
+
+"""
+    unit_length(direction)
+
+Return length of one unit (pixel or voxel) in chosen direction.
+
+# Examples
+```jldoctest
+julia> unit_length(:x)
+1.0
+```
+
+```jldoctest
+julia> unit_length(:xy)
+1.4142135623730951
+```
+
+```jldoctest
+julia> unit_length(:xyz)
+1.7320508075688772
+```
+"""
+function unit_length end
+
+macro def_unit_length(sym, expr)
+    return :(unit_length(:: Val{$sym}) = $expr)
+end
+
+unit_length(direction :: Symbol) = direction |> Val |> unit_length
+@def_unit_length :x sqrt(1.0)
+@def_unit_length :y sqrt(1.0)
+@def_unit_length :z sqrt(1.0)
+
+@def_unit_length :xy sqrt(2.0)
+@def_unit_length :yx sqrt(2.0)
+@def_unit_length :yz sqrt(2.0)
+@def_unit_length :zy sqrt(2.0)
+@def_unit_length :xz sqrt(2.0)
+@def_unit_length :zx sqrt(2.0)
+
+@def_unit_length :xyz sqrt(3.0)
+@def_unit_length :xzy sqrt(3.0)
+@def_unit_length :zyx sqrt(3.0)
+@def_unit_length :yxz sqrt(3.0)
