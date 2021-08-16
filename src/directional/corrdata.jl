@@ -105,3 +105,11 @@ julia> directions(l2(rand(0:1, (50, 10)), 1))
 ```
 """
 directions(data :: CorrelationData) = data.directions
+
+"""
+    direction ∈ corrdata
+
+Return `true` in correlation data `corrdata` is computed for a
+direction `direction`.
+"""
+Base.in(direction :: Symbol, data :: CorrelationData) = direction ∈ directions(data)
