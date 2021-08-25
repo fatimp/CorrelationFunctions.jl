@@ -72,9 +72,10 @@ For a list of possible dimensions, see also: [`direction1Dp`](@ref),
 """
 function l2(array      :: AbstractArray,
             phase;
-            len        :: Integer = (array |> size |> minimum) ÷ 2,
+            len        :: Integer        = (array |> size |> minimum) ÷ 2,
             directions :: Vector{Symbol} = array |> default_directions,
-            periodic   :: Bool = false)
+            periodic   :: Bool           = false,
+            plans      :: Any            = nothing)
     cd = CorrelationData(len, check_directions(directions, size(array), periodic))
 
     for direction in directions
