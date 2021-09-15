@@ -70,3 +70,9 @@ julia> surfsurf([1 0; 0 1]; periodic=true).result
 function surfsurf(image; periodic::Bool=false, kernelfactor=KernelFactors.sobel)
     corr_function_map(image, Params_SS; periodic, kernelfactor)
 end
+
+
+function surfsurf(image, phase::Int; periodic::Bool=false, kernelfactor=KernelFactors.sobel)
+    one_phase_img = image .== phase
+    corr_function_map(one_phase_img, Params_SS; periodic, kernelfactor)
+end

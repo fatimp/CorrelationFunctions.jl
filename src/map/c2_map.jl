@@ -78,3 +78,9 @@ julia> c2([1 0; 0 1]; periodic=true).result
 function c2(image; periodic::Bool=false)
     corr_function_map(image, Params_C2; periodic)
 end
+
+
+function c2(image, phase::Int; periodic::Bool=false)
+    one_phase_img = image .== phase
+    corr_function_map(one_phase_img, Params_C2; periodic)
+end

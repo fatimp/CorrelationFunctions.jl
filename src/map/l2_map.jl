@@ -324,3 +324,9 @@ function l2(image; periodic=false)
 
     corr_function_map(image, Params_L2; periodic)
 end
+
+
+function l2(image, phase::Int; periodic=false)
+    one_phase_img = image .== phase
+    corr_function_map(one_phase_img, Params_L2; periodic)
+end
