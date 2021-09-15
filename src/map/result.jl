@@ -137,8 +137,9 @@ Return averaged correlation function for r = 0, 1, 2, ...
 function mean_dir(cfmap::CFMap)
     data = cfmap.result
     
-    m = cfmap.img_size .-1 |> norm |> ceil |> Int
-    m += 1
+    m = cfmap.img_size |> norm |> floor |> Int
+    m += ndims(data) > 1
+    
     cfdir = zeros(Float32, m)
     weights = zeros(Float32, m)
     
