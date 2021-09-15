@@ -114,6 +114,7 @@ Directional.direction1Dp
 Directional.direction2Dp
 Directional.direction3Dp
 Directional.default_directions
+Directional.unit_length
 ```
 
 These rules can help you to memoize the correspondence between symbolic

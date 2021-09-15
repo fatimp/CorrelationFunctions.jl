@@ -4,31 +4,29 @@ Structure returned by correlation functions (`l2`, `s2` and `c2`).
 This structure holds correlation data computated along specified
 directions. To access those data use the `mean` function.
 """
-struct CorrelationData{T}
+struct CorrelationData
     directions :: Vector{Symbol}
-    success    :: Dict{Symbol, Vector{T}}
-    total      :: Dict{Symbol, Vector{T}}
+    success    :: Dict{Symbol, Vector{Float64}}
+    total      :: Dict{Symbol, Vector{Float64}}
 end
 
-function CorrelationData{T}(len        :: Integer,
-                            directions :: Vector{Symbol}) where T
-    success = Dict(map(x -> x => zeros(T, len), directions))
-    total   = Dict(map(x -> x => zeros(T, len), directions))
-    return CorrelationData{T}(directions, success, total)
+function CorrelationData(len        :: Integer,
+                         directions :: Vector{Symbol})
+    success = Dict(map(x -> x => zeros(len), directions))
+    total   = Dict(map(x -> x => zeros(len), directions))
+    return CorrelationData(directions, success, total)
 end
 
 # Copier
-function CorrelationData{T}(data :: CorrelationData) where T
+function CorrelationData(data :: CorrelationData)
     directions = data.directions
     success    = data.success
     total      = data.total
 
-    return CorrelationData{T}(directions,
-                              Dict(x => T.(success[x]) for x in directions),
-                              Dict(x => T.(total[x])   for x in directions))
+    return CorrelationData(directions,
+                           Dict(x => success[x] for x in directions),
+                           Dict(x => total[x]   for x in directions))
 end
-
-CorrelationData(data :: CorrelationData{T}) where T = CorrelationData{T}(data)
 
 function Base.getindex(x :: CorrelationData, i)
     directions = x.directions
@@ -105,3 +103,11 @@ julia> directions(l2(rand(0:1, (50, 10)), 1))
 ```
 """
 directions(data :: CorrelationData) = data.directions
+
+"""
+    direction ∈ corrdata
+
+Return `true` in correlation data `corrdata` is computed for a
+direction `direction`.
+"""
+Base.in(direction :: Symbol, data :: CorrelationData) = direction ∈ directions(data)
