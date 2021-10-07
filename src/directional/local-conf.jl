@@ -1,18 +1,17 @@
 # Convert neighborhood of a pixel into configuration index
 local2conf(array :: AbstractArray{Bool, N}) where N =
-    mapreduce(((idx, x),) -> x << (idx - 1), |, enumerate(array)) / (2^(2^N) - 1)
+    mapreduce(((idx, x),) -> x << (idx - 1), |, enumerate(array)) / (2^(3^N) - 1)
 
 # TODO: write periodic version
 function configuration_map(array :: AbstractArray{Bool})
-    indices  = CartesianIndices(array)
-    lidx = last(indices)
-    uidx = oneunit(lidx)
+    indices    = CartesianIndices(array)
+    fidx, lidx = first(indices), last(indices)
+    uidx       = oneunit(lidx)
 
     map(indices) do idx
-        start = idx
+        start = max(idx - uidx, fidx)
         stop  = min(idx + uidx, lidx)
-        slice = array[start:stop]
-        local2conf(slice)
+        local2conf(array[start:stop])
     end
 end
 
