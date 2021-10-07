@@ -24,10 +24,11 @@ include("directional/s2.jl")
 include("directional/c2.jl")
 include("directional/surface.jl")
 include("directional/chord-length.jl")
+include("directional/local-conf.jl")
 # FIXME: not actually directional, but uses the same set of functions
 include("directional/pore-size.jl")
 
-export l2, s2, c2,
+export l2, s2, c2, lc_crosscorr,
     surfsurf, surfvoid, lowfreq_energy_ratio, chord_length, pore_size,
     AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans,
     CorrelationData, default_directions, directions, unit_length
