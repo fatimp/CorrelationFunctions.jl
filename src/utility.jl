@@ -158,7 +158,7 @@ function Images.label_components(input :: AbstractArray{T, N},
     return output
 end
 
-Images.label_components(input, :: Plane) = Images.label_components(input)
+Images.label_components(input :: AbstractArray, :: Plane) = Images.label_components(input)
 
 ################################
 # Euclidean distance transform #
