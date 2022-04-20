@@ -137,18 +137,6 @@ end
 # suitable for correlation functions which work with the surface).
 
 """
-    normalized_fft(a)
-
-Perform FFT on `a` which preserves the norm of `a`.
-"""
-function normalized_fft(a :: AbstractArray)
-    f = fft(a)
-    n1 = norm(a)
-    n2 = norm(f)
-    return f .* (n1/n2)
-end
-
-"""
     cut_from_center(a, fraction)
 
 Return a slice from the center of `a`. A slice will have dimensions
@@ -177,7 +165,7 @@ the array is good.
 """
 function lowfreq_energy_ratio(array    :: AbstractArray,
                               fraction :: Float64 = 0.5)
-    f = normalized_fft(array .- mean(array))
+    f = fft(array .- mean(array))
     total_energy = f |> norm
     highfreq_energy = cut_from_center(f, 1 - fraction) |> norm
     return (total_energy - highfreq_energy) / total_energy
