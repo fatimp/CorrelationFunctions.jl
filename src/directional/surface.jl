@@ -7,13 +7,15 @@ extract_edge(array :: AbstractArray, :: Val{:Sobel}) =
     end
 
 extract_edge(array :: AbstractArray, :: Val{:distance_map}) =
-    let distances = Bool.(array) |> feature_transform |> distance_transform
+    let distances = array .|> Bool |> feature_transform |> distance_transform
         Float64.(distances .== 1.0)
     end
 
+phase2ind(phase :: Function) = phase
+phase2ind(phase :: Any) = x -> x == phase
+
 """
     surfsurf(array, phase[; len][, directions][, plans,] periodic = false, edgemode = :Sobel)
-    surfsurf(array, χ[; len][, directions][, plans,] periodic = false, edgemode = :Sobel)
 
 Calculate surface-surface correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -29,7 +31,9 @@ You can chose how an edge between phases are selected by passing
 `edgemode` argument which can be either `:Sobel` or
 `:distance_map`. Usually, `:Sobel` gives much better results.
 
-You can specify a custom indicator function `χ(x)` instead of `phase`.
+If `phase` is a function it is applied to array to select the phase of
+interest, otherwise the phase of interest is selected by testing
+elements of `array` for equality with `phase`.
 
 An argument `plans` can be used to support precomputed FFT plans which
 can be helpful if you call `surfsurf` often with the array of the same
@@ -38,29 +42,14 @@ size. Plans can be computed with `S2FTPlans` constructor.
 See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
 [`direction3Dp`](@ref), [`S2FTPlans`](@ref).
 """
-function surfsurf end
-
-surfsurf(array      :: AbstractArray,
-         phase;
-         len        :: Integer        = (array |> size  |> minimum) ÷ 2,
-         directions :: Vector{Symbol} =  array |> default_directions,
-         periodic   :: Bool           = false,
-         plans      :: S2FTPlans      = S2FTPlans(array, periodic),
-         edgemode   :: Symbol         = :Sobel) =
-             surfsurf(array, x -> x == phase;
-                      len        = len,
-                      directions = directions,
-                      periodic   = periodic,
-                      plans      = plans,
-                      edgemode   = edgemode)
-
 function surfsurf(array      :: AbstractArray,
-                  χ          :: Function;
+                  phase;
                   len        :: Integer        = (array |> size  |> minimum) ÷ 2,
                   directions :: Vector{Symbol} =  array |> default_directions,
                   periodic   :: Bool           = false,
                   plans      :: S2FTPlans      = S2FTPlans(array, periodic),
                   edgemode   :: Symbol         = :Sobel)
+    χ = phase2ind(phase)
     ph = map(χ, array)
     edge = extract_edge(ph, edgemode)
 
@@ -72,8 +61,8 @@ function surfsurf(array      :: AbstractArray,
 end
 
 """
-    surfvoid(array, phase[; len][, directions][, plans,] periodic = false, edgemode = :Sobel)
-    surfvoid(array, χ[; len][, directions][, plans,] periodic = false, edgemode = :Sobel)
+    surfvoid(array, phase[; len][, directions][, plans,]
+             void_phase = 0, periodic = false, edgemode = :Sobel)
 
 Calculate surface-void correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -89,7 +78,11 @@ You can chose how an edge between phases are selected by passing
 `edgemode` argument which can be either `:Sobel` or
 `:distance_map`. Usually, `:Sobel` gives much better results.
 
-You can specify a custom indicator function `χ(x)` instead of `phase`.
+If `phase` is a function it is applied to array to select the phase of
+interest, otherwise the phase of interest is selected by testing
+elements of `array` for equality with `phase`. `void_phase` can also
+be either a function or some other object and is used as an indicator
+for the void phase.
 
 An argument `plans` can be used to support precomputed FFT plans which
 can be helpful if you call `surfvoid` often with the array of the same
@@ -98,33 +91,20 @@ size. Plans can be computed with `S2FTPlans` constructor.
 See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
 [`direction3Dp`](@ref), [`S2FTPlans`](@ref).
 """
-function surfvoid end
-
-surfvoid(array      :: AbstractArray,
-         phase;
-         len        :: Integer        = (array |> size  |> minimum) ÷ 2,
-         directions :: Vector{Symbol} =  array |> default_directions,
-         periodic   :: Bool           = false,
-         plans      :: S2FTPlans      = S2FTPlans(array, periodic),
-         edgemode   :: Symbol         = :Sobel) =
-             surfvoid(array, x -> x == phase;
-                      len        = len,
-                      directions = directions,
-                      periodic   = periodic,
-                      plans      = plans,
-                      edgemode   = edgemode)
-
 function surfvoid(array      :: AbstractArray,
-                  χ          :: Function;
+                  phase;
                   len        :: Integer        = (array |> size  |> minimum) ÷ 2,
                   directions :: Vector{Symbol} =  array |> default_directions,
                   periodic   :: Bool           = false,
                   plans      :: S2FTPlans      = S2FTPlans(array, periodic),
-                  edgemode   :: Symbol         = :Sobel)
+                  edgemode   :: Symbol         = :Sobel,
+                  void_phase                   = 0)
+    χ = phase2ind(phase)
+    χ_void = phase2ind(void_phase)
     ph = map(χ, array)
     edge = extract_edge(ph, edgemode)
 
-    χ1(x) = array[x] == 0
+    χ1(x) = χ_void(array[x])
     χ2(x) = edge[x]
     return s2(CartesianIndices(array), SeparableIndicator(χ1, χ2);
               len        = len,
