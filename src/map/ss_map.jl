@@ -1,78 +1,19 @@
-struct Params_SS{ComplexArray,Total,KF}
-    # boundary conditions
-    periodic::Bool
-    # normalization
-    total::Total
-
-
-    # algorithm-specific
-    # gradient kernel
-    kernelfactor::KF
-    # fft buffers
-    complex_surface::ComplexArray
-end
-
-
-function Params_SS(img; periodic::Bool=true, kernelfactor=KernelFactors.sobel)
-    box = size(img)
-    complex_box = periodic ? box : box .* 2
-
-    # scale factor
-    total = cnt_total(img, periodic)
-
-    p = Params_SS(
-        periodic,
-        total,
-        kernelfactor,
-        similar(img, ComplexF32, complex_box)
-    )
-    cf_type = periodic ? :periodic_point_point : :central_symmetry
-    p, cf_type
-end
-
-
-"""
-    correllation_function!(res, img, params::Params_SS)
-
-Compute surface-surface correlation function in positive directions
-"""
-function correllation_function!(res, img, params::Params_SS)
-    ix = CartesianIndices(img)
-
-    f = params.complex_surface .= 0
-
-    v_f = view(f, ix)
-
-    v_f .= gradient_norm(img, params.kernelfactor)
-
-    self_correlation!(f)
-
-    res .= real.(v_f) ./ params.total
-end
-
-
 """
     surfsurf(image; periodic = false)
 
 Calculate `Fss(x)` (surface-surface) correlation function map
-for the N-dimensional image and return a `CFMap` object.
-
-The `image` contains the probability of the voxel being in the correct phase.
+for the N-dimensional image.
 
 # Examples
 ```jldoctest
-julia> surfsurf([1 0; 0 1]; periodic=true).result
+julia> surfsurf([1 0; 0 1]; periodic=true)
 2×2 Matrix{Float32}:
  0.125  0.125
  0.125  0.125
 ```
 """
-function surfsurf(image; periodic::Bool=false, kernelfactor=KernelFactors.sobel)
-    corr_function_map(image, Params_SS; periodic, kernelfactor)
-end
+function surfsurf(img; periodic = false, kernelfactor=KernelFactors.sobel)
+    M = gradient_norm(img, kernelfactor)
 
-
-function surfsurf(image, phase::Int; periodic::Bool=false, kernelfactor=KernelFactors.sobel)
-    one_phase_img = image .== phase
-    corr_function_map(one_phase_img, Params_SS; periodic, kernelfactor)
+    s2(M; periodic)
 end

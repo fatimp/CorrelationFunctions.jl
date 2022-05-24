@@ -1,24 +1,75 @@
-function cnt_total(img::AbstractArray, periodic::Bool)
-    cnt_total(size(img), periodic)
+function cross_correlation(a)
+    F = plan_rfft(a)
+    A = F * a
+    C = @. abs2(A)
+    inv(F) * C
 end
 
 
-function cnt_total(img::CuArray, periodic::Bool)
-    cu(cnt_total(size(img), periodic))
+function cross_correlation(a::CuArray)
+    A = similar(a, ComplexF32) .= a
+    fft!(A)
+    @. A = abs2(A)
+    ifft!(A) |> real
 end
 
 
-function cnt_total(img_size::Tuple{Vararg{Int}}, periodic::Bool)
+function cross_correlation(a, b)
+    F = plan_rfft(a)
+    A = F * a
+    B = F * b
+    C = @. conj(A) * B
+    inv(F) * C
+end
+
+
+function cross_correlation(a::CuArray, b::CuArray)
+    A = similar(a, ComplexF32) .= a
+    B = similar(a, ComplexF32) .= b
+    fft!(A)
+    fft!(B)
+    @. B *= conj(A)
+    ifft!(B) |> real
+end
+
+
+function cnt_total_(c; periodic=false, original=false)
     if periodic
-        result = *(img_size...)
+        [length(c)]
     else
-        result = zeros(Int, img_size)
-        for ix in CartesianIndices(img_size)
-            dir = Tuple(ix) .- 1
-            result[ix] = *((img_size .- dir)...)
+        if original
+            ixes = map(size(c)) do s
+                collect(s:-1:1)
+            end
+        else
+            ixes = map(axes(c), size(c)) do ix, es
+                s = (es + 1) ÷ 2
+                cnt = @. s - abs(ix - s)
+                ifftshift(cnt)
+            end
+        end
+        map(ixes, 1:length(ixes)) do cnt, d
+            if d == 1
+                cnt
+            elseif d == 2
+                reshape(cnt, 1, :)
+            elseif d == 3
+                reshape(cnt, 1, 1, :)
+            end
         end
     end
-    result
+end
+
+
+cnt_total(c; periodic=false, original=false) = cnt_total_(c; periodic, original)
+cnt_total(c::CuArray; periodic=false, original=false) = cnt_total_(c; periodic, original) .|> cu
+
+
+function expand(image)
+    esize = [2s - 1 for s in size(image)]
+    e_image = similar(image, esize...) .= zero(eltype(image))
+    e_image[axes(image)...] .= image
+    e_image
 end
 
 
@@ -32,35 +83,6 @@ end
 function gradient_norm(img::CuArray, kernelfactor=KernelFactors.sobel)
     imgCPU = Array(img)
     cu(gradient_norm(imgCPU, kernelfactor))
-end
-
-
-"""
-    cross_correlation!(f, g)
-
-Compute cross correlation using FFT for xᵢ ≥ 0
-and periodic boundary conditions.
-Store result in `f`.
-"""
-function cross_correlation!(f, g)
-    fft!(f)
-    fft!(g)
-    @. f = conj(f) * g
-    ifft!(f)
-end
-
-
-"""
-    self_correlation!(f)
-
-Compute self correlation using FFT for xᵢ ≥ 0
-and periodic boundary conditions.
-Store result in `f`.
-"""
-function self_correlation!(f)
-    fft!(f)
-    @. f = abs2(f)
-    ifft!(f)
 end
 
 

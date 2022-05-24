@@ -87,7 +87,7 @@ Return CF on one direcion using interpolations.
 
 `CF.(r...)`, where `r = Map.dir_ixs(cfmap, dir)`. 
 """
-function dir_from_map(cfmap, dir)
+function dir_from_map(cfmap::CFMap, dir)
     way = dir_ixs(cfmap, dir)
     itp = itp_map(cfmap)
     itp.(way...)
