@@ -262,9 +262,10 @@ function Params_L2(img::AbstractArray{<:Integer,N};
     map_ix!(original_ixs, ray_ixs, img)
 
 
+    total = cnt_total(img; periodic, original=true)
     p = Params_L2(
         periodic,
-        cnt_total(img, periodic),
+        total,
         side_results,
         side_depths,
         side_align_imgs,
@@ -292,7 +293,7 @@ function correllation_function!(res, img, params::Params_L2)
         params.periodic
     )
     restore!(res, params.side_results, params.original_ixs, params.ray_ixs)
-    res ./= params.total
+    foreach(q -> res ./= q, params.total)
 end
 
 
