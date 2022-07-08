@@ -4,12 +4,39 @@ const known_directions = [:x,   :y,   :z,
                           :xyz, :yxz, :xzy, :zyx]
 
 """
+    draw_ball(s, r)
+
+Draw an n-dimensional ball of radius R in an array of dimensionality
+s.
+"""
+function draw_ball(s, r)
+    array = zeros(Bool, s)
+	center = @. (s ÷ 2) |> floor |> Int
+
+    for idx in CartesianIndices(array)
+        dist = sum((Tuple(idx) .- center) .^ 2)
+        if dist <= r^2
+            array[idx]	= true
+        end
+    end
+
+    return array
+end
+
+"""
     relerr(x, truex)
 
 Calculate relative error between calculated value `x` and theoretical
 value `truex`.
 """
 relerr(x, truex) = abs((x - truex) / truex)
+
+"""
+    relerr_norm(x, truex)
+
+Calculate |truex - x| / |truex|
+"""
+relerr_norm(x, truex) = norm(truex - x) / norm(truex)
 
 """
     scan(x)
