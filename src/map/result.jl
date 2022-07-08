@@ -93,42 +93,6 @@ function dir_from_map(cfmap::CFMap, dir)
     itp.(way...)
 end
 
-
-function surface_dirs(cfmap, dim, ispos)
-    ixs = map(s -> -(s - 1):(s - 1), cfmap.img_size)
-    map(ixs, 1:length(ixs)) do ix, d
-        if d == dim
-            if ispos
-                ix[end]
-            else
-                ix[1]
-            end
-        else
-            if d < dim
-                ix[:]
-            else
-                ix[2:end-1]
-            end
-        end
-    end
-end
-
-
-function all_dirs(cfmap)
-    dirs = Vector{Tuple{Vararg{Int, ndims(cfmap.result)}}}()
-    for i in 1:ndims(cfmap.result)
-        for ispos in [true, false]
-            
-            s_dirs = surface_dirs(cfmap, i, ispos)
-            for dir in Iterators.product(s_dirs...)
-                push!(dirs, dir)
-            end
-        end
-    end
-    dirs
-end
-
-
 """
     mean_dir(cfmap::CFMap)
 
