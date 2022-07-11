@@ -1,8 +1,8 @@
 using CorrelationFunctions
 using XUnit
-using PoissonRandom
+using Distributions: Poisson
 using Base.Iterators: zip, drop, countfrom
-using StatsBase: mean
+using Statistics: mean
 using Images: feature_transform, distance_transform
 using LinearAlgebra: norm
 

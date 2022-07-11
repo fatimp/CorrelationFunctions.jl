@@ -1,5 +1,5 @@
 function gencenters(side, λ)
-    n = pois_rand(λ * side^2)
+    n = (λ * side^2) |> Poisson |> rand
     return reduce(hcat, (rand(1:side, 2) for i in 1:n))
 end
 
