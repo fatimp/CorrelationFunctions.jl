@@ -1,25 +1,21 @@
 struct CFMap{T,N}
-    result::T
-    cf_type::Symbol
-    img_size::Tuple{Vararg{Int,N}}
-    zero_index::Tuple{Vararg{Int,N}}
+    result     :: T
+    img_size   :: Tuple{Vararg{Int,N}}
+    zero_index :: Tuple{Vararg{Int,N}}
 end
 
 
-function CFMap(img, cf_type)
-    @assert cf_type == :central_symmetry
+function CFMap(img)
     img_size = size(img)
     zero_index = (img_size[1:end - 1]..., 1)
     result_size = (2 .* img_size[1:end - 1] .- 1 ..., img_size[end])
     result = similar(img, Float32, result_size)
 
-    return CFMap(result, cf_type, img_size, zero_index)
+    return CFMap(result, img_size, zero_index)
 end
 
 
 function dir_ixs(cfmap, dir)
-    @assert cfmap.cf_type == :central_symmetry
-
     n = maximum(abs, dir)
     way = Float32.(collect(0:n) / (n == 0 ? 1 : n))
 
@@ -48,14 +44,8 @@ end
 
 
 function itp_map(cfmap)
-    if cfmap.cf_type == :periodic_point_point
-        shiftres, xs = shiftmap(cfmap)
-        itp = interpolate(xs, shiftres, Gridded(Linear()))
-        extrapolate(itp, Periodic())
-    else
-        xs = map((ix, z) -> ix .- z, axes(cfmap.result), cfmap.zero_index)
-        itp = interpolate(xs, cfmap.result, Gridded(Linear()))
-    end
+    xs = map((ix, z) -> ix .- z, axes(cfmap.result), cfmap.zero_index)
+    return interpolate(xs, cfmap.result, Gridded(Linear()))
 end
 
 
@@ -130,8 +120,6 @@ end
 Return centered full correlation function map.
 """
 function restore_full_map(cfmap::CFMap{T,N}) where {T, N}
-    @assert cfmap.cf_type == :central_symmetry
-
     res = cfmap.result
     n = size(res, N)
     reversed = reverse(res)
@@ -179,9 +167,8 @@ end
 
 
 function cut_cfmap(cfmap, mask)
-    @assert cfmap.cf_type == :central_symmetry
     if mask[end]
-        error("negative direction in last dimension is not supported for $(cfmap.cf_type)")
+        error("negative direction in last dimension is not supported")
     end
 
     ixs = map(cfmap.zero_index, cfmap.img_size, mask) do z, s, m

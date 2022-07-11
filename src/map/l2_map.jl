@@ -263,18 +263,14 @@ function Params_L2(img::AbstractArray{<:Integer,N};
 
 
     total = cnt_total(img; periodic, original=true)
-    p = Params_L2(
-        periodic,
-        total,
-        side_results,
-        side_depths,
-        side_align_imgs,
-        side_align_results,
-        original_ixs,
-        ray_ixs
-    )
-    cf_type = :central_symmetry
-    p, cf_type
+    return Params_L2(periodic,
+                     total,
+                     side_results,
+                     side_depths,
+                     side_align_imgs,
+                     side_align_results,
+                     original_ixs,
+                     ray_ixs)
 end
 
 

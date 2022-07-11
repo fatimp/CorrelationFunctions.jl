@@ -37,7 +37,6 @@ function corr_function_map!(
     map_params::Params_map,
     cf_params
 ) where {T1, T2, N}
-    @assert result.cf_type == :central_symmetry
     mirror_img = map_params.mirror_img
     mirror_result = map_params.mirror_result
 
@@ -71,10 +70,10 @@ function corr_function_map(
     CF_constructor;
     parameters...
 ) where T where N
-    cf_params, cf_type = CF_constructor(img; parameters...)
+    cf_params = CF_constructor(img; parameters...)
 
     map_params = Params_map(img)
-    result = CFMap(img, cf_type)
+    result = CFMap(img)
 
     return corr_function_map!(result, img, map_params, cf_params)
 end
