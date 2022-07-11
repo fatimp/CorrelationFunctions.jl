@@ -7,48 +7,27 @@ end
 
 
 function CFMap(img, cf_type)
+    @assert cf_type == :central_symmetry
     img_size = size(img)
-
-    if cf_type == :full
-        zero_index = img_size
-        result_size = @. 2 * img_size - 1
-
-    elseif cf_type == :central_symmetry
-        zero_index = (img_size[1:end - 1]..., 1)
-        result_size = (2 .* img_size[1:end - 1] .- 1 ..., img_size[end])
-
-    elseif cf_type == :periodic_point_point
-        zero_index = map(s -> 1, img_size)
-        result_size = img_size
-
-    else
-        error("$cf_type is not supported")
-    end
-
+    zero_index = (img_size[1:end - 1]..., 1)
+    result_size = (2 .* img_size[1:end - 1] .- 1 ..., img_size[end])
     result = similar(img, Float32, result_size)
 
-    CFMap(result, cf_type, img_size, zero_index)
+    return CFMap(result, cf_type, img_size, zero_index)
 end
 
 
 function dir_ixs(cfmap, dir)
-    n = maximum(abs, dir)
+    @assert cfmap.cf_type == :central_symmetry
 
+    n = maximum(abs, dir)
     way = Float32.(collect(0:n) / (n == 0 ? 1 : n))
 
-    if cfmap.cf_type == :central_symmetry && dir[end] < 0
+    if dir[end] < 0
         dir = .- dir
     end
 
-    ixs = map((z, d) -> way .* d, cfmap.zero_index, dir)
-
-    if cfmap.cf_type == :periodic_point_point
-        for (ix, s) in zip(ixs, cfmap.img_size)
-            out_ix = ix .< 0
-            ix[out_ix] .+= s
-        end
-    end
-    ixs
+    return map((z, d) -> way .* d, cfmap.zero_index, dir)
 end
 
 
@@ -150,27 +129,17 @@ end
 
 Return centered full correlation function map.
 """
-function restore_full_map(cfmap::CFMap{T,N}) where T where N
+function restore_full_map(cfmap::CFMap{T,N}) where {T, N}
+    @assert cfmap.cf_type == :central_symmetry
+
     res = cfmap.result
-
-    if cfmap.cf_type == :full
-        res
-
-    elseif cfmap.cf_type == :central_symmetry
-        n = size(res, N)
-        reversed = reverse(res)
-        [selectdim(reversed, N, 1:n - 1) res]
-
-    elseif cfmap.cf_type == :periodic_point_point
-        shiftmap(cfmap)[1]
-
-    else
-        error()
-    end
+    n = size(res, N)
+    reversed = reverse(res)
+    return [selectdim(reversed, N, 1:n - 1) res]
 end
 
 
-function to_tuple_dir(img_size::Tuple{Int}, dir)
+function to_tuple_dir(img_size :: NTuple{1, Int}, dir)
     if dir == :x
         (img_size[1] - 1,)
     else
@@ -179,7 +148,7 @@ function to_tuple_dir(img_size::Tuple{Int}, dir)
 end
 
 
-function to_tuple_dir(img_size::Tuple{Int,Int}, dir)
+function to_tuple_dir(img_size :: NTuple{2, Int}, dir)
     if dir == :x
         (img_size[1] - 1, 0)
     elseif dir == :y
@@ -196,7 +165,7 @@ function to_tuple_dir(img_size::Tuple{Int,Int}, dir)
 end
 
 
-function to_tuple_dir(img_size::Tuple{Int,Int,Int}, dir)
+function to_tuple_dir(img_size :: NTuple{3, Int}, dir)
     if dir == :x
         (img_size[1] - 1, 0, 0)
     elseif dir == :y
@@ -210,19 +179,14 @@ end
 
 
 function cut_cfmap(cfmap, mask)
-    if cfmap.cf_type == :central_symmetry && mask[end]
+    @assert cfmap.cf_type == :central_symmetry
+    if mask[end]
         error("negative direction in last dimension is not supported for $(cfmap.cf_type)")
-    elseif cfmap.cf_type == :periodic_point_point && any(mask)
-        error("negative direction is not supported for $(cfmap.cf_type)")
     end
 
     ixs = map(cfmap.zero_index, cfmap.img_size, mask) do z, s, m
-        if m
-            z:-1:1
-        else
-            z:z + s - 1
-        end
+        m ? (z:-1:1) : (z:z + s - 1)
     end
 
-    view(cfmap.result, ixs...)
+    return view(cfmap.result, ixs...)
 end
