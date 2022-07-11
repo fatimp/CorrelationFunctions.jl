@@ -76,10 +76,13 @@ function dir_from_map(m::AbstractArray, direction; periodic=false)
 end
 
 """
-    mean_dir(cfmap::CFMap)
+    mean_dir(cfmap)
 
-Return averaged correlation function for r = 0, 1, 2, ...
+Average correlation map `cfmap` over all directions. The result is a
+vector with indices being equal to correlation length + 1.
 """
+function mean_dir end
+
 function mean_dir(cfmap::CFMap)
     data = cfmap.result
     
