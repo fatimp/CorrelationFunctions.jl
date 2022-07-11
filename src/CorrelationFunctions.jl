@@ -40,10 +40,10 @@ end # Directional
 module Map
 using LinearAlgebra: norm
 using CUDA: CuArray, cu, @cuda, blockIdx, blockDim, threadIdx, gridDim
-using CUDA.CUFFT: fft!, ifft!
-using CUDA.CUFFT: plan_rfft, ifftshift
+using FFTW: rfft, irfft, ifftshift
 using Images: imgradients, KernelFactors, label_components
 using Interpolations: interpolate, Gridded, Linear, extrapolate, Periodic
+import CUDA.CUFFT
 import ..Plane, ..Torus
 
 include("map/result.jl")

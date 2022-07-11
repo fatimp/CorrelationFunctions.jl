@@ -1,37 +1,12 @@
-function cross_correlation(a)
-    F = plan_rfft(a)
-    A = F * a
-    C = @. abs2(A)
-    inv(F) * C
+function cross_correlation(a :: AbstractArray,
+                           b :: AbstractArray)
+    @assert size(a) == size(b)
+
+    fa = rfft(a)
+    fb = (a === b) ? fa : rfft(b)
+    fc = @. fa * conj(fb)
+    return irfft(fc, size(a, 1))
 end
-
-
-function cross_correlation(a::CuArray)
-    A = similar(a, ComplexF32) .= a
-    fft!(A)
-    @. A = abs2(A)
-    ifft!(A) |> real
-end
-
-
-function cross_correlation(a, b)
-    F = plan_rfft(a)
-    A = F * a
-    B = F * b
-    C = @. conj(A) * B
-    inv(F) * C
-end
-
-
-function cross_correlation(a::CuArray, b::CuArray)
-    A = similar(a, ComplexF32) .= a
-    B = similar(a, ComplexF32) .= b
-    fft!(A)
-    fft!(B)
-    @. B *= conj(A)
-    ifft!(B) |> real
-end
-
 
 function cnt_total_(c; periodic=false, original=false)
     if periodic
