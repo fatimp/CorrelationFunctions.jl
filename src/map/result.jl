@@ -123,6 +123,27 @@ function mean_dir(cfmap::CFMap)
     cfdir ./= weights
 end
 
+function mean_dir(cfmap :: AbstractArray{T}) where T
+    num  = Dict{Int, Int}()
+    vals = Dict{Int, Vector{T}}()
+    for idx in CartesianIndices(cfmap)
+        dist = ((Tuple(idx) .- 1) .^ 2) |> sum |> sqrt |> floor |> Int
+        v = get(vals, dist, T[])
+        push!(v, cfmap[idx])
+        num[dist]  = get(num, dist, 0) + 1
+        vals[dist] = v
+    end
+
+    len = num |> keys |> maximum
+    avg = Vector{Float64}(undef, len)
+
+    for idx in 1:len
+        n = get(num, idx-1, 0)
+        avg[idx] = iszero(n) ? 0 : (sum(vals[idx-1]) / n)
+    end
+
+    return avg
+end
 
 """
     restore_full_map(cfmap::CFMap)
