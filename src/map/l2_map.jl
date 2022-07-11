@@ -294,36 +294,22 @@ end
 
 
 """
-    l2(image; periodic = false)
+    l2(image, phase; periodic = false)
 
-Calculate `L₂` (lineal path) correlation function map
-for the 1,2,3-dimensional image and return a `CFMap` object.
-
-The `image` contains the probability of the voxel being in the correct phase.
-
-*For L2, only probabilities 0 and 1 are currently implemented.*
+Calculate `L₂` (lineal path) correlation function for the phase
+`phase` an N-dimensional image (up to 3 dimensions) and return a
+`CFMap` object.
 
 # Examples
 ```jldoctest
-julia> l2([1 0; 0 1]; periodic=true).result
-3×2 Matrix{Float32}:
+julia> l2([1 0; 0 1], 1; periodic=true).result
+3×2 Matrix{Float64}:
  0.0  0.5
  0.5  0.0
  0.0  0.5
 ```
 """
-function l2(image; periodic=false)
-    if !(eltype(image) <: Integer)
-        error("For L2, only arrays of integers and Boolean are supported")
-    elseif !(eltype(image) == Bool) && any(s -> s ∉ [0, 1], image)
-        @warn ("Correct work is possible only for 0 and 1")
-    end
-
-    corr_function_map(image, Params_L2; periodic)
-end
-
-
-function l2(image, phase::Int; periodic=false)
+function l2(image, phase; periodic=false)
     one_phase_img = image .== phase
-    corr_function_map(one_phase_img, Params_L2; periodic)
+    corr_function_map(image .== phase, Params_L2; periodic)
 end

@@ -1,20 +1,22 @@
 """
-    surfvoid(image; periodic = false)
+    surfvoid(image, phase; periodic = false)
 
-Calculate `Fsv(x)` (surface-void) correlation function map
-for the N-dimensional image.
+Calculate `Fsv(x)` (surface-void) correlation function for phase
+`phase` on N-dimensional image. Phase `0` is considered to be void.
 
 # Examples
 ```jldoctest
-julia> surfvoid([1 0; 0 1]; periodic=true)
-2×2 Matrix{Float32}:
+julia> surfvoid([1 0; 0 1], 1; periodic=true)
+2×2 Matrix{Float64}:
  0.5  0.5
  0.5  0.5
 ```
 """
-function surfvoid(img; periodic = false, kernelfactor=KernelFactors.sobel)
-    M = gradient_norm(img, kernelfactor)
-    V = img .== 0
+function surfvoid(image, phase;
+                  periodic     = false,
+                  kernelfactor = KernelFactors.sobel)
+    M = gradient_norm(image .== phase, kernelfactor)
+    V = image .== 0
 
-    cross_s2(V, M; periodic)
+    return cross_correlation(V, M; periodic)
 end

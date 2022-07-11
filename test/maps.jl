@@ -8,7 +8,7 @@ dirs = Dict(
 
 function test_cf_on_img(img, cf_map, cf_dir)
     for periodic in [true, false]
-        cmap = cf_map(img; periodic)
+        cmap = cf_map(img, true; periodic)
         cdir = cf_dir(img, true; len=size(img, 1), periodic, directions=dirs[ndims(img)])
 
         for (direction, data) in cdir

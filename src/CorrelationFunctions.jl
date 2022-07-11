@@ -56,7 +56,7 @@ include("map/c2_map.jl")
 include("map/ss_map.jl")
 include("map/sv_map.jl")
 
-export l2, s2, c2, surfsurf, surfvoid, 
+export l2, s2, c2, surfsurf, surfvoid, cross_correlation,
     dir_from_map, restore_full_map, mean_dir
 end # Map
 

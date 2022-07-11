@@ -14,8 +14,9 @@ The following correlation functions are supported:
 
 ```julia
 Map.l2
-Map.s2
 Map.c2
+Map.s2
+Map.cross_correlation
 Map.surfsurf
 Map.surfvoid
 ```

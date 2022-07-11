@@ -5,26 +5,26 @@ label(img::CuArray, periodic::Bool) =
 
 
 """
-    c2(image; periodic = false)
+    c2(image, phase; periodic = false)
 
-Calculate `C₂` (cluster) correlation function map
-for the N-dimensional image.
+Calculate `C₂` (cluster) correlation function for an N-dimensional
+image.
 
 # Examples
 ```jldoctest
-julia> c2([1 0; 0 1]; periodic=true)
-2×2 Matrix{Float32}:
+julia> c2([1 0; 0 1], 1; periodic=true)
+2×2 Matrix{Float64}:
  0.5  0.0
  0.0  0.0
 ```
 """
-function c2(image; periodic::Bool=false)
-    labeled_img = label(image, periodic)
+function c2(image, phase; periodic :: Bool = false)
+    labeled_img = label(image .== phase, periodic)
     n_segments = maximum(labeled_img)
 
-    result = s2(similar(image) .= 0; periodic)
-    for i in 1:n_segments
-        result .+= s2(labeled_img .== i; periodic)
+    return mapreduce(+, 1:n_segments) do segment
+        s2(labeled_img, segment; periodic)
     end
-    result
+
+    return result
 end
