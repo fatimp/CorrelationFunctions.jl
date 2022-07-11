@@ -32,17 +32,6 @@ function dir_ixs(cfmap, dir::Symbol)
     dir_ixs(cfmap, tdir)
 end
 
-
-function shiftmap(cfmap::CFMap)
-    res = cfmap.result
-    ns = size(res)
-    ms = ns .÷ 2
-    raw_ixs = map(m -> -m:m, ms)
-    ixs = map((rix, n) -> mod.(rix, n) .+ 1, raw_ixs, ns)
-    res[ixs...], raw_ixs
-end
-
-
 function itp_map(cfmap)
     xs = map((ix, z) -> ix .- z, axes(cfmap.result), cfmap.zero_index)
     return interpolate(xs, cfmap.result, Gridded(Linear()))
