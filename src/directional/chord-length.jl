@@ -1,4 +1,18 @@
 """
+Structure returned by `chord_length` function. To access chord length
+histogram use `hist` field.
+"""
+struct ChordLengthInfo
+    μ :: Float64
+    σ :: Float64
+    hist
+end
+
+function Base.show(io :: IO, ::MIME"text/plain", x :: ChordLengthInfo)
+    print(io, "Chord length info (mean = $(x.μ), std = $(x.σ))")
+end
+
+"""
     chord_length(array, phase[; directions,] nbins = 10)
 
 Calculate chord length correlation function for one-, two- or
@@ -10,18 +24,13 @@ phase `phase`. A chord is a line segment which touches the boundary of
 a same-phase cluster with its ends.
 
 This implementation bins chord lengths into `nbins` bins and returns
-normalized histogram on collected data and the mean chord length in a
-tuple.
+normalized histogram on collected data along with mean chord length
+and standard deviation.
 
 # Examples
 ```jldoctest
-julia> chord_length([1, 0, 0, 0, 0, 1], 0)
-(StatsBase.Histogram{Float64,1,Tuple{StepRangeLen{Float64,Base.TwicePrecision{Float64},Base.TwicePrecision{Float64}}}}
-edges:
-  4.0:1.0:5.0
-weights: [1.0]
-closed: left
-isdensity: false, 4.0)
+julia> chord_length([1, 0, 0, 0, 0, 1, 0, 1], 0)
+Chord length info (mean = 2.5, std = 2.1213203435596424)
 ```
 
 For a list of possible dimensions, see also: [`direction1Dp`](@ref),
@@ -67,6 +76,7 @@ function chord_length(array      :: AbstractArray,
     end
 
     hist = fit(Histogram, lengths; nbins = nbins)
-    mean_len = sum(lengths) ./ length(lengths)
-    return normalize(hist; mode = :probability), mean_len
+    return ChordLengthInfo(mean(lengths),
+                           std(lengths),
+                           normalize(hist; mode = :probability))
 end

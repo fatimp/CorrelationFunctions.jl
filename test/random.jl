@@ -75,6 +75,6 @@ end
 @testcase "Check pore size and chord length sum" begin
     for phase in 0:1
         @test sum(pore_size(rand_array, phase).weights) ≈ 1
-        @test sum(Directional.chord_length(rand_array, phase)[1].weights) ≈ 1
+        @test sum(Directional.chord_length(rand_array, phase).hist.weights) ≈ 1
     end
 end

@@ -134,18 +134,18 @@ end
     S = 500; R = 30; λ = 1e-5
     balls = genballs(S, R, λ)
 
-    calc, mc = Directional.chord_length(balls, 0; nbins = 30)
-    edges = calc.edges[1]
+    data = Directional.chord_length(balls, 0; nbins = 30)
+    edges = data.hist.edges[1]
     s = step(edges)
     theory = [integrate(x -> chord_length_theory(x, R, λ), n:0.05:n+s)
               for n in 0:s:s*(length(edges) - 2)]
 
     # Compare cummulative distributions instead of probability
     # densities because density is almost zero for big radii.
-    calc_cdf = scan(calc.weights)
+    calc_cdf = scan(data.hist.weights)
     theory_cdf = scan(theory)
 
     err = relerr.(calc_cdf, theory_cdf)
     @test maximum(err) < 0.25
-    @test relerr(mc, mean_chord_length(R, λ)) < 0.25
+    @test relerr(data.μ, mean_chord_length(R, λ)) < 0.25
 end

@@ -5,7 +5,7 @@ import Images
 include("utility.jl")
 
 module Directional
-using StatsBase: fit, Histogram, mean
+using StatsBase: fit, Histogram, mean, std
 using LinearAlgebra: normalize, norm
 using Images: Kernel, imgradients, feature_transform,
     distance_transform, label_components
@@ -29,6 +29,7 @@ include("directional/pore-size.jl")
 
 export l2, s2, c2,
     surfsurf, surfvoid, lowfreq_energy_ratio, chord_length, pore_size,
+    ChordLengthInfo,
     AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans,
     CorrelationData, default_directions, directions, unit_length
 
