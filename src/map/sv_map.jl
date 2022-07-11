@@ -14,7 +14,7 @@ julia> surfvoid([1 0; 0 1]; periodic=true)
 """
 function surfvoid(img; periodic = false, kernelfactor=KernelFactors.sobel)
     M = gradient_norm(img, kernelfactor)
-    V = one(eltype(img)) .- img
+    V = img .== 0
 
-    cross_s2(M, V; periodic)
+    cross_s2(V, M; periodic)
 end

@@ -13,12 +13,8 @@ julia> s2([1 0; 0 1]; periodic=true)
 ```
 """
 function s2(image; periodic=false)
-    if periodic
-        A = image
-    else
-        A = expand(image)
-    end
-    c = cross_correlation(A)
+    A = periodic ? image : expand(image)
+    c = cross_correlation(A, A)
     qs = cnt_total(c; periodic)
     foreach(q -> c ./= q, qs)
     c
@@ -40,13 +36,9 @@ julia> cross_s2([1 0; 0 1], [0 1; 1 0]; periodic=true)
 ```
 """
 function cross_s2(image1, image2; periodic=false)
-    if periodic
-        A = image1
-        B = image2
-    else
-        A = expand(image1)
-        B = expand(image2)
-    end
+    A = periodic ? image1 : expand(image1)
+    B = periodic ? image2 : expand(image2)
+
     c = cross_correlation(A, B)
     qs = cnt_total(c; periodic)
     foreach(q -> c ./= q, qs)
