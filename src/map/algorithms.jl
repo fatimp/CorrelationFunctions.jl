@@ -40,11 +40,14 @@ cnt_total(c; periodic=false, original=false) = cnt_total_(c; periodic, original)
 cnt_total(c::CuArray; periodic=false, original=false) = cnt_total_(c; periodic, original) .|> cu
 
 
-function expand(image)
-    esize = [2s - 1 for s in size(image)]
-    e_image = similar(image, esize...) .= zero(eltype(image))
-    e_image[axes(image)...] .= image
-    e_image
+function zeropad(image)
+    s = size(image)
+    s = (2 .* s) .- 1
+
+    padded = similar(image, s)
+    padded .= 0
+    padded[axes(image)...] .= image
+    return padded
 end
 
 

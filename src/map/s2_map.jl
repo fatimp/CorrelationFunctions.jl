@@ -1,5 +1,5 @@
 function s2(image; periodic = false)
-    A = periodic ? image : expand(image)
+    A = periodic ? image : zeropad(image)
     c = cross_correlation(A, A)
     qs = cnt_total(c; periodic)
     foreach(q -> c ./= q, qs)
@@ -25,8 +25,8 @@ s2(image, phase; periodic = false) =
 
 
 function cross_correlation(image1, image2; periodic=false)
-    A = periodic ? image1 : expand(image1)
-    B = periodic ? image2 : expand(image2)
+    A = periodic ? image1 : zeropad(image1)
+    B = periodic ? image2 : zeropad(image2)
 
     c = cross_correlation(A, B)
     qs = cnt_total(c; periodic)
