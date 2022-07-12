@@ -1,13 +1,3 @@
-function cross_correlation(a :: AbstractArray,
-                           b :: AbstractArray)
-    @assert size(a) == size(b)
-
-    fa = rfft(a)
-    fb = (a === b) ? fa : rfft(b)
-    fc = @. fa * conj(fb)
-    return irfft(fc, size(a, 1))
-end
-
 function cnt_total_(c; periodic=false, original=false)
     if periodic
         [length(c)]
@@ -49,7 +39,6 @@ function zeropad(image)
     padded[axes(image)...] .= image
     return padded
 end
-
 
 function gradient_norm(img, kernelfactor=KernelFactors.sobel)
     dimgs = imgradients(img, kernelfactor)
