@@ -4,11 +4,11 @@ label(img::CuArray, periodic::Bool) =
     cu(label(Array(img), periodic))
 
 
-"""
+@doc raw"""
     c2(image, phase; periodic = false)
 
-Calculate `C₂` (cluster) correlation function for an N-dimensional
-image.
+Calculate $C_2$ (cluster) correlation function for the phase `phase`
+in an N-dimensional image.
 
 # Examples
 ```jldoctest

@@ -1,7 +1,7 @@
-"""
+@doc raw"""
     surfsurf(image, phase; periodic = false)
 
-Calculate `Fss(x)` (surface-surface) correlation function for phase
+Calculate $F_{ss}$ (surface-surface) correlation function for phase
 `phase` on N-dimensional image.
 
 # Examples

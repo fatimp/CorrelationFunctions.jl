@@ -293,11 +293,11 @@ function correllation_function!(res, img, params::Params_L2)
 end
 
 
-"""
+@doc raw"""
     l2(image, phase; periodic = false)
 
-Calculate `L₂` (lineal path) correlation function for the phase
-`phase` an N-dimensional image (up to 3 dimensions) and return a
+Calculate $L_2$ (lineal path) correlation function for the phase
+`phase` in an N-dimensional image (up to 3 dimensions) and return a
 `CFMap` object.
 
 # Examples

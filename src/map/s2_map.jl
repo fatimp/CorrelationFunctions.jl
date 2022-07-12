@@ -6,11 +6,11 @@ function s2(image; periodic = false)
     c
 end
 
-"""
+@doc raw"""
     s2(image, phase; periodic = false)
 
-Calculate `S₂` (two point) correlation function for an N-dimensional
-image.
+Calculate $S_2$ (two point) correlation function for the phase `phase`
+in an N-dimensional image.
 
 # Examples
 ```jldoctest

@@ -1,7 +1,7 @@
-"""
+@doc raw"""
     surfvoid(image, phase; periodic = false)
 
-Calculate `Fsv(x)` (surface-void) correlation function for phase
+Calculate $F_{sv}$ (surface-void) correlation function for phase
 `phase` on N-dimensional image. Phase `0` is considered to be void.
 
 # Examples
