@@ -13,3 +13,14 @@ end
             a |> feature_transform |> distance_transform
     end
 end
+
+@testset "Check lowfreq_energy_ratio" begin
+    a = zeros(Bool, (500, 500))
+    a[1:100, 1:100] .= true
+
+    ler  = lowfreq_energy_ratio(  a)
+    leri = lowfreq_energy_ratio(.!a)
+
+    @test ler ≈ leri
+    @test ler > lowfreq_energy_ratio(rand(Bool, (500, 500)))
+end
