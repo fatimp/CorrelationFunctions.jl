@@ -1,12 +1,10 @@
-extract_edge(array :: AbstractArray, mode :: Symbol) =
-    extract_edge(array, Val(mode))
+extract_edges(array :: AbstractArray, mode :: Symbol) =
+    extract_edges(array, Val(mode))
 
-extract_edge(array :: AbstractArray, :: Val{:DiffApprox}) =
-    let norm(x) = sqrt.(sum(map(x -> x.^2, x)))
-        norm(imgradients(array, Kernel.sobel))
-    end
+extract_edges(array :: AbstractArray, :: Val{:DiffApprox}) =
+    Utilities.extract_edges(array)
 
-extract_edge(array :: AbstractArray, :: Val{:distance_map}) =
+extract_edges(array :: AbstractArray, :: Val{:distance_map}) =
     let distances = array .|> Bool |> feature_transform |> distance_transform
         Float64.(distances .== 1.0)
     end
@@ -51,7 +49,7 @@ function surfsurf(array      :: AbstractArray,
                   edgemode   :: Symbol         = :DiffApprox)
     χ = phase2ind(phase)
     ph = map(χ, array)
-    edge = extract_edge(ph, edgemode)
+    edge = extract_edges(ph, edgemode)
 
     return s2(edge, SeparableIndicator(identity);
               len        = len,
@@ -102,7 +100,7 @@ function surfvoid(array      :: AbstractArray,
     χ = phase2ind(phase)
     χ_void = phase2ind(void_phase)
     ph = map(χ, array)
-    edge = extract_edge(ph, edgemode)
+    edge = extract_edges(ph, edgemode)
 
     χ1(x) = χ_void(array[x])
     χ2(x) = edge[x]

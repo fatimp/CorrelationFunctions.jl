@@ -13,9 +13,8 @@ julia> surfvoid([1 0; 0 1], 1; periodic=true)
 ```
 """
 function surfvoid(image, phase;
-                  periodic     = false,
-                  kernelfactor = KernelFactors.sobel)
-    M = gradient_norm(image .== phase, kernelfactor)
+                  periodic     = false)
+    M = Utilities.extract_edges(image .== phase)
     V = image .== 0
 
     return cross_correlation(V, M; periodic)

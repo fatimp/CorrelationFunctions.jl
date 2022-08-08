@@ -40,18 +40,6 @@ function zeropad(image)
     return padded
 end
 
-function gradient_norm(img, kernelfactor=KernelFactors.sobel)
-    dimgs = imgradients(img, kernelfactor)
-
-    map((x...) -> norm(x), dimgs...)
-end
-
-
-function gradient_norm(img::CuArray, kernelfactor=KernelFactors.sobel)
-    imgCPU = Array(img)
-    cu(gradient_norm(imgCPU, kernelfactor))
-end
-
 
 function size_slice(img::AbstractArray{T, 3}, dim::Int) where T
     if dim == 1

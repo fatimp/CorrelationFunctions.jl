@@ -13,8 +13,7 @@ julia> surfsurf([1 0; 0 1], 1; periodic=true)
 ```
 """
 function surfsurf(image, phase;
-                  periodic     = false,
-                  kernelfactor = KernelFactors.sobel)
-    M = gradient_norm(image .== phase, kernelfactor)
+                  periodic     = false)
+    M = Utilities.extract_edges(image .== phase)
     return s2(M; periodic)
 end

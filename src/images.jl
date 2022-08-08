@@ -202,3 +202,28 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Plane) =
 
 Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
     edt(array, Torus())
+
+##################
+# Edge detection #
+##################
+function extract_edges(array :: AbstractArray)
+    s = size(array)
+    flt = zeros(Float64, s)
+    uidx = flt |> CartesianIndices |> first |> oneunit
+    neighbors = 3^ndims(array)
+
+    for idx in -uidx:uidx
+        midx = (mod(k + s, s) + 1 for (k, s) in zip(Tuple(idx), s)) |>
+            Tuple |> CartesianIndex
+        flt[midx] = 1
+    end
+    flt[uidx] = -(neighbors - 1)
+
+    plan = plan_rfft(array)
+    ftflt = plan * flt
+    ftarr = plan * array
+    ftres = @. conj(ftflt) * ftarr
+
+    res = abs.(irfft(ftres, size(array, 1)))
+    return sqrt(2) * res / neighbors
+end

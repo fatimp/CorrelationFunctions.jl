@@ -3,10 +3,10 @@ module CorrelationFunctions
 module Utilities
 using JSON: JSON, parse
 using LinearAlgebra: norm
-using FFTW: fft
+using FFTW: fft, plan_rfft, irfft
 using StatsBase: mean
 import Images
-export read_cuboid, lowfreq_energy_ratio
+export read_cuboid, lowfreq_energy_ratio, extract_edges
 include("utility.jl")
 include("lowfreq_energy_ratio.jl")
 include("images.jl")
@@ -16,8 +16,7 @@ module Directional
 import ..Utilities
 using StatsBase: fit, Histogram, mean, std
 using LinearAlgebra: normalize
-using Images: Kernel, imgradients, feature_transform,
-    distance_transform, label_components
+using Images: feature_transform, distance_transform, label_components
 using PrettyTables: pretty_table
 using Base.Iterators
 using FFTW: plan_rfft, plan_irfft
@@ -50,7 +49,7 @@ import ..Utilities
 using LinearAlgebra: norm
 using CUDA: CuArray, cu, @cuda, blockIdx, blockDim, threadIdx, gridDim
 using FFTW: rfft, irfft, ifftshift
-using Images: imgradients, KernelFactors, label_components
+using Images: label_components
 using Interpolations: interpolate, Gridded, Linear, extrapolate, Periodic
 import CUDA.CUFFT
 
