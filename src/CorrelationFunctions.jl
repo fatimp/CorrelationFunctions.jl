@@ -1,19 +1,27 @@
 module CorrelationFunctions
-using JSON: JSON, parse
-import Images
 
+module Utilities
+using JSON: JSON, parse
+using LinearAlgebra: norm
+using FFTW: fft
+using StatsBase: mean
+import Images
+export read_cuboid, lowfreq_energy_ratio
 include("utility.jl")
+include("lowfreq_energy_ratio.jl")
+include("images.jl")
+end
 
 module Directional
+import ..Utilities
 using StatsBase: fit, Histogram, mean, std
-using LinearAlgebra: normalize, norm
+using LinearAlgebra: normalize
 using Images: Kernel, imgradients, feature_transform,
     distance_transform, label_components
 using PrettyTables: pretty_table
 using Base.Iterators
-using FFTW: plan_rfft, plan_irfft, fft
+using FFTW: plan_rfft, plan_irfft
 using CircularArrays: CircularArray
-import ..Plane, ..Torus, ..Topology
 
 include("directional/directions.jl")
 include("directional/corrdata.jl")
@@ -38,13 +46,13 @@ export direction1Dp, direction2Dp, direction3Dp
 end # Directional
 
 module Map
+import ..Utilities
 using LinearAlgebra: norm
 using CUDA: CuArray, cu, @cuda, blockIdx, blockDim, threadIdx, gridDim
 using FFTW: rfft, irfft, ifftshift
 using Images: imgradients, KernelFactors, label_components
 using Interpolations: interpolate, Gridded, Linear, extrapolate, Periodic
 import CUDA.CUFFT
-import ..Plane, ..Torus
 
 include("map/result.jl")
 include("map/general_map.jl")
@@ -60,7 +68,10 @@ export l2, s2, c2, surfsurf, surfvoid, cross_correlation,
     dir_from_map, restore_full_map, mean_dir
 end # Map
 
-using .Directional
-export read_cuboid, pore_size, lowfreq_energy_ratio,
-    Directional, Map
+export Directional, Map, Utilities
+
+## This is for historical reasons
+using .Directional: pore_size
+export pore_size
+
 end # module

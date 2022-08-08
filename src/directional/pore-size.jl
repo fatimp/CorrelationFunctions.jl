@@ -17,7 +17,7 @@ function pore_size(array    :: AbstractArray,
                    nbins    :: Integer = 10,
                    periodic :: Bool    = false)
     indicator = map(x -> x ≠ phase, array)
-    distances = distance_transform(indicator, periodic ? Torus() : Plane())
+    distances = distance_transform(indicator, periodic ? Utilities.Torus() : Utilities.Plane())
     distances = filter(x -> x != 0, distances)
     hist = fit(Histogram, distances; nbins = nbins)
     return normalize(hist; mode = :probability)

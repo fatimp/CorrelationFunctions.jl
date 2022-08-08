@@ -1,5 +1,5 @@
 label(img, periodic::Bool) =
-    label_components(img, periodic ? Torus() : Plane())
+    label_components(img, periodic ? Utilities.Torus() : Utilities.Plane())
 label(img::CuArray, periodic::Bool) =
     cu(label(Array(img), periodic))
 

@@ -41,12 +41,12 @@ See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
 """
 function s2 end
 
-maybe_pad_with_zeros(slice :: AbstractVector, :: Torus) = slice
-maybe_pad_with_zeros(slice :: AbstractVector{T}, :: Plane) where T =
+maybe_pad_with_zeros(slice :: AbstractVector   , :: Utilities.Torus) = slice
+maybe_pad_with_zeros(slice :: AbstractVector{T}, :: Utilities.Plane) where T =
     let z = zeros(T, length(slice)); vcat(z, slice, z) end
 
-expand_coefficient(:: Plane) = 3
-expand_coefficient(:: Torus) = 1
+expand_coefficient(:: Utilities.Plane) = 3
+expand_coefficient(:: Utilities.Torus) = 1
 
 struct S2FTPlans{F, I}
     forward :: Dict{Int, F}
@@ -67,7 +67,7 @@ conditions.
 See also: [`s2`](@ref), [`surfsurf`](@ref), [`surfvoid`](@ref).
 """
 function S2FTPlans(array    :: AbstractArray,
-                   topology :: Topology)
+                   topology :: Utilities.Topology)
     m = expand_coefficient(topology)
     fft_plans  = Dict(s => zeros(Float64, m*s) |> plan_rfft for s in size(array))
     ifft_plans = Dict(s => plan_irfft(fft_plans[s] * zeros(Float64, m*s), m*s) for s in size(array))
@@ -83,7 +83,7 @@ are used when `periodic` is `true`, otherwise CW boundary conditions
 are used.
 """
 S2FTPlans(array :: AbstractArray, periodic :: Bool) =
-    S2FTPlans(array, periodic ? Torus() : Plane())
+    S2FTPlans(array, periodic ? Utilities.Torus() : Utilities.Plane())
 
 function s2(array      :: AbstractArray,
             indicator  :: SeparableIndicator;
@@ -92,7 +92,7 @@ function s2(array      :: AbstractArray,
             periodic   :: Bool           = false,
             plans      :: S2FTPlans      = S2FTPlans(array, periodic))
     cd = CorrelationData(len, check_directions(directions, size(array), periodic))
-    topology = periodic ? Torus() : Plane()
+    topology = periodic ? Utilities.Torus() : Utilities.Plane()
     χ1, χ2 = indicator_function(indicator)
 
     for direction in directions

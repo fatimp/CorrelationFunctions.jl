@@ -1,6 +1,6 @@
 # Utilities
 
 ```@docs
-read_cuboid
-lowfreq_energy_ratio
+Utilities.read_cuboid
+Utilities.lowfreq_energy_ratio
 ```
