@@ -1,7 +1,7 @@
 extract_edge(array :: AbstractArray, mode :: Symbol) =
     extract_edge(array, Val(mode))
 
-extract_edge(array :: AbstractArray, :: Val{:Sobel}) =
+extract_edge(array :: AbstractArray, :: Val{:DiffApprox}) =
     let norm(x) = sqrt.(sum(map(x -> x.^2, x)))
         norm(imgradients(array, Kernel.sobel))
     end
@@ -15,7 +15,7 @@ phase2ind(phase :: Function) = phase
 phase2ind(phase :: Any) = x -> x == phase
 
 """
-    surfsurf(array, phase[; len][, directions][, plans,] periodic = false, edgemode = :Sobel)
+    surfsurf(array, phase[; len][, directions][, plans,] periodic = false, edgemode = :DiffApprox)
 
 Calculate surface-surface correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -28,8 +28,8 @@ to `len` which defaults to half of the minimal dimension of the
 array.
 
 You can chose how an edge between phases are selected by passing
-`edgemode` argument which can be either `:Sobel` or
-`:distance_map`. Usually, `:Sobel` gives much better results.
+`edgemode` argument which can be either `:DiffApprox` or
+`:distance_map`. Usually, `:DiffApprox` gives much better results.
 
 If `phase` is a function it is applied to array to select the phase of
 interest, otherwise the phase of interest is selected by testing
@@ -48,7 +48,7 @@ function surfsurf(array      :: AbstractArray,
                   directions :: Vector{Symbol} =  array |> default_directions,
                   periodic   :: Bool           = false,
                   plans      :: S2FTPlans      = S2FTPlans(array, periodic),
-                  edgemode   :: Symbol         = :Sobel)
+                  edgemode   :: Symbol         = :DiffApprox)
     χ = phase2ind(phase)
     ph = map(χ, array)
     edge = extract_edge(ph, edgemode)
@@ -62,7 +62,7 @@ end
 
 """
     surfvoid(array, phase[; len][, directions][, plans,]
-             void_phase = 0, periodic = false, edgemode = :Sobel)
+             void_phase = 0, periodic = false, edgemode = :DiffApprox)
 
 Calculate surface-void correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -75,8 +75,8 @@ all `x`s in the range from `1` to `len` which defaults to half of the
 minimal dimension of the array.
 
 You can chose how an edge between phases are selected by passing
-`edgemode` argument which can be either `:Sobel` or
-`:distance_map`. Usually, `:Sobel` gives much better results.
+`edgemode` argument which can be either `:DiffApprox` or
+`:distance_map`. Usually, `:DiffApprox` gives much better results.
 
 If `phase` is a function it is applied to array to select the phase of
 interest, otherwise the phase of interest is selected by testing
@@ -97,7 +97,7 @@ function surfvoid(array      :: AbstractArray,
                   directions :: Vector{Symbol} =  array |> default_directions,
                   periodic   :: Bool           = false,
                   plans      :: S2FTPlans      = S2FTPlans(array, periodic),
-                  edgemode   :: Symbol         = :Sobel,
+                  edgemode   :: Symbol         = :DiffApprox,
                   void_phase                   = 0)
     χ = phase2ind(phase)
     χ_void = phase2ind(void_phase)
