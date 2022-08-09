@@ -5,6 +5,8 @@ using JSON: JSON, parse
 using LinearAlgebra: norm
 using FFTW: fft, plan_rfft, irfft
 using StatsBase: mean
+using CUDA: CuArray
+import CUDA.CUFFT
 import Images
 export read_cuboid, lowfreq_energy_ratio, extract_edges
 include("utility.jl")

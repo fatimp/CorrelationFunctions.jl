@@ -206,6 +206,11 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 ##################
 # Edge detection #
 ##################
+
+# Upload one array to video memory if another array is there
+maybe_load_to_gpu(:: AbstractArray, arr :: AbstractArray) = arr
+maybe_load_to_gpu(:: CuArray,       arr :: AbstractArray) = CuArray(arr)
+
 function extract_edges(array :: AbstractArray)
     s = size(array)
     flt = zeros(Float64, s)
@@ -218,6 +223,7 @@ function extract_edges(array :: AbstractArray)
         flt[midx] = 1
     end
     flt[uidx] = -(neighbors - 1)
+    flt = maybe_load_to_gpu(array, flt)
 
     plan = plan_rfft(array)
     ftflt = plan * flt
