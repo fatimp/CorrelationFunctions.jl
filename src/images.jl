@@ -207,11 +207,9 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 # Edge detection #
 ##################
 
-# Upload one array to video memory if another array is there
-maybe_load_to_gpu(:: AbstractArray, arr :: AbstractArray) = arr
-maybe_load_to_gpu(:: CuArray,       arr :: AbstractArray) = CuArray(arr)
-
-function extract_edges(array :: AbstractArray)
+# On GPU we apply filter with FFT transform because FFT is a basic
+# operation on arrays
+function extract_edges(array :: CuArray)
     s = size(array)
     flt = zeros(Float64, s)
     uidx = flt |> CartesianIndices |> first |> oneunit
@@ -223,7 +221,7 @@ function extract_edges(array :: AbstractArray)
         flt[midx] = 1
     end
     flt[uidx] = -(neighbors - 1)
-    flt = maybe_load_to_gpu(array, flt)
+    flt = CuArray(flt)
 
     plan = plan_rfft(array)
     ftflt = plan * flt
@@ -232,4 +230,32 @@ function extract_edges(array :: AbstractArray)
 
     res = abs.(irfft(ftres, size(array, 1)))
     return sqrt(2) * res / neighbors
+end
+
+# On CPU we calculate the convolution extending the signal
+# by reflection from the border to keep compatibility with
+# CorrelationTrackers.jl
+padelems(:: AbstractArray{T, 1}) where T = (1,)
+padelems(:: AbstractArray{T, 2}) where T = (1, 1)
+padelems(:: AbstractArray{T, 3}) where T = (1, 1, 1)
+
+function extract_edges(array :: AbstractArray)
+    neighbors = 3^ndims(array)
+    scale = -(neighbors - 1.0)
+    edges = scale * array
+
+    pe = padelems(array)
+    padded = Images.padarray(array, Images.Pad(:reflect, pe...))
+    indices = CartesianIndices(array)
+    uidx = indices |> first |> oneunit
+
+    for i in indices
+        for j in (i-uidx):(i+uidx)
+            if j != i
+                edges[i] += padded[j]
+            end
+        end
+    end
+
+    return abs.(sqrt(2) * edges / neighbors)
 end

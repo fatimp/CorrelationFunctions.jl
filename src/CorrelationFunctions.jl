@@ -8,10 +8,12 @@ using StatsBase: mean
 using CUDA: CuArray
 import CUDA.CUFFT
 import Images
-export read_cuboid, lowfreq_energy_ratio, extract_edges
+
 include("utility.jl")
 include("lowfreq_energy_ratio.jl")
 include("images.jl")
+
+export read_cuboid, lowfreq_energy_ratio, extract_edges
 end
 
 module Directional
