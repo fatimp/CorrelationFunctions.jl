@@ -7,4 +7,4 @@ makedocs(sitename = "CorrelationFunctions.jl documentation",
                                         "assets/code.css"
                                     ]))
 
-deploydocs(repo = "github.com/shamazmazum/CorrelationFunctions.jl.git")
+deploydocs(repo = "github.com/fatimp/CorrelationFunctions.jl.git")
