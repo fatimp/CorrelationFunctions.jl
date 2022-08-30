@@ -49,23 +49,18 @@ end # Directional
 module Map
 import ..Utilities
 using LinearAlgebra: norm
-using CUDA: CuArray, cu, @cuda, blockIdx, blockDim, threadIdx, gridDim
+using CUDA: CuArray, cu
 using FFTW: rfft, irfft, ifftshift
 using Images: label_components
-using Interpolations: interpolate, Gridded, Linear, extrapolate, Periodic
 import CUDA.CUFFT
 
-include("map/result.jl")
-include("map/general_map.jl")
-include("map/algorithms.jl")
-include("map/iterators.jl")
-include("map/l2_map.jl")
+include("map/misc.jl")
 include("map/s2_map.jl")
 include("map/c2_map.jl")
 include("map/ss_map.jl")
 include("map/sv_map.jl")
 
-export l2, s2, c2, surfsurf, surfvoid, cross_correlation,
+export s2, c2, surfsurf, surfvoid, cross_correlation,
     dir_from_map, restore_full_map, mean_dir
 end # Map
 
