@@ -55,44 +55,6 @@ function x_L2!(result, img, depth)
     return
 end
 
-
-"""
-    x_L2_CUDA!(result, img, depth)
-
-Compute L2 over first dim of `img` and *add* it to `result`
-using CUDA.
-"""
-function x_L2_CUDA!(result, img, depth)
-    indxs = CartesianIndices(size_slice(img, 1))
-    nindxs = length(indxs)
-
-    cu_index = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    cu_stride = blockDim().x * gridDim().x
-
-    for i in cu_index:cu_stride:nindxs
-        indx = indxs[i]
-        vres = view(result, :, indx)
-        vimg = view(img, :, indx)
-        base_L2!(vres, vimg, depth)
-    end
-    return
-end
-
-
-"""
-when applied to CuArrays, performs computations on GPU
-"""
-function x_L2!(result::CuArray, img::CuArray, depth)
-    result .= 0
-
-    NTHREADS = 256
-    N = reduce(*, size_slice(img, 1); init=1)
-
-    NBLOCKS = div(N - 1, NTHREADS) + 1
-    @cuda threads = NTHREADS blocks = NBLOCKS x_L2_CUDA!(result, img, depth)
-end
-
-
 """
     align!(aimg, img, side, ray; periodic=true)
 
