@@ -1,5 +1,5 @@
-cfs = [:s2, :c2, :surfsurf, :surfvoid]
-dirs = Dict(
+const cfs = [:s2, :c2, :surfsurf, :surfvoid]
+const dirs = Dict(
     1 => [:x],
     2 => [:x, :y, :xy, :yx],
     3 => [:x, :y, :z]
