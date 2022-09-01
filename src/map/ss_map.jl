@@ -14,6 +14,6 @@ julia> surfsurf([1 0; 0 1], 1; periodic=true)
 """
 function surfsurf(image, phase;
                   periodic     = false)
-    M = Utilities.extract_edges(image .== phase)
+    M = Utilities.extract_edges(image .== phase, Utilities.EdgesFilterPeriodic())
     return s2(M; periodic)
 end

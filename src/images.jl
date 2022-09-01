@@ -206,22 +206,30 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 ##################
 # Edge detection #
 ##################
+maybe_upload_to_gpu(array, :: CuArray) = CuArray(array)
+maybe_upload_to_gpu(array, :: AbstractArray) = array
+
+abstract type EdgesMode end
+
+struct EdgesDistanceTransform <: EdgesMode end
+struct EdgesFilterPeriodic    <: EdgesMode end
+struct EdgesFilterReflect     <: EdgesMode end
 
 # On GPU we apply filter with FFT transform because FFT is a basic
 # operation on arrays
-function extract_edges(array :: CuArray)
+function extract_edges(array :: AbstractArray, :: EdgesFilterPeriodic)
     s = size(array)
     flt = zeros(Float64, s)
-    uidx = flt |> CartesianIndices |> first |> oneunit
+    fidx = flt |> CartesianIndices |> first
+    uidx = fidx |> oneunit
     neighbors = 3^ndims(array)
 
-    for idx in -uidx:uidx
-        midx = (mod(k + s, s) + 1 for (k, s) in zip(Tuple(idx), s)) |>
-            Tuple |> CartesianIndex
-        flt[midx] = 1
+    circflt = CircularArray(flt)
+    for idx in fidx-uidx:fidx+uidx
+        circflt[idx] = 1
     end
-    flt[uidx] = -(neighbors - 1)
-    flt = CuArray(flt)
+    circflt[fidx] = -(neighbors - 1)
+    flt = maybe_upload_to_gpu(circflt.data, array)
 
     plan = plan_rfft(array)
     ftflt = plan * flt
@@ -239,7 +247,7 @@ padelems(:: AbstractArray{T, 1}) where T = (1,)
 padelems(:: AbstractArray{T, 2}) where T = (1, 1)
 padelems(:: AbstractArray{T, 3}) where T = (1, 1, 1)
 
-function extract_edges(array :: AbstractArray)
+function extract_edges(array :: AbstractArray, :: EdgesFilterReflect)
     neighbors = 3^ndims(array)
     scale = -(neighbors - 1.0)
     edges = scale * array
@@ -259,3 +267,8 @@ function extract_edges(array :: AbstractArray)
 
     return abs.(sqrt(2) * edges / neighbors)
 end
+
+extract_edges(array :: AbstractArray, :: EdgesDistanceTransform) =
+    let distances = array .|> Bool |> Images.feature_transform |> Images.distance_transform
+        Float64.(distances .== 1.0)
+    end

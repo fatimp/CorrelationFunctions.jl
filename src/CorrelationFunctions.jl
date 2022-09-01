@@ -1,6 +1,7 @@
 module CorrelationFunctions
 
 module Utilities
+using CircularArrays: CircularArray
 using JSON: JSON, parse
 using LinearAlgebra: norm
 using FFTW: fft, plan_rfft, irfft
@@ -13,7 +14,8 @@ include("utility.jl")
 include("lowfreq_energy_ratio.jl")
 include("images.jl")
 
-export read_cuboid, lowfreq_energy_ratio, extract_edges
+export read_cuboid, lowfreq_energy_ratio, extract_edges,
+    EdgesMode, EdgesDistanceTransform, EdgesFilterPeriodic, EdgesFilterReflect
 end
 
 module Directional

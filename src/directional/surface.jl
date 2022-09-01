@@ -1,14 +1,3 @@
-extract_edges(array :: AbstractArray, mode :: Symbol) =
-    extract_edges(array, Val(mode))
-
-extract_edges(array :: AbstractArray, :: Val{:DiffApprox}) =
-    Utilities.extract_edges(array)
-
-extract_edges(array :: AbstractArray, :: Val{:distance_map}) =
-    let distances = array .|> Bool |> feature_transform |> distance_transform
-        Float64.(distances .== 1.0)
-    end
-
 phase2ind(phase :: Function) = phase
 phase2ind(phase :: Any) = x -> x == phase
 
@@ -26,8 +15,12 @@ to `len` which defaults to half of the minimal dimension of the
 array.
 
 You can chose how an edge between phases are selected by passing
-`edgemode` argument which can be either `:DiffApprox` or
-`:distance_map`. Usually, `:DiffApprox` gives much better results.
+`edgemode` argument which can be either
+`Utilities.EdgesDistanceTransform()`, `Utilities.EdgesFilterReflect()`
+or `Utilities.EdgesFilterPeriodic()`. Usually,
+`Utilities.EdgesFilterPeriodic()` gives much better results and
+`Utilities.EdgesFilterReflect()` is there for compatibility with
+`CorrelationTrackers.jl`.
 
 If `phase` is a function it is applied to array to select the phase of
 interest, otherwise the phase of interest is selected by testing
@@ -42,14 +35,14 @@ See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
 """
 function surfsurf(array      :: AbstractArray,
                   phase;
-                  len        :: Integer        = (array |> size  |> minimum) ÷ 2,
-                  directions :: Vector{Symbol} =  array |> default_directions,
-                  periodic   :: Bool           = false,
-                  plans      :: S2FTPlans      = S2FTPlans(array, periodic),
-                  edgemode   :: Symbol         = :DiffApprox)
+                  len        :: Integer             = (array |> size  |> minimum) ÷ 2,
+                  directions :: Vector{Symbol}      =  array |> default_directions,
+                  periodic   :: Bool                = false,
+                  plans      :: S2FTPlans           = S2FTPlans(array, periodic),
+                  edgemode   :: Utilities.EdgesMode = Utilities.EdgesFilterPeriodic())
     χ = phase2ind(phase)
     ph = map(χ, array)
-    edge = extract_edges(ph, edgemode)
+    edge = Utilities.extract_edges(ph, edgemode)
 
     return s2(edge, SeparableIndicator(identity);
               len        = len,
@@ -73,8 +66,12 @@ all `x`s in the range from `1` to `len` which defaults to half of the
 minimal dimension of the array.
 
 You can chose how an edge between phases are selected by passing
-`edgemode` argument which can be either `:DiffApprox` or
-`:distance_map`. Usually, `:DiffApprox` gives much better results.
+`edgemode` argument which can be either
+`Utilities.EdgesDistanceTransform()`, `Utilities.EdgesFilterReflect()`
+or `Utilities.EdgesFilterPeriodic()`. Usually,
+`Utilities.EdgesFilterPeriodic()` gives much better results and
+`Utilities.EdgesFilterReflect()` is there for compatibility with
+`CorrelationTrackers.jl`.
 
 If `phase` is a function it is applied to array to select the phase of
 interest, otherwise the phase of interest is selected by testing
@@ -91,16 +88,16 @@ See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
 """
 function surfvoid(array      :: AbstractArray,
                   phase;
-                  len        :: Integer        = (array |> size  |> minimum) ÷ 2,
-                  directions :: Vector{Symbol} =  array |> default_directions,
-                  periodic   :: Bool           = false,
-                  plans      :: S2FTPlans      = S2FTPlans(array, periodic),
-                  edgemode   :: Symbol         = :DiffApprox,
-                  void_phase                   = 0)
+                  len        :: Integer             = (array |> size  |> minimum) ÷ 2,
+                  directions :: Vector{Symbol}      =  array |> default_directions,
+                  periodic   :: Bool                = false,
+                  plans      :: S2FTPlans           = S2FTPlans(array, periodic),
+                  edgemode   :: Utilities.EdgesMode = Utilities.EdgesFilterPeriodic(),
+                  void_phase                        = 0)
     χ = phase2ind(phase)
     χ_void = phase2ind(void_phase)
     ph = map(χ, array)
-    edge = extract_edges(ph, edgemode)
+    edge = Utilities.extract_edges(ph, edgemode)
 
     χ1(x) = χ_void(array[x])
     χ2(x) = edge[x]
