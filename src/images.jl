@@ -47,9 +47,7 @@ end
 # Iterate over adjacent element in a "wrapped" torus space
 function iterate_adjacent(index :: CartesianIndex{N},
                           array :: AbstractArray{T, N}) where{T, N}
-    return (wrapidx(index + adj, array)
-            for adj in adjacent_elements(N)
-            if manhattan_dist(index, index + adj) == 1)
+    return (wrapidx(index + adj, array) for adj in adjacent_elements(N))
 end
 
 function Images.label_components(input :: AbstractArray{T, N},
