@@ -209,11 +209,62 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 maybe_upload_to_gpu(array, :: CuArray) = CuArray(array)
 maybe_upload_to_gpu(array, :: AbstractArray) = array
 
+"""
+    EdgesMode
+
+Abstract type which specifies one of edge extraction algorithms for
+`extract_edges` function.
+
+See also: [`EdgesDistanceTransform`](@ref),
+[`EdgesFilterPeriodic`](@ref), [`EdgesFilterReflect`](@ref).
+"""
 abstract type EdgesMode end
 
+"""
+    EdgesDistanceTransform()
+
+Edge detection algorithm which uses distance transfrom to extract
+edges. Currently it's the worst algorithm and exists for historical
+reasons.
+
+See also: [`EdgesMode`](@ref), [`extract_edges`](@ref).
+"""
 struct EdgesDistanceTransform <: EdgesMode end
-struct EdgesFilterPeriodic    <: EdgesMode end
-struct EdgesFilterReflect     <: EdgesMode end
+
+"""
+    EdgesFilterPeriodic()
+
+Use simple filter for edge extraction. The signal is extended over
+borders periodically. This algorithm works both for CPU and GPU and is
+default.
+
+See also: [`EdgesMode`](@ref), [`extract_edges`](@ref).
+"""
+struct EdgesFilterPeriodic <: EdgesMode end
+
+"""
+    EdgesFilterReflect()
+
+Use simple filter for edge extraction. The signal is extended over
+borders by reflection. This algorithm exists for compatibility with
+CorrelationTrackers.jl
+
+See also: [`EdgesMode`](@ref), [`extract_edges`](@ref).
+"""
+struct EdgesFilterReflect <: EdgesMode end
+
+"""
+    extract_edges(array, mode)
+
+Perform edge extraction in the same way as in `surfsurf` and
+`surfvoid` functions from `Map` and `Directional` modules. `array` may
+be a CUDA array or an ordinary array. `mode` is a value of `EdgesMode`
+type which selects an edge extraction algorithm.
+
+See also: [`EdgesMode`](@ref), [`EdgesDistanceTransform`](@ref),
+[`EdgesFilterPeriodic`](@ref), [`EdgesFilterReflect`](@ref).
+"""
+function extract_edges end
 
 # On GPU we apply filter with FFT transform because FFT is a basic
 # operation on arrays

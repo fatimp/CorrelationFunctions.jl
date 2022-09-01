@@ -31,7 +31,7 @@ can be helpful if you call `surfsurf` often with the array of the same
 size. Plans can be computed with `S2FTPlans` constructor.
 
 See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
-[`direction3Dp`](@ref), [`S2FTPlans`](@ref).
+[`direction3Dp`](@ref), [`S2FTPlans`](@ref), [`Utilities.extract_edges`](@ref).
 """
 function surfsurf(array      :: AbstractArray,
                   phase;
@@ -84,7 +84,7 @@ can be helpful if you call `surfvoid` often with the array of the same
 size. Plans can be computed with `S2FTPlans` constructor.
 
 See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
-[`direction3Dp`](@ref), [`S2FTPlans`](@ref).
+[`direction3Dp`](@ref), [`S2FTPlans`](@ref), [`Utilities.extract_edges`](@ref).
 """
 function surfvoid(array      :: AbstractArray,
                   phase;
