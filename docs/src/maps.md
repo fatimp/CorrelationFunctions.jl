@@ -19,7 +19,7 @@ Map.s2
 Map.cross_correlation
 Map.surfsurf
 Map.surfvoid
-Map.mean_dir
+Map.average_directions
 ```
 
 You can use usual arrays (of type `Array`) or CUDA arrays for these functions.

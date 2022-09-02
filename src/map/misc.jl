@@ -1,7 +1,8 @@
 """
     dir_from_map(m, dir)
 
-Return CF on one direcion.
+Extract a direction from a correlation map. `direction` can be either
+`:x`, `:y`, `:z`, `:xy` or `:yx`.
 """
 function dir_from_map(m::AbstractArray, direction; periodic=false)
     if direction == :x
@@ -28,16 +29,16 @@ function dir_from_map(m::AbstractArray, direction; periodic=false)
 end
 
 """
-    mean_dir(cfmap)
+    average_directions(cfmap)
 
 Average correlation map `cfmap` over all directions. The result is a
 vector with indices being equal to correlation length + 1.
 """
-function mean_dir(cfmap :: AbstractArray{T}) where T
+function average_directions(cfmap :: AbstractArray{T}) where T
     num  = Dict{Int, Int}()
     vals = Dict{Int, Vector{T}}()
     for idx in CartesianIndices(cfmap)
-        dist = ((Tuple(idx) .- 1) .^ 2) |> sum |> sqrt |> floor |> Int
+        dist = ((Tuple(idx) .- 1) .^ 2) |> sum |> sqrt |> round |> Int
         v = get(vals, dist, T[])
         push!(v, cfmap[idx])
         num[dist]  = get(num, dist, 0) + 1
@@ -48,8 +49,9 @@ function mean_dir(cfmap :: AbstractArray{T}) where T
     avg = Vector{Float64}(undef, len)
 
     for idx in 1:len
-        n = get(num, idx-1, 0)
-        avg[idx] = iszero(n) ? 0 : (sum(vals[idx-1]) / n)
+        n = get(num,  idx-1, 1)
+        v = get(vals, idx-1, T[])
+        avg[idx] = sum(v) / n
     end
 
     return avg
