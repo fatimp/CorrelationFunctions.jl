@@ -54,11 +54,12 @@ module Map
 import ..Utilities
 using LinearAlgebra: norm
 using CUDA: CuArray, cu
-using FFTW: rfft, irfft, ifftshift
+using FFTW: rfft, irfft, ifftshift, plan_rfft
 using Images: label_components
 import CUDA.CUFFT
 
 include("map/misc.jl")
+include("map/cc_map.jl")
 include("map/s2_map.jl")
 include("map/c2_map.jl")
 include("map/ss_map.jl")
