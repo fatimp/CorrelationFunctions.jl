@@ -57,22 +57,17 @@ function average_directions(cfmap :: AbstractArray{T}) where T
     return avg
 end
 
-function cnt_total_(c; periodic=false, original=false)
+function cnt_total_(c; periodic=false)
     if periodic
-        [length(c)]
+        return [length(c)]
     else
-        if original
-            ixes = map(size(c)) do s
-                collect(s:-1:1)
-            end
-        else
-            ixes = map(axes(c), size(c)) do ix, es
-                s = (es + 1) ÷ 2
-                cnt = @. s - abs(ix - s)
-                ifftshift(cnt)
-            end
+        ixes = map(axes(c), size(c)) do ix, es
+            s = (es + 1) ÷ 2
+            cnt = @. s - abs(ix - s)
+            ifftshift(cnt)
         end
-        map(ixes, 1:length(ixes)) do cnt, d
+
+        return map(ixes, 1:length(ixes)) do cnt, d
             if d == 1
                 cnt
             elseif d == 2
@@ -85,8 +80,8 @@ function cnt_total_(c; periodic=false, original=false)
 end
 
 
-cnt_total(c; periodic=false, original=false) = cnt_total_(c; periodic, original)
-cnt_total(c::CuArray; periodic=false, original=false) = cnt_total_(c; periodic, original) .|> cu
+cnt_total(c; periodic=false) = cnt_total_(c; periodic)
+cnt_total(c::CuArray; periodic=false) = cnt_total_(c; periodic) .|> cu
 
 
 function zeropad(image)
