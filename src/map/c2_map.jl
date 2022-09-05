@@ -21,10 +21,20 @@ julia> c2([1 0; 0 1], 1; periodic=true)
 function c2(image, phase; periodic :: Bool = false)
     labeled_img = label(image .== phase, periodic)
     labels = maximum(labeled_img)
+    sim = periodic ? labeled_img : zeropad(labeled_img)
+    plan = plan_rfft(sim)
+    s    = size(sim, 1)
 
-    return mapreduce(+, 1:labels) do label
-        s2(labeled_img, label; periodic)
+    c2ft = mapreduce(+, 1:labels) do label
+        img = labeled_img .== label
+        img = periodic ? img : zeropad(img)
+        imgft = plan * img
+        abs2.(imgft)
     end
 
-    return result
+    cf  = irfft(c2ft, s)
+    qs = cnt_total(cf; periodic)
+    foreach(q -> cf ./= q, qs)
+
+    return cf
 end
