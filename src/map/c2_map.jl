@@ -20,10 +20,10 @@ julia> c2([1 0; 0 1], 1; periodic=true)
 """
 function c2(image, phase; periodic :: Bool = false)
     labeled_img = label(image .== phase, periodic)
-    n_segments = maximum(labeled_img)
+    labels = maximum(labeled_img)
 
-    return mapreduce(+, 1:n_segments) do segment
-        s2(labeled_img, segment; periodic)
+    return mapreduce(+, 1:labels) do label
+        s2(labeled_img, label; periodic)
     end
 
     return result
