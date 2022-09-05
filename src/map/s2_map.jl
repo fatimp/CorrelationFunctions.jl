@@ -8,9 +8,7 @@ function s2(image; periodic = false)
     image = periodic ? image : zeropad(image)
     ft = rfft(image)
     s2 = irfft(abs2.(ft), size(image, 1))
-    qs = cnt_total(s2; periodic)
-    foreach(q -> s2 ./= q, qs)
-    return s2
+    return reduce(./, cnt_total(s2; periodic); init = s2)
 end
 
 @doc raw"""

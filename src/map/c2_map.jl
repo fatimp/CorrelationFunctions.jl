@@ -32,9 +32,6 @@ function c2(image, phase; periodic :: Bool = false)
         abs2.(imgft)
     end
 
-    cf  = irfft(c2ft, s)
-    qs = cnt_total(cf; periodic)
-    foreach(q -> cf ./= q, qs)
-
-    return cf
+    cf = irfft(c2ft, s)
+    return reduce(./, cnt_total(cf; periodic); init = cf)
 end
