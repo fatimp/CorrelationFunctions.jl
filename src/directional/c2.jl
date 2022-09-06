@@ -1,3 +1,53 @@
+const max_labels_for_ft = 50
+
+function c2fft(labels     :: AbstractArray;
+               directions :: Vector{Symbol},
+               len        :: Integer,
+               periodic   :: Bool,
+               plans      :: S2FTPlans = S2FTPlans(labels, periodic))
+    cd = CorrelationData(len, check_directions(directions, size(labels), periodic))
+    topology = periodic ? Utilities.Torus() : Utilities.Plane()
+    maxlabel = maximum(labels)
+
+    for direction in directions
+        success = cd.success[direction]
+        total   = cd.total[direction]
+        slicer  = slice_generators(labels, periodic, Val(direction))
+
+        for slice in slicer
+            slen = length(slice)
+            local fft, ifft
+
+            if slen ∈ plans
+                fft  = plans.forward[slen]
+                ifft = plans.inverse[slen]
+            else
+                l = slen * expand_coefficient(topology)
+                fft  = plan_rfft(zeros(Float64, l))
+                ifft = plan_irfft(zeros(ComplexF64, l >> 1 + 1), l)
+            end
+
+            slice_contrib_ft = mapreduce(+, 1:maxlabel) do label
+                ind  = maybe_pad_with_zeros(slice .== label, topology)
+                ft   = fft * ind
+                s2ft = abs2.(ft)
+            end
+
+            slice_contrib = ifft * slice_contrib_ft
+            shifts = min(len, slen)
+
+            success[1:shifts] .+= slice_contrib[1:shifts]
+            if periodic
+                total[1:shifts] .+= slen
+            else
+                update_runs!(total, slen, shifts)
+            end
+        end
+    end
+
+    return cd
+end
+
 """
     c2(array, phase[; len,][directions,] periodic = false)
 
@@ -31,9 +81,11 @@ function c2(array      :: AbstractArray,
             len        :: Integer = (array |> size |> minimum) ÷ 2,
             periodic   :: Bool = false)
     field = map(x -> x == phase, array)
-    s2(label_components(field, periodic ? Utilities.Torus() : Utilities.Plane()),
-       InseparableIndicator((x, y) -> x == y != 0);
-       len        = len,
-       directions = directions,
-       periodic   = periodic)
+    labels = label_components(field, periodic ? Utilities.Torus() : Utilities.Plane())
+    if maximum(labels) < max_labels_for_ft
+        return c2fft(labels; directions, len, periodic)
+    else
+        return s2(labels,InseparableIndicator((x, y) -> x == y != 0);
+                  len, directions, periodic)
+    end
 end
