@@ -43,9 +43,9 @@ function s2 end
 
 maybe_pad_with_zeros(slice :: AbstractVector   , :: Utilities.Torus) = slice
 maybe_pad_with_zeros(slice :: AbstractVector{T}, :: Utilities.Plane) where T =
-    let z = zeros(T, length(slice)); vcat(z, slice, z) end
+    vcat(zeros(T, length(slice)), slice)
 
-expand_coefficient(:: Utilities.Plane) = 3
+expand_coefficient(:: Utilities.Plane) = 2
 expand_coefficient(:: Utilities.Torus) = 1
 
 struct S2FTPlans{F, I}
@@ -106,7 +106,6 @@ function s2(array      :: AbstractArray,
             local fft, ifft
 
             ind1 = maybe_pad_with_zeros(map(χ1, slice), topology)
-            ind2 = maybe_pad_with_zeros(map(χ2, slice), topology)
 
             if slen ∈ plans
                 fft  = plans.forward[slen]
@@ -118,7 +117,7 @@ function s2(array      :: AbstractArray,
             end
 
             fft1 = fft * ind1
-            fft2 = (χ1 === χ2) ? fft1 : fft * ind2
+            fft2 = (χ1 === χ2) ? fft1 : fft * maybe_pad_with_zeros(map(χ2, slice), topology)
             s2 = ifft * (fft1 .* conj.(fft2))
 
             # Number of correlation lengths
