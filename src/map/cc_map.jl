@@ -14,7 +14,7 @@ function cross_correlation(image1 :: AbstractArray,
 
     s = size(image1, 1)
     plan = plan_rfft(image1)
-    
+
     ft1 = plan * image1
     ft2 = plan * image2
     ccf = @. ft1 * conj(ft2)
