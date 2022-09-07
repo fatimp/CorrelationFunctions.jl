@@ -10,7 +10,7 @@ To build a documentation do the following.
 2. From shell, this directory being the working directory: `cd docs && julia make.jl`
 
 Also the documentation for the most recent release is available on
-[GitHub Pages](https://fatimp.github.io/CorrelationFunctions.jl/v0.6/index.html).
+[GitHub Pages](https://fatimp.github.io/CorrelationFunctions.jl/dev/index.html).
 
 ## Acknowledgements
 
