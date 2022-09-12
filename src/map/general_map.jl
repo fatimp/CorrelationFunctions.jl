@@ -3,25 +3,13 @@ function mirror(image, mask)
     view(image, ixs...)
 end
 
-"""
-    corr_function_map(img, CF_constructor; parameters...)
-
-Compute correlation function map in all meaningfull directions.
-
-CF_constructor ∈ {Map.s2, Map.l2, Map.c2, Map.ss, Map.sv}
-"""
-function corr_function_map(
-    img::AbstractArray{T,N},
-    CF_constructor;
-    parameters...
-) where T where N
-    cf_params = CF_constructor(img; parameters...)
+function corr_function_map(img :: AbstractArray, cf_params)
     result = CFMap(img)
 
     mirror_img = similar(img)
     mirror_result = similar(img, Float32)
 
-    for mask in BoolMask(N)
+    for mask in BoolMask(ndims(img))
         if mask[end]
             continue
         end

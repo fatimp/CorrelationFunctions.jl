@@ -272,5 +272,8 @@ julia> l2([1 0; 0 1], 1; periodic=true).result
 ```
 """
 function l2(image, phase; periodic=false)
-    corr_function_map(image .== phase, Params_L2; periodic)
+    phase_array = image .== phase
+
+    cf_params = Params_L2(phase_array; periodic = periodic)
+    return corr_function_map(phase_array, cf_params)
 end
