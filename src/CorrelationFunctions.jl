@@ -56,7 +56,6 @@ using Interpolations: interpolate, Gridded, Linear, extrapolate, Periodic
 import CUDA.CUFFT
 
 include("map/result.jl")
-include("map/general_map.jl")
 include("map/algorithms.jl")
 include("map/iterators.jl")
 include("map/l2_map.jl")

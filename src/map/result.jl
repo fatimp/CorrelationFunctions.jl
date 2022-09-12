@@ -193,3 +193,8 @@ function cut_cfmap(cfmap, mask)
 
     return view(cfmap.result, ixs...)
 end
+
+function mirror(image, mask)
+    ixs = map((ix, m) -> m ? reverse(ix) : ix, axes(image), mask)
+    view(image, ixs...)
+end
