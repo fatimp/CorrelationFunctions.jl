@@ -241,7 +241,8 @@ end
 
 Compute L₂ correlation function in positive directions
 """
-function correllation_function!(res, img, params::Params_L2)
+function correllation_function!(img, params::Params_L2)
+    res = zeros(Float32, size(img))
     L2_positive_sides!(
         params.side_results,
         img,
@@ -251,7 +252,7 @@ function correllation_function!(res, img, params::Params_L2)
         params.periodic
     )
     restore!(res, params.side_results, params.original_ixs, params.ray_ixs)
-    foreach(q -> res ./= q, params.total)
+    return reduce(./, params.total; init = res)
 end
 
 bool_mask(x, n) = digits(Bool, x; base = 2, pad = n)
@@ -274,9 +275,6 @@ julia> l2([1 0; 0 1], 1; periodic=true).result
 ```
 """
 function l2(image :: AbstractArray, phase; periodic=false)
-    sz = size(image)
-    nd = ndims(image)
-
     phase_array = image .== phase
     cf_params = Params_L2(phase_array; periodic = periodic)
     result = CFMap(phase_array)
@@ -287,9 +285,7 @@ function l2(image :: AbstractArray, phase; periodic=false)
         end
 
         mirror_img = mirror(phase_array, mask)
-        mirror_result = zeros(Float32, sz)
-
-        correllation_function!(mirror_result, mirror_img, cf_params)
+        mirror_result = correllation_function!(mirror_img, cf_params)
 
         v_result = cut_cfmap(result, mask)
         v_result .= mirror_result
