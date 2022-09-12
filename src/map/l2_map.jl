@@ -254,6 +254,8 @@ function correllation_function!(res, img, params::Params_L2)
     foreach(q -> res ./= q, params.total)
 end
 
+bool_mask(x, n) = digits(Bool, x; base = 2, pad = n)
+bool_iter(n) = (bool_mask(x, n) for x in 0:(2^n-1))
 
 @doc raw"""
     l2(image, phase; periodic = false)
@@ -271,7 +273,7 @@ julia> l2([1 0; 0 1], 1; periodic=true).result
  0.0  0.5
 ```
 """
-function l2(image, phase; periodic=false)
+function l2(image :: AbstractArray, phase; periodic=false)
     phase_array = image .== phase
     cf_params = Params_L2(phase_array; periodic = periodic)
 
@@ -280,7 +282,7 @@ function l2(image, phase; periodic=false)
     mirror_img = similar(phase_array)
     mirror_result = similar(phase_array, Float32)
 
-    for mask in BoolMask(ndims(phase_array))
+    for mask in bool_iter(ndims(phase_array))
         if mask[end]
             continue
         end

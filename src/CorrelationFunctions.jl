@@ -53,11 +53,11 @@ using CUDA: CuArray, cu, @cuda, blockIdx, blockDim, threadIdx, gridDim
 using FFTW: rfft, irfft, ifftshift
 using Images: label_components
 using Interpolations: interpolate, Gridded, Linear, extrapolate, Periodic
+using Base.Iterators
 import CUDA.CUFFT
 
 include("map/result.jl")
 include("map/algorithms.jl")
-include("map/iterators.jl")
 include("map/l2_map.jl")
 include("map/s2_map.jl")
 include("map/c2_map.jl")
