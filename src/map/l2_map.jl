@@ -274,21 +274,20 @@ julia> l2([1 0; 0 1], 1; periodic=true).result
 ```
 """
 function l2(image :: AbstractArray, phase; periodic=false)
+    sz = size(image)
+    nd = ndims(image)
+
     phase_array = image .== phase
     cf_params = Params_L2(phase_array; periodic = periodic)
-
     result = CFMap(phase_array)
-
-    mirror_img = similar(phase_array)
-    mirror_result = similar(phase_array, Float32)
 
     for mask in bool_iter(ndims(phase_array))
         if mask[end]
             continue
         end
 
-        mirror_img .= mirror(phase_array, mask)
-        mirror_result .= 0
+        mirror_img = mirror(phase_array, mask)
+        mirror_result = zeros(Float32, sz)
 
         correllation_function!(mirror_result, mirror_img, cf_params)
 

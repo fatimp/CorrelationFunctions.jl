@@ -194,7 +194,9 @@ function cut_cfmap(cfmap, mask)
     return view(cfmap.result, ixs...)
 end
 
-function mirror(image, mask)
-    ixs = map((ix, m) -> m ? reverse(ix) : ix, axes(image), mask)
-    view(image, ixs...)
+function mirror(image :: AbstractArray{T, N},
+                mask  :: Vector{Bool}) where {T, N}
+    ixs = Tuple(m ? reverse(ax) : StepRange(ax)
+                for (m, ax) in zip(mask, axes(image))) :: NTuple{N, StepRange{Int, Int}}
+    return image[CartesianIndices(ixs)]
 end
