@@ -1,4 +1,4 @@
-cfs = [:s2, :l2, :c2, :surfsurf, :surfvoid]
+cfs = [:l2]
 dirs = Dict(
     1 => [:x],
     2 => [:x, :y, :xy, :yx],
