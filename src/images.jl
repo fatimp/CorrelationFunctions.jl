@@ -1,3 +1,6 @@
+# Upload the first array to GPU memory if the second array is there
+maybe_upload_to_gpu(array, :: CuArray) = CuArray(array)
+maybe_upload_to_gpu(array, :: AbstractArray) = array
 
 ######################
 # Component labeling #
@@ -204,8 +207,6 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 ##################
 # Edge detection #
 ##################
-maybe_upload_to_gpu(array, :: CuArray) = CuArray(array)
-maybe_upload_to_gpu(array, :: AbstractArray) = array
 
 """
     EdgesMode

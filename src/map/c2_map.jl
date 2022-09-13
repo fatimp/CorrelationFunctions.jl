@@ -33,5 +33,5 @@ function c2(image, phase; periodic :: Bool = false)
     end
 
     cf = irfft(c2ft, s)
-    return reduce(./, cnt_total(cf; periodic); init = cf)
+    return normalize_result(cf, periodic)
 end
