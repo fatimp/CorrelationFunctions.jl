@@ -7,7 +7,9 @@ Calculate $S_2$ (two point) correlation function for the binary image
 function s2(image; periodic = false)
     image = periodic ? image : zeropad(image)
     ft = rfft(image)
-    s2 = irfft(abs2.(ft), size(image, 1))
+    # There is no method irfft(:: CuArray{Float64}, :: T)!
+    # Do not use abs2 here or in Map.c2!
+    s2 = irfft(ft .* conj.(ft), size(image, 1))
     return normalize_result(s2, periodic)
 end
 

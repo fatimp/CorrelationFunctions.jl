@@ -1,7 +1,7 @@
-label(img, periodic::Bool) =
+mylabel(img, periodic::Bool) =
     label_components(img, periodic ? Utilities.Torus() : Utilities.Plane())
-label(img::CuArray, periodic::Bool) =
-    cu(label(Array(img), periodic))
+mylabel(img::CuArray, periodic::Bool) =
+    CuArray(mylabel(Array(img), periodic))
 
 
 @doc raw"""
@@ -19,7 +19,7 @@ julia> c2([1 0; 0 1], 1; periodic=true)
 ```
 """
 function c2(image, phase; periodic :: Bool = false)
-    labeled_img = label(image .== phase, periodic)
+    labeled_img = mylabel(image .== phase, periodic)
     labels = maximum(labeled_img)
     sim = periodic ? labeled_img : zeropad(labeled_img)
     plan = plan_rfft(sim)
@@ -29,7 +29,7 @@ function c2(image, phase; periodic :: Bool = false)
         img = labeled_img .== label
         img = periodic ? img : zeropad(img)
         imgft = plan * img
-        abs2.(imgft)
+        imgft .* conj.(imgft)
     end
 
     cf = irfft(c2ft, s)

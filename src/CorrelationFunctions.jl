@@ -54,7 +54,7 @@ end # Directional
 module Map
 import ..Utilities
 using LinearAlgebra: norm
-using CUDA: CuArray, cu
+using CUDA: CuArray
 using FFTW: rfft, irfft, ifftshift, plan_rfft
 using Images: label_components
 import CUDA.CUFFT
