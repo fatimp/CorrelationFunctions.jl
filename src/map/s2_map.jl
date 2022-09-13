@@ -8,7 +8,7 @@ function s2(image; periodic = false)
     image = periodic ? image : zeropad(image)
     ft = rfft(image)
     s2 = irfft(abs2.(ft), size(image, 1))
-    return reduce(./, cnt_total(s2; periodic); init = s2)
+    return normalize_result(s2, periodic)
 end
 
 @doc raw"""

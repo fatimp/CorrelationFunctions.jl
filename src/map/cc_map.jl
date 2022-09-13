@@ -19,7 +19,7 @@ function cross_correlation(image1 :: AbstractArray,
     ft2 = plan * image2
     ccf = @. ft1 * conj(ft2)
     cf  = irfft(ccf, s)
-    return reduce(./, cnt_total(cf; periodic); init = cf)
+    return normalize_result(cf, periodic)
 end
 
 """

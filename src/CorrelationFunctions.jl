@@ -15,7 +15,8 @@ include("lowfreq_energy_ratio.jl")
 include("images.jl")
 
 export read_cuboid, lowfreq_energy_ratio, extract_edges,
-    EdgesMode, EdgesDistanceTransform, EdgesFilterPeriodic, EdgesFilterReflect
+    EdgesMode, EdgesDistanceTransform, EdgesFilterPeriodic, EdgesFilterReflect,
+    maybe_upload_to_gpu
 end
 
 module Directional
