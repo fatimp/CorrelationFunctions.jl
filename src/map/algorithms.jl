@@ -1,34 +1,32 @@
-function cnt_total_(c; periodic=false, original=false)
-    if periodic
-        [length(c)]
-    else
-        if original
-            ixes = map(size(c)) do s
-                collect(s:-1:1)
-            end
-        else
-            ixes = map(axes(c), size(c)) do ix, es
-                s = (es + 1) ÷ 2
-                cnt = @. s - abs(ix - s)
-                ifftshift(cnt)
-            end
-        end
-        map(ixes, 1:length(ixes)) do cnt, d
-            if d == 1
-                cnt
-            elseif d == 2
-                reshape(cnt, 1, :)
-            elseif d == 3
-                reshape(cnt, 1, 1, :)
-            end
-        end
+function cnt_total(c :: AbstractArray)
+    return map(size(c)) do s
+        collect(s:-1:1)
     end
 end
 
+cnt_total_reshaped(c :: AbstractArray{T, 1}) where T = cnt_total(c)
+cnt_total_reshaped(c :: AbstractArray{T, 2}) where T =
+    let (t1, t2) = cnt_total(c);
+        (reshape(t1, :, 1), reshape(t2, 1, :))
+    end
+cnt_total_reshaped(c :: AbstractArray{T, 3}) where T =
+    let (t1, t2, t3) = cnt_total(c);
+        (reshape(t1, :, 1, 1), reshape(t2, 1, :, 1), reshape(t3, 1, 1, :))
+    end
 
-cnt_total(c; periodic=false, original=false) = cnt_total_(c; periodic, original)
-cnt_total(c::CuArray; periodic=false, original=false) = cnt_total_(c; periodic, original) .|> cu
+function normalize_result(result   :: AbstractArray,
+                          periodic :: Bool)
+    local norm
 
+    if periodic
+        norm = result / length(result)
+    else
+        total = cnt_total_reshaped(result)
+        norm = reduce(./, total; init = result)
+    end
+
+    return norm
+end
 
 function zeropad(image)
     s = size(image)

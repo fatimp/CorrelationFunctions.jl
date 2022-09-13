@@ -180,11 +180,9 @@ function restore!(result, side_results, original_ixs, ray_ixs)
 end
 
 
-struct Params_L2{Total,Result,AlignImg,N}
+struct Params_L2{Result,AlignImg,N}
     # boundary conditions
     periodic::Bool
-    # normalization
-    total::Total
 
     # algorithm-specific
 
@@ -224,9 +222,7 @@ function Params_L2(img::AbstractArray{<:Integer,N};
     map_ix!(original_ixs, ray_ixs, img)
 
 
-    total = cnt_total(img; periodic, original=true)
     return Params_L2(periodic,
-                     total,
                      side_results,
                      side_depths,
                      side_align_imgs,
@@ -252,7 +248,7 @@ function correllation_function!(img, params::Params_L2)
         params.periodic
     )
     restore!(res, params.side_results, params.original_ixs, params.ray_ixs)
-    return reduce(./, params.total; init = res)
+    return normalize_result(res, params.periodic)
 end
 
 bool_mask(x, n) = digits(Bool, x; base = 2, pad = n)
