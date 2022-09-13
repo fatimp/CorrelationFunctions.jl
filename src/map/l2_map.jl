@@ -196,12 +196,11 @@ end
 
 
 function Params_L2(img::AbstractArray{<:Integer,N};
-            periodic::Bool=true,
-            depth::Int=img |> size |> maximum) where N
+            periodic::Bool=true) where N
 
     side_sizes = [(size(img, d), size_slice(img, d)...) for d in 1:N]
     side_results = map(s -> similar(img, Int64, s), side_sizes)
-    side_depths = map(s -> min(s, depth), size(img))
+    side_depths = size(img)
 
     if periodic
         side_align_img_sizes = map(s -> (2s[1], s[2:end]...), side_sizes)
