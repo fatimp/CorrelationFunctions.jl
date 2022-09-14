@@ -100,16 +100,17 @@ function align!(aimg::AbstractVector, img::AbstractVector, side, ray; periodic=t
     aimg
 end
 
+function L2_side(img, side, periodic)
+    side_size = (size(img, side), size_slice(img, side)...)
+    side_align_img_size = periodic ?
+        (2side_size[1], side_size[2:end]...) :
+        (side_size[1], 2 .* side_size[2:end]...)
+    side_align_result_size = periodic ? side_size : side_align_img_size
 
-function L2_side!(
-    side_result,
-    img,
-    depth,
-    side,
-    aligned_result,
-    aligned_img;
-    periodic::Bool
-)
+    side_result = zeros(Int, side_size)
+    aligned_result = zeros(Int, side_align_result_size)
+    aligned_img = zeros(Int, side_align_img_size)
+
     ray_ixs = CartesianIndices(size_slice(img, side))
 
     for ray_ix in ray_ixs
@@ -117,35 +118,22 @@ function L2_side!(
         ray_projection = Tuple(ray_ix) .- 1
 
         align!(aligned_img, img, side, ray_projection; periodic)
-        x_L2!(aligned_result, aligned_img, depth)
+        x_L2!(aligned_result, aligned_img, size(img, side))
         sum!(ray_result, aligned_result)
     end
+
+    return side_result
 end
 
 
-function L2_positive_sides(
-    img :: AbstractArray,
-    original_ixs,
-    ray_ixs;
-    periodic
-)
+function L2_positive_sides(img :: AbstractArray, original_ixs, ray_ixs;
+                           periodic)
     result = zeros(Float32, size(img))
 
     for side in 1:ndims(img)
-        side_size = (size(img, side), size_slice(img, side)...)
-
-
-        side_align_img_size = periodic ? (2side_size[1], side_size[2:end]...) :
-            (side_size[1], 2 .* side_size[2:end]...)
-        side_align_result_size = periodic ? side_size : side_align_img_size
-
-        side_result = zeros(Int, side_size)
-        depth = size(img, side)
         orig_ix = original_ixs[side]
         ray_ix = ray_ixs[side]
-        aligned_result = zeros(Int, side_align_result_size)
-        aligned_img = zeros(Int, side_align_img_size)
-        L2_side!(side_result, img, depth, side, aligned_result, aligned_img; periodic)
+        side_result = L2_side(img, side, periodic)
         result[orig_ix] .= side_result[ray_ix]
     end
 
