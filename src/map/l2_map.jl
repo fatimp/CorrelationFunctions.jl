@@ -152,17 +152,13 @@ function L2_positive_sides(
     return result
 end
 
+function map_ix(indices :: CartesianIndices{N}) where N
+    box = size(indices)
 
-function map_ix!(original_ixs, ray_ixs, img)
-    N = length(original_ixs)
-    for i in 1:N
-        original_ixs[i] = []
-        ray_ixs[i] = []
-    end
+    original_ixs = [CartesianIndex{N}[] for _ in 1:N]
+    ray_ixs = [CartesianIndex{N}[] for _ in 1:N]
 
-    box = size(img)
-
-    for orig_ix in CartesianIndices(img)
+    for orig_ix in indices
         coords = Tuple(orig_ix) .- 1
         side = argmax(coords ./ box)
 
@@ -182,6 +178,8 @@ function map_ix!(original_ixs, ray_ixs, img)
         push!(original_ixs[side], orig_ix)
         push!(ray_ixs[side], ray_ix)
     end
+
+    return original_ixs, ray_ixs
 end
 
 struct Params_L2{N}
@@ -199,8 +197,7 @@ function Params_L2(img::AbstractArray{<:Integer,N};
                    periodic::Bool=true) where N
     original_ixs = Vector{Vector{CartesianIndex{N}}}(undef, N)
     ray_ixs = Vector{Vector{CartesianIndex{N}}}(undef, N)
-    map_ix!(original_ixs, ray_ixs, img)
-
+    original_ixs, ray_ixs = img |> CartesianIndices |> map_ix
 
     return Params_L2(periodic,
                      original_ixs,
