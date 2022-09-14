@@ -34,27 +34,6 @@ function base_L2!(result, img, depth=length(result))
     end
 end
 
-
-"""
-    x_L2!(result, img, depth)
-
-Compute L2 over first dim of `img` and *add* it to `result`.
-
-Simple and fast single-CPU algorithm: `O(N)`,
-where `N = length(img)`.
-"""
-function x_L2!(result, img, depth)
-    result .= 0
-
-    indxs = CartesianIndices(size_slice(img, 1))
-    for indx in indxs
-        data_x = view(img, :, indx)
-        result_x = view(result, :, indx)
-        base_L2!(result_x, data_x, depth)
-    end
-    return
-end
-
 function align!(aimg, img, side, ray, periodic)
     n = size(img, side)
     for i in 1:n
@@ -88,7 +67,6 @@ function L2_side(img, side, periodic)
     side_align_result_size = periodic ? side_size : side_align_img_size
 
     side_result = zeros(Int, side_size)
-    aligned_result = zeros(Int, side_align_result_size)
     aligned_img = zeros(Int, side_align_img_size)
 
     ray_ixs = CartesianIndices(size_slice(img, side))
@@ -98,7 +76,13 @@ function L2_side(img, side, periodic)
         ray_projection = Tuple(ray_ix) .- 1
 
         aligned_img = align!(aligned_img, img, side, ray_projection, periodic)
-        x_L2!(aligned_result, aligned_img, size(img, side))
+        indices = CartesianIndices(size_slice(aligned_img, 1))
+        aligned_result = zeros(Int, side_align_result_size)
+        for index in indices
+            data_x = view(aligned_img, :, index)
+            result_x = view(aligned_result, :, index)
+            base_L2!(result_x, data_x, size(img, side))
+        end
         sum!(ray_result, aligned_result)
     end
 
