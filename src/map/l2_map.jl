@@ -55,13 +55,8 @@ function x_L2!(result, img, depth)
     return
 end
 
-"""
-    align!(aimg, img, side, ray; periodic=true)
-
-"""
-function align!(aimg, img, side, ray; periodic=true)
-# TODO well documented align
-n = size(img, side)
+function align!(aimg, img, side, ray, periodic)
+    n = size(img, side)
     for i in 1:n
         aslice = selectdim(aimg, 1, i)
         slice = selectdim(img, side, i)
@@ -81,23 +76,8 @@ n = size(img, side)
             aslice[ix] .= slice
         end
     end
-    aimg
-end
 
-"""
-    align!(aimg, img, side, ray; periodic=true)
-
-Simple align for 1D
-"""
-function align!(aimg::AbstractVector, img::AbstractVector, side, ray; periodic=true)
-    if periodic
-        n = length(img)
-        aimg[1:n] .= img
-        aimg[n + 1:end] .= 2 .* img
-    else
-        aimg .= img
-    end
-    aimg
+    return aimg
 end
 
 function L2_side(img, side, periodic)
@@ -117,7 +97,7 @@ function L2_side(img, side, periodic)
         ray_result = view(side_result, :, ray_ix)
         ray_projection = Tuple(ray_ix) .- 1
 
-        align!(aligned_img, img, side, ray_projection; periodic)
+        aligned_img = align!(aligned_img, img, side, ray_projection, periodic)
         x_L2!(aligned_result, aligned_img, size(img, side))
         sum!(ray_result, aligned_result)
     end
