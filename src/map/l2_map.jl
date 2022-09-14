@@ -123,21 +123,33 @@ function L2_side!(
 end
 
 
-function L2_positive_sides!(
-    side_results,
-    img::AbstractArray{<:Integer,N},
-    side_depths,
-    side_align_results,
-    side_align_imgs;
+function L2_positive_sides(
+    img :: AbstractArray,
+    original_ixs,
+    ray_ixs;
     periodic
-) where N
-    for side in 1:N
-        result = side_results[side]
-        depth = side_depths[side]
-        aligned_result = side_align_results[side]
-        aligned_img = side_align_imgs[side]
-        L2_side!(result, img, depth, side, aligned_result, aligned_img; periodic)
+)
+    result = zeros(Float32, size(img))
+
+    for side in 1:ndims(img)
+        side_size = (size(img, side), size_slice(img, side)...)
+
+
+        side_align_img_size = periodic ? (2side_size[1], side_size[2:end]...) :
+            (side_size[1], 2 .* side_size[2:end]...)
+        side_align_result_size = periodic ? side_size : side_align_img_size
+
+        side_result = zeros(Int, side_size)
+        depth = size(img, side)
+        orig_ix = original_ixs[side]
+        ray_ix = ray_ixs[side]
+        aligned_result = zeros(Int, side_align_result_size)
+        aligned_img = zeros(Int, side_align_img_size)
+        L2_side!(side_result, img, depth, side, aligned_result, aligned_img; periodic)
+        result[orig_ix] .= side_result[ray_ix]
     end
+
+    return result
 end
 
 
@@ -172,60 +184,25 @@ function map_ix!(original_ixs, ray_ixs, img)
     end
 end
 
-
-function restore!(result, side_results, original_ixs, ray_ixs)
-    for (side_result, orig_ix, ray_ix) in zip(side_results, original_ixs, ray_ixs)
-        result[orig_ix] .= side_result[ray_ix]
-    end
-end
-
-
-struct Params_L2{Result,AlignImg,N}
+struct Params_L2{N}
     # boundary conditions
     periodic::Bool
 
     # algorithm-specific
 
-    side_results::Vector{Result}
-    side_depths::Tuple{Vararg{Int,N}}
-    side_align_imgs::Vector{AlignImg}
-    side_align_results::Vector{Result}
     original_ixs::Vector{Vector{CartesianIndex{N}}}
     ray_ixs::Vector{Vector{CartesianIndex{N}}}
 end
 
 
 function Params_L2(img::AbstractArray{<:Integer,N};
-            periodic::Bool=true) where N
-
-    side_sizes = [(size(img, d), size_slice(img, d)...) for d in 1:N]
-    side_results = map(s -> similar(img, Int64, s), side_sizes)
-    side_depths = size(img)
-
-    if periodic
-        side_align_img_sizes = map(s -> (2s[1], s[2:end]...), side_sizes)
-
-        side_align_result_sizes = side_sizes
-
-    else
-        side_align_img_sizes = map(s -> (s[1], 2 .* s[2:end]...), side_sizes)
-
-        side_align_result_sizes = side_align_img_sizes
-    end
-    side_align_imgs = map(s -> similar(img, Int8, s), side_align_img_sizes)
-    side_align_results = map(s -> similar(img, Int, s...), side_align_result_sizes)
-
-
+                   periodic::Bool=true) where N
     original_ixs = Vector{Vector{CartesianIndex{N}}}(undef, N)
     ray_ixs = Vector{Vector{CartesianIndex{N}}}(undef, N)
     map_ix!(original_ixs, ray_ixs, img)
 
 
     return Params_L2(periodic,
-                     side_results,
-                     side_depths,
-                     side_align_imgs,
-                     side_align_results,
                      original_ixs,
                      ray_ixs)
 end
@@ -236,17 +213,12 @@ end
 
 Compute L₂ correlation function in positive directions
 """
-function correllation_function!(img, params::Params_L2)
-    res = zeros(Float32, size(img))
-    L2_positive_sides!(
-        params.side_results,
+function correllation_function(img, params::Params_L2)
+    res = L2_positive_sides(
         img,
-        params.side_depths,
-        params.side_align_results,
-        params.side_align_imgs;
+        params.original_ixs, params.ray_ixs;
         params.periodic
     )
-    restore!(res, params.side_results, params.original_ixs, params.ray_ixs)
     return normalize_result(res, params.periodic)
 end
 
@@ -280,7 +252,7 @@ function l2(image :: AbstractArray, phase; periodic=false)
         end
 
         mirror_img = mirror(phase_array, mask)
-        mirror_result = correllation_function!(mirror_img, cf_params)
+        mirror_result = correllation_function(mirror_img, cf_params)
 
         v_result = cut_cfmap(result, mask)
         v_result .= mirror_result
