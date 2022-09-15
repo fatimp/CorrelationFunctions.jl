@@ -92,7 +92,7 @@ end
 
 function L2_positive_sides(img :: AbstractArray, original_ixs, ray_ixs,
                            periodic)
-    result = zeros(Float32, size(img))
+    result = zeros(Int, size(img))
 
     for side in 1:ndims(img)
         orig_ix = original_ixs[side]
