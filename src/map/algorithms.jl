@@ -1,7 +1,5 @@
-function cnt_total(c :: AbstractArray)
-    return map(size(c)) do s
-        collect(s:-1:1)
-    end
+cnt_total(c :: AbstractArray) = map(size(c)) do s
+    collect(s:-1:1)
 end
 
 cnt_total_reshaped(c :: AbstractArray{T, 1}) where T = cnt_total(c)
@@ -14,19 +12,12 @@ cnt_total_reshaped(c :: AbstractArray{T, 3}) where T =
         (reshape(t1, :, 1, 1), reshape(t2, 1, :, 1), reshape(t3, 1, 1, :))
     end
 
-function normalize_result(result   :: AbstractArray,
-                          periodic :: Bool)
-    local norm
-
-    if periodic
-        norm = result / length(result)
-    else
-        total = cnt_total_reshaped(result)
-        norm = reduce(./, total; init = result)
-    end
-
-    return norm
-end
+normalize_result(result   :: AbstractArray,
+                 periodic :: Bool) =  periodic ?
+                     result / length(result) :
+                     let total = cnt_total_reshaped(result);
+                         reduce(./, total; init = result)
+                     end
 
 function zeropad(image)
     s = size(image)
