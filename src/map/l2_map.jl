@@ -90,7 +90,7 @@ function L2_side(img, side, periodic)
 end
 
 
-function L2_positive_sides(img :: AbstractArray, original_ixs, ray_ixs;
+function L2_positive_sides(img :: AbstractArray, original_ixs, ray_ixs,
                            periodic)
     result = zeros(Float32, size(img))
 
@@ -134,41 +134,14 @@ function map_ix(indices :: CartesianIndices{N}) where N
     return original_ixs, ray_ixs
 end
 
-struct Params_L2{N}
-    # boundary conditions
-    periodic::Bool
-
-    # algorithm-specific
-
-    original_ixs::Vector{Vector{CartesianIndex{N}}}
-    ray_ixs::Vector{Vector{CartesianIndex{N}}}
-end
-
-
-function Params_L2(img::AbstractArray{<:Integer,N};
-                   periodic::Bool=true) where N
-    original_ixs = Vector{Vector{CartesianIndex{N}}}(undef, N)
-    ray_ixs = Vector{Vector{CartesianIndex{N}}}(undef, N)
-    original_ixs, ray_ixs = img |> CartesianIndices |> map_ix
-
-    return Params_L2(periodic,
-                     original_ixs,
-                     ray_ixs)
-end
-
-
 """
     correllation_function!(res, img, params::Params_L2)
 
 Compute L₂ correlation function in positive directions
 """
-function correllation_function(img, params::Params_L2)
-    res = L2_positive_sides(
-        img,
-        params.original_ixs, params.ray_ixs;
-        params.periodic
-    )
-    return normalize_result(res, params.periodic)
+function correllation_function(img, orig_ixs, ray_ixs, periodic)
+    res = L2_positive_sides(img, orig_ixs, ray_ixs, periodic)
+    return normalize_result(res, periodic)
 end
 
 bool_mask(x, n) = digits(Bool, x; base = 2, pad = n)
@@ -192,8 +165,8 @@ julia> l2([1 0; 0 1], 1; periodic=true).result
 """
 function l2(image :: AbstractArray, phase; periodic=false)
     phase_array = image .== phase
-    cf_params = Params_L2(phase_array; periodic = periodic)
     result = CFMap(phase_array)
+    orig_ixs, ray_ixs = image |> CartesianIndices |> map_ix
 
     for mask in bool_iter(ndims(phase_array))
         if mask[end]
@@ -201,7 +174,7 @@ function l2(image :: AbstractArray, phase; periodic=false)
         end
 
         mirror_img = mirror(phase_array, mask)
-        mirror_result = correllation_function(mirror_img, cf_params)
+        mirror_result = correllation_function(mirror_img, orig_ixs, ray_ixs, periodic)
 
         v_result = cut_cfmap(result, mask)
         v_result .= mirror_result
