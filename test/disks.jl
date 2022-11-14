@@ -55,8 +55,7 @@ end
 end
 
 @testset "SS for a disk" begin
-    R = 40.2
-    S = 500
+    R = 100.2; S = 3000
     boundary = 2R |> floor |> Int
 
     disk   = draw_ball((S, S), R)
@@ -64,19 +63,21 @@ end
     calc   = Directional.surfsurf(disk, false; periodic = true) |> mean
     theory = th.(0:boundary) / S^2
 
+    @test Utilities.lowfreq_energy_ratio(disk) > 0.97
     # FIXME: There values are almost zero, hence the high percentage.
-    @test relerr_norm(calc[2:length(theory)-1], theory[2:end-1]) < 0.18
+    @test relerr_norm(calc[2:length(theory)-1], theory[2:end-1]) < 0.16
     @test maximum(calc[boundary+5:end]) < 1e-5
 end
 
 @testset "SV for a disk" begin
-    S = 500; R = 40
+    S = 3000; R = 100
 
     th(r)  = sv_theory(r, R)
     disk   = draw_ball((S, S), R)
     calc   = Directional.surfvoid(disk, false; periodic = true) |> mean
     theory = th.(0:length(calc)-1) / S^2
 
+    @test Utilities.lowfreq_energy_ratio(disk) > 0.97
     @test relerr_norm(calc, theory) < 0.03
 end
 
