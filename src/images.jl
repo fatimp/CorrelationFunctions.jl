@@ -208,6 +208,49 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 # Edge detection #
 ##################
 
+# In order to get correct results for surfsurf/surfvoid functions we
+# must apply correct scaling multiplier to the edge detection
+# filter. Consider an edge detection filter for 2D case:
+#
+#     |-       -|
+#     | 1  1  1 |
+# A = | 1 -8  1 |
+#     | 1  1  1 |
+#     |-       -|
+#
+# and surface-surface correlation function for an image of a square:
+#
+#                { 0            when |x| > L or |y| > L
+#                {
+# F_{ss}(x, y) = { undefined    when x = 0 or y = 0 or |x| = L or |y| = L
+#                {
+#                { 2/S          otherwise
+#
+# Here L is a side of a square, S is a total surface of the image.
+#
+# Now consider filter A is applied to the image. We get the folowing
+# image on the interface between void (0) and solid phases (1):
+#
+# Void    3  3  3  3  3
+# ---------------------
+# Solid  -3 -3 -3 -3 -3
+#
+# and so on. Now taking absolute value and multiplying element wise
+# with a shifted square (shifting by (x, y): 0 < x < L, 0 < y < L) we
+# get 4 non-zero elements in one of two points where two squares
+# intersect:
+#
+#  9  9
+#
+#  9  9
+#
+# Hence we need to apply a scaling factor of 1/sqrt(4 * 9) = 1/6 to
+# get the correct result.
+#
+# A similar argument applyied to 3D case gives a scaling factor of
+# 1/18.
+filter_scale(ndims) = 3^ndims - 3^(ndims - 1)
+
 """
     EdgesMode
 
@@ -272,13 +315,13 @@ function extract_edges(array :: AbstractArray, :: EdgesFilterPeriodic)
     flt = zeros(Float64, s)
     fidx = flt |> CartesianIndices |> first
     uidx = fidx |> oneunit
-    neighbors = 3^ndims(array)
+    dims = ndims(array)
 
     circflt = CircularArray(flt)
     for idx in fidx-uidx:fidx+uidx
         circflt[idx] = 1
     end
-    circflt[fidx] = -(neighbors - 1)
+    circflt[fidx] = -(3^dims - 1)
     flt = maybe_upload_to_gpu(circflt.data, array)
 
     plan = plan_rfft(array)
@@ -287,7 +330,7 @@ function extract_edges(array :: AbstractArray, :: EdgesFilterPeriodic)
     ftres = @. conj(ftflt) * ftarr
 
     res = abs.(irfft(ftres, size(array, 1)))
-    return sqrt(2) * res / neighbors
+    return res / filter_scale(dims)
 end
 
 # On CPU we calculate the convolution extending the signal
@@ -298,9 +341,8 @@ padelems(:: AbstractArray{T, 2}) where T = (1, 1)
 padelems(:: AbstractArray{T, 3}) where T = (1, 1, 1)
 
 function extract_edges(array :: AbstractArray, :: EdgesFilterReflect)
-    neighbors = 3^ndims(array)
-    scale = -(neighbors - 1.0)
-    edges = scale * array
+    dims = ndims(array)
+    edges = -(3^dims - 1.0) * array
 
     pe = padelems(array)
     padded = Images.padarray(array, Images.Pad(:reflect, pe...))
@@ -315,7 +357,7 @@ function extract_edges(array :: AbstractArray, :: EdgesFilterReflect)
         end
     end
 
-    return abs.(sqrt(2) * edges / neighbors)
+    return abs.(edges) / filter_scale(dims)
 end
 
 extract_edges(array :: AbstractArray, :: EdgesDistanceTransform) =
