@@ -208,49 +208,6 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 # Edge detection #
 ##################
 
-# In order to get correct results for surfsurf/surfvoid functions we
-# must apply correct scaling multiplier to the edge detection
-# filter. Consider an edge detection filter for 2D case:
-#
-#     |-       -|
-#     | 1  1  1 |
-# A = | 1 -8  1 |
-#     | 1  1  1 |
-#     |-       -|
-#
-# and surface-surface correlation function for an image of a square:
-#
-#                { 0            when |x| > L or |y| > L
-#                {
-# F_{ss}(x, y) = { undefined    when x = 0 or y = 0 or |x| = L or |y| = L
-#                {
-#                { 2/S          otherwise
-#
-# Here L is a side of a square, S is a total surface of the image.
-#
-# Now consider filter A is applied to the image. We get the folowing
-# image on the interface between void (0) and solid phases (1):
-#
-# Void    3  3  3  3  3
-# ---------------------
-# Solid  -3 -3 -3 -3 -3
-#
-# and so on. Now taking absolute value and multiplying element wise
-# with a shifted square (shifting by (x, y): 0 < x < L, 0 < y < L) we
-# get 4 non-zero elements in one of two points where two squares
-# intersect:
-#
-#  9  9
-#
-#  9  9
-#
-# Hence we need to apply a scaling factor of 1/sqrt(4 * 9) = 1/6 to
-# get the correct result.
-#
-# A similar argument applyied to 3D case gives a scaling factor of
-# 1/18.
-filter_scale(ndims) = 3^ndims - 3^(ndims - 1)
-
 """
     EdgesMode
 
@@ -308,6 +265,7 @@ See also: [`EdgesMode`](@ref), [`EdgesDistanceTransform`](@ref),
 """
 function extract_edges end
 
+#=
 # On GPU we apply filter with FFT transform because FFT is a basic
 # operation on arrays
 function extract_edges(array :: AbstractArray, :: EdgesFilterPeriodic)
@@ -332,32 +290,24 @@ function extract_edges(array :: AbstractArray, :: EdgesFilterPeriodic)
     res = abs.(irfft(ftres, size(array, 1)))
     return res / filter_scale(dims)
 end
+=#
 
-# On CPU we calculate the convolution extending the signal
-# by reflection from the border to keep compatibility with
-# CorrelationTrackers.jl
-padelems(:: AbstractArray{T, 1}) where T = (1,)
-padelems(:: AbstractArray{T, 2}) where T = (1, 1)
-padelems(:: AbstractArray{T, 3}) where T = (1, 1, 1)
+edges_mode2pad(:: EdgesFilterPeriodic) = Images.Pad(:circular)
+edges_mode2pad(:: EdgesFilterReflect)  = Images.Pad(:reflect)
 
-function extract_edges(array :: AbstractArray, :: EdgesFilterReflect)
-    dims = ndims(array)
-    edges = -(3^dims - 1.0) * array
+function prewitt_5x5()
+    low  = Images.centered([ 1,  1, 1, 1, 1] / 5)
+    high = Images.centered([-2, -1, 0, 1, 2] / 10)
+    return (Images.KernelFactors.kernelfactors((high, low)),
+            Images.KernelFactors.kernelfactors((low, high)))
+end
 
-    pe = padelems(array)
-    padded = Images.padarray(array, Images.Pad(:reflect, pe...))
-    indices = CartesianIndices(array)
-    uidx = indices |> first |> oneunit
+prewitt_5x5(extended :: NTuple{N, Bool}, d) where N =
+    Images.KernelFactors.gradfactors(extended, d, [-2, -1, 0, 1, 2]/10, [1, 1, 1, 1, 1]/5)
 
-    for i in indices
-        for j in (i-uidx):(i+uidx)
-            if j != i
-                edges[i] += padded[j]
-            end
-        end
-    end
-
-    return abs.(edges) / filter_scale(dims)
+function extract_edges(array :: AbstractArray, mode :: EdgesMode)
+    grad = Images.imgradients(array, prewitt_5x5, edges_mode2pad(mode))
+    return map((x...) -> norm(x), grad...)
 end
 
 extract_edges(array :: AbstractArray, :: EdgesDistanceTransform) =
