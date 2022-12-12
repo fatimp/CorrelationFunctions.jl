@@ -1,5 +1,3 @@
-const gcfs = [Map.s2, Map.c2, Map.surfsurf, Map.surfvoid]
-
 const noisegen = [
     () -> rand(Bool, (50)),
     two_phase_noise_2d,
@@ -16,7 +14,7 @@ end
 
 for noise_fn in noisegen
     image = noise_fn()
-    for fn in gcfs
-        test_gpu(fn, image)
+    for fn in cfs[ndims(image)]
+        test_gpu(Map.eval(fn), image)
     end
 end
