@@ -1,7 +1,3 @@
-# Upload the first array to GPU memory if the second array is there
-maybe_upload_to_gpu(array, :: CuArray) = CuArray(array)
-maybe_upload_to_gpu(array, :: AbstractArray) = array
-
 ######################
 # Component labeling #
 ######################
@@ -249,7 +245,16 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 #
 # A similar argument applyied to 3D case gives a scaling factor of
 # 1/18.
-filter_scale(ndims) = 3^ndims - 3^(ndims - 1)
+filter_scale(:: AbstractArray{<:Any, 2}) = 6
+filter_scale(:: AbstractArray{<:Any, 3}) = 18
+
+function laplacian_3x3(array :: AbstractArray{<:Any, N}) where N
+    filter    = Images.centered(ones(Float64, (3 for _ in 1:N)...))
+    center    = 3^N - 1
+    centeridx = CartesianIndex((0 for _ in 1:N)...)
+    filter[centeridx] = -center
+    return filter / filter_scale(array)
+end
 
 """
     EdgesMode
@@ -310,7 +315,7 @@ function extract_edges end
 
 # On GPU we apply filter with FFT transform because FFT is a basic
 # operation on arrays
-function extract_edges(array :: AbstractArray, :: EdgesFilterPeriodic)
+function extract_edges(array :: CuArray, :: EdgesFilterPeriodic)
     s = size(array)
     flt = zeros(Float64, s)
     fidx = flt |> CartesianIndices |> first
@@ -322,7 +327,7 @@ function extract_edges(array :: AbstractArray, :: EdgesFilterPeriodic)
         circflt[idx] = 1
     end
     circflt[fidx] = -(3^dims - 1)
-    flt = maybe_upload_to_gpu(circflt.data, array)
+    flt = CuArray(circflt.data)
 
     plan = plan_rfft(array)
     ftflt = plan * flt
@@ -330,35 +335,14 @@ function extract_edges(array :: AbstractArray, :: EdgesFilterPeriodic)
     ftres = @. conj(ftflt) * ftarr
 
     res = abs.(irfft(ftres, size(array, 1)))
-    return res / filter_scale(dims)
+    return res / filter_scale(array)
 end
 
-# On CPU we calculate the convolution extending the signal
-# by reflection from the border to keep compatibility with
-# CorrelationTrackers.jl
-padelems(:: AbstractArray{T, 1}) where T = (1,)
-padelems(:: AbstractArray{T, 2}) where T = (1, 1)
-padelems(:: AbstractArray{T, 3}) where T = (1, 1, 1)
+edge2pad(:: EdgesFilterPeriodic) = Images.Pad(:circular)
+edge2pad(:: EdgesFilterReflect)  = Images.Pad(:reflect)
 
-function extract_edges(array :: AbstractArray, :: EdgesFilterReflect)
-    dims = ndims(array)
-    edges = -(3^dims - 1.0) * array
-
-    pe = padelems(array)
-    padded = Images.padarray(array, Images.Pad(:reflect, pe...))
-    indices = CartesianIndices(array)
-    uidx = indices |> first |> oneunit
-
-    for i in indices
-        for j in (i-uidx):(i+uidx)
-            if j != i
-                edges[i] += padded[j]
-            end
-        end
-    end
-
-    return abs.(edges) / filter_scale(dims)
-end
+extract_edges(array :: AbstractArray, mode :: EdgesMode) =
+    abs.(Images.imfilter(array, laplacian_3x3(array), edge2pad(mode)))
 
 extract_edges(array :: AbstractArray, :: EdgesDistanceTransform) =
     let distances = array .|> Bool |> Images.feature_transform |> Images.distance_transform
