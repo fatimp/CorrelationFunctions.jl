@@ -14,13 +14,13 @@ include("utility.jl")
 include("lowfreq_energy_ratio.jl")
 include("images.jl")
 
-export read_cuboid, lowfreq_energy_ratio, extract_edges,
+export read_cuboid, lowfreq_energy_ratio, extract_edges, choose_edgemode,
     EdgesMode, EdgesDistanceTransform, EdgesFilterPeriodic, EdgesFilterReflect,
-    maybe_upload_to_gpu
+    Topology, Torus, Plane, Maybe
 end
 
 module Directional
-import ..Utilities
+using ..Utilities
 using StatsBase: fit, Histogram, mean, std
 using LinearAlgebra: normalize
 using Images: feature_transform, distance_transform, label_components
@@ -52,7 +52,7 @@ export direction1Dp, direction2Dp, direction3Dp
 end # Directional
 
 module Map
-import ..Utilities
+using ..Utilities
 using LinearAlgebra: norm
 using CUDA: CuArray
 using FFTW: rfft, irfft, ifftshift, plan_rfft

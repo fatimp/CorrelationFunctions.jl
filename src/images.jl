@@ -348,3 +348,14 @@ extract_edges(array :: AbstractArray, :: EdgesDistanceTransform) =
     let distances = array .|> Bool |> Images.feature_transform |> Images.distance_transform
         Float64.(distances .== 1.0)
     end
+
+"""
+    choose_mode(edgemode, periodic)
+
+Choose the most suitable edge detection filter if `edgemode` is `nothing`.
+"""
+function choose_edgemode end
+
+choose_edgemode(edgemode :: EdgesMode, :: Bool) = edgemode
+choose_edgemode(:: Nothing, periodic :: Bool) =
+    periodic ? EdgesFilterPeriodic() : EdgesFilterReflect()

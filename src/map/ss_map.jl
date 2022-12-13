@@ -1,5 +1,5 @@
 @doc raw"""
-    surfsurf(image, phase; periodic = false)
+    surfsurf(image, phase; periodic = false, edgemode)
 
 Calculate $F_{ss}$ (surface-surface) correlation function for phase
 `phase` on N-dimensional image.
@@ -13,7 +13,9 @@ julia> surfsurf([1 0; 0 1], 1; periodic=true)
 ```
 """
 function surfsurf(image, phase;
-                  periodic     = false)
-    M = Utilities.extract_edges(image .== phase, Utilities.EdgesFilterPeriodic())
+                  periodic :: Bool             = false,
+                  edgemode :: Maybe{EdgesMode} = nothing)
+    M = extract_edges(image .== phase,
+                      choose_edgemode(edgemode, periodic))
     return s2(M; periodic)
 end

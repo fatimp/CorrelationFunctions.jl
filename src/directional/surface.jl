@@ -2,7 +2,7 @@ phase2ind(phase :: Function) = phase
 phase2ind(phase :: Any) = x -> x == phase
 
 """
-    surfsurf(array, phase[; len][, directions][, plans,] periodic = false, edgemode = :DiffApprox)
+    surfsurf(array, phase[; len][, directions][, plans,] periodic = false, edgemode)
 
 Calculate surface-surface correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -35,14 +35,14 @@ See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
 """
 function surfsurf(array      :: AbstractArray,
                   phase;
-                  len        :: Integer             = (array |> size  |> minimum) ÷ 2,
-                  directions :: Vector{Symbol}      =  array |> default_directions,
-                  periodic   :: Bool                = false,
-                  plans      :: S2FTPlans           = S2FTPlans(array, periodic),
-                  edgemode   :: Utilities.EdgesMode = Utilities.EdgesFilterPeriodic())
+                  len        :: Integer          = (array |> size  |> minimum) ÷ 2,
+                  directions :: Vector{Symbol}   = array |> default_directions,
+                  periodic   :: Bool             = false,
+                  plans      :: S2FTPlans        = S2FTPlans(array, periodic),
+                  edgemode   :: Maybe{EdgesMode} = nothing)
     χ = phase2ind(phase)
     ph = map(χ, array)
-    edge = Utilities.extract_edges(ph, edgemode)
+    edge = Utilities.extract_edges(ph, choose_edgemode(edgemode, periodic))
 
     return s2(edge, SeparableIndicator(identity);
               len        = len,
@@ -53,7 +53,7 @@ end
 
 """
     surfvoid(array, phase[; len][, directions][, plans,]
-             void_phase = 0, periodic = false, edgemode = :DiffApprox)
+             void_phase = 0, periodic = false, edgemode)
 
 Calculate surface-void correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -88,16 +88,16 @@ See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
 """
 function surfvoid(array      :: AbstractArray,
                   phase;
-                  len        :: Integer             = (array |> size  |> minimum) ÷ 2,
-                  directions :: Vector{Symbol}      =  array |> default_directions,
-                  periodic   :: Bool                = false,
-                  plans      :: S2FTPlans           = S2FTPlans(array, periodic),
-                  edgemode   :: Utilities.EdgesMode = Utilities.EdgesFilterPeriodic(),
-                  void_phase                        = 0)
+                  len        :: Integer          = (array |> size  |> minimum) ÷ 2,
+                  directions :: Vector{Symbol}   = array |> default_directions,
+                  periodic   :: Bool             = false,
+                  plans      :: S2FTPlans        = S2FTPlans(array, periodic),
+                  edgemode   :: Maybe{EdgesMode} = nothing,
+                  void_phase                     = 0)
     χ = phase2ind(phase)
     χ_void = phase2ind(void_phase)
     ph = map(χ, array)
-    edge = Utilities.extract_edges(ph, edgemode)
+    edge = extract_edges(ph, choose_edgemode(edgemode, periodic))
 
     χ1(x) = χ_void(array[x])
     χ2(x) = edge[x]

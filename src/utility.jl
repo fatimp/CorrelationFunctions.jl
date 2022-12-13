@@ -65,3 +65,8 @@ function read_cuboid(datapath :: String,
 
     return data
 end
+
+"""
+Maybe type for poorest
+"""
+Maybe{T} = Union{Nothing, T}
