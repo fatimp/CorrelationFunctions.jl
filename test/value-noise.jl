@@ -20,19 +20,19 @@ end
 
 ssdt(array, phase; periodic) =
     Directional.surfsurf(array, phase;
-                         periodic, edgemode = Utilities.EdgesDistanceTransform())
+                         periodic, edgemode = Utilities.EdgeDistanceTransform())
 ssfp(array, phase; periodic) =
     Directional.surfsurf(array, phase;
-                         periodic, edgemode = Utilities.EdgesFilterPeriodic())
+                         periodic, edgemode = Utilities.EdgeFilterPeriodic())
 ssfr(array, phase; periodic) =
     Directional.surfsurf(array, phase;
-                         periodic, edgemode = Utilities.EdgesFilterReflect())
+                         periodic, edgemode = Utilities.EdgeFilterReflect())
 svfp(array, phase; periodic) =
     Directional.surfvoid(array, phase;
-                         periodic, edgemode = Utilities.EdgesFilterPeriodic())
+                         periodic, edgemode = Utilities.EdgeFilterPeriodic())
 svfr(array, phase; periodic) =
     Directional.surfvoid(array, phase;
-                         periodic, edgemode = Utilities.EdgesFilterReflect())
+                         periodic, edgemode = Utilities.EdgeFilterReflect())
 
 testreflect(Directional.s2)
 testreflect(Directional.l2)

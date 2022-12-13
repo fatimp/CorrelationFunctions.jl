@@ -11,10 +11,12 @@ julia> surfsurf([1 0; 0 1], 1; periodic=true)
  0.125  0.125
  0.125  0.125
 ```
+
+See also: [`Utilities.EdgeMode`](@ref)
 """
 function surfsurf(image, phase;
-                  periodic :: Bool             = false,
-                  edgemode :: Maybe{EdgesMode} = nothing)
+                  periodic :: Bool            = false,
+                  edgemode :: Maybe{EdgeMode} = nothing)
     M = extract_edges(image .== phase,
                       choose_edgemode(edgemode, periodic))
     return s2(M; periodic)

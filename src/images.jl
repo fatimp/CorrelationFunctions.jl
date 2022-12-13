@@ -248,7 +248,7 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 filter_scale(:: AbstractArray{<:Any, 2}) = 6
 filter_scale(:: AbstractArray{<:Any, 3}) = 18
 
-function laplacian_3x3(array :: AbstractArray{<:Any, N}) where N
+function edge_3x3(array :: AbstractArray{<:Any, N}) where N
     filter    = Images.centered(ones(Float64, (3 for _ in 1:N)...))
     center    = 3^N - 1
     centeridx = CartesianIndex((0 for _ in 1:N)...)
@@ -257,65 +257,65 @@ function laplacian_3x3(array :: AbstractArray{<:Any, N}) where N
 end
 
 """
-    EdgesMode
+    EdgeMode
 
 Abstract type which specifies one of edge extraction algorithms for
 `extract_edges` function.
 
-See also: [`EdgesDistanceTransform`](@ref),
-[`EdgesFilterPeriodic`](@ref), [`EdgesFilterReflect`](@ref).
+See also: [`EdgeDistanceTransform`](@ref),
+[`EdgeFilterPeriodic`](@ref), [`EdgeFilterReflect`](@ref).
 """
-abstract type EdgesMode end
+abstract type EdgeMode end
 
 """
-    EdgesDistanceTransform()
+    EdgeDistanceTransform()
 
 Edge detection algorithm which uses distance transfrom to extract
 edges. Currently it's the worst algorithm and exists for historical
 reasons.
 
-See also: [`EdgesMode`](@ref), [`extract_edges`](@ref).
+See also: [`EdgeMode`](@ref), [`extract_edges`](@ref).
 """
-struct EdgesDistanceTransform <: EdgesMode end
+struct EdgeDistanceTransform <: EdgeMode end
 
 """
-    EdgesFilterPeriodic()
+    EdgeFilterPeriodic()
 
 Use simple filter for edge extraction. The signal is extended over
 borders periodically. This algorithm works both for CPU and GPU and is
 default.
 
-See also: [`EdgesMode`](@ref), [`extract_edges`](@ref).
+See also: [`EdgeMode`](@ref), [`extract_edges`](@ref).
 """
-struct EdgesFilterPeriodic <: EdgesMode end
+struct EdgeFilterPeriodic <: EdgeMode end
 
 """
-    EdgesFilterReflect()
+    EdgeFilterReflect()
 
 Use simple filter for edge extraction. The signal is extended over
 borders by reflection. This algorithm exists for compatibility with
 CorrelationTrackers.jl
 
-See also: [`EdgesMode`](@ref), [`extract_edges`](@ref).
+See also: [`EdgeMode`](@ref), [`extract_edges`](@ref).
 """
-struct EdgesFilterReflect <: EdgesMode end
+struct EdgeFilterReflect <: EdgeMode end
 
 """
     extract_edges(array, mode)
 
 Perform edge extraction in the same way as in `surfsurf` and
 `surfvoid` functions from `Map` and `Directional` modules. `array` may
-be a CUDA array or an ordinary array. `mode` is a value of `EdgesMode`
+be a CUDA array or an ordinary array. `mode` is a value of `EdgeMode`
 type which selects an edge extraction algorithm.
 
-See also: [`EdgesMode`](@ref), [`EdgesDistanceTransform`](@ref),
-[`EdgesFilterPeriodic`](@ref), [`EdgesFilterReflect`](@ref).
+See also: [`EdgeMode`](@ref), [`EdgeDistanceTransform`](@ref),
+[`EdgeFilterPeriodic`](@ref), [`EdgeFilterReflect`](@ref).
 """
 function extract_edges end
 
 # On GPU we apply filter with FFT transform because FFT is a basic
 # operation on arrays
-function extract_edges(array :: CuArray, :: EdgesFilterPeriodic)
+function extract_edges(array :: CuArray, :: EdgeFilterPeriodic)
     s = size(array)
     flt = zeros(Float64, s)
     fidx = flt |> CartesianIndices |> first
@@ -338,13 +338,13 @@ function extract_edges(array :: CuArray, :: EdgesFilterPeriodic)
     return res / filter_scale(array)
 end
 
-edge2pad(:: EdgesFilterPeriodic) = Images.Pad(:circular)
-edge2pad(:: EdgesFilterReflect)  = Images.Pad(:reflect)
+edge2pad(:: EdgeFilterPeriodic) = Images.Pad(:circular)
+edge2pad(:: EdgeFilterReflect)  = Images.Pad(:reflect)
 
-extract_edges(array :: AbstractArray, mode :: EdgesMode) =
-    abs.(Images.imfilter(array, laplacian_3x3(array), edge2pad(mode)))
+extract_edges(array :: AbstractArray, mode :: EdgeMode) =
+    abs.(Images.imfilter(array, edge_3x3(array), edge2pad(mode)))
 
-extract_edges(array :: AbstractArray, :: EdgesDistanceTransform) =
+extract_edges(array :: AbstractArray, :: EdgeDistanceTransform) =
     let distances = array .|> Bool |> Images.feature_transform |> Images.distance_transform
         Float64.(distances .== 1.0)
     end
@@ -356,6 +356,6 @@ Choose the most suitable edge detection filter if `edgemode` is `nothing`.
 """
 function choose_edgemode end
 
-choose_edgemode(edgemode :: EdgesMode, :: Bool) = edgemode
+choose_edgemode(edgemode :: EdgeMode, :: Bool) = edgemode
 choose_edgemode(:: Nothing, periodic :: Bool) =
-    periodic ? EdgesFilterPeriodic() : EdgesFilterReflect()
+    periodic ? EdgeFilterPeriodic() : EdgeFilterReflect()

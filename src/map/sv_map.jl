@@ -11,10 +11,12 @@ julia> surfvoid([1 0; 0 1], 1; periodic=true)
  0.5  0.5
  0.5  0.5
 ```
+
+See also: [`Utilities.EdgeMode`](@ref)
 """
 function surfvoid(image, phase;
-                  periodic :: Bool             = false,
-                  edgemode :: Maybe{EdgesMode} = nothing)
+                  periodic :: Bool            = false,
+                  edgemode :: Maybe{EdgeMode} = nothing)
     M = Utilities.extract_edges(image .== phase,
                                 choose_edgemode(edgemode, periodic))
     V = image .== 0

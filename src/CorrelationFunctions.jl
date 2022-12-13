@@ -15,7 +15,7 @@ include("lowfreq_energy_ratio.jl")
 include("images.jl")
 
 export read_cuboid, lowfreq_energy_ratio, extract_edges, choose_edgemode,
-    EdgesMode, EdgesDistanceTransform, EdgesFilterPeriodic, EdgesFilterReflect,
+    EdgeMode, EdgeDistanceTransform, EdgeFilterPeriodic, EdgeFilterReflect,
     Topology, Torus, Plane, Maybe
 end
 

@@ -16,10 +16,10 @@ array.
 
 You can chose how an edge between phases are selected by passing
 `edgemode` argument which can be either
-`Utilities.EdgesDistanceTransform()`, `Utilities.EdgesFilterReflect()`
-or `Utilities.EdgesFilterPeriodic()`. Usually,
-`Utilities.EdgesFilterPeriodic()` gives much better results and
-`Utilities.EdgesFilterReflect()` is there for compatibility with
+`Utilities.EdgeDistanceTransform()`, `Utilities.EdgeFilterReflect()`
+or `Utilities.EdgeFilterPeriodic()`. Usually,
+`Utilities.EdgeFilterPeriodic()` gives much better results and
+`Utilities.EdgeFilterReflect()` is there for compatibility with
 `CorrelationTrackers.jl`.
 
 If `phase` is a function it is applied to array to select the phase of
@@ -35,11 +35,11 @@ See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
 """
 function surfsurf(array      :: AbstractArray,
                   phase;
-                  len        :: Integer          = (array |> size  |> minimum) ÷ 2,
-                  directions :: Vector{Symbol}   = array |> default_directions,
-                  periodic   :: Bool             = false,
-                  plans      :: S2FTPlans        = S2FTPlans(array, periodic),
-                  edgemode   :: Maybe{EdgesMode} = nothing)
+                  len        :: Integer         = (array |> size  |> minimum) ÷ 2,
+                  directions :: Vector{Symbol}  = array |> default_directions,
+                  periodic   :: Bool            = false,
+                  plans      :: S2FTPlans       = S2FTPlans(array, periodic),
+                  edgemode   :: Maybe{EdgeMode} = nothing)
     χ = phase2ind(phase)
     ph = map(χ, array)
     edge = Utilities.extract_edges(ph, choose_edgemode(edgemode, periodic))
@@ -67,10 +67,10 @@ minimal dimension of the array.
 
 You can chose how an edge between phases are selected by passing
 `edgemode` argument which can be either
-`Utilities.EdgesDistanceTransform()`, `Utilities.EdgesFilterReflect()`
-or `Utilities.EdgesFilterPeriodic()`. Usually,
-`Utilities.EdgesFilterPeriodic()` gives much better results and
-`Utilities.EdgesFilterReflect()` is there for compatibility with
+`Utilities.EdgeDistanceTransform()`, `Utilities.EdgeFilterReflect()`
+or `Utilities.EdgeFilterPeriodic()`. Usually,
+`Utilities.EdgeFilterPeriodic()` gives much better results and
+`Utilities.EdgeFilterReflect()` is there for compatibility with
 `CorrelationTrackers.jl`.
 
 If `phase` is a function it is applied to array to select the phase of
@@ -88,12 +88,12 @@ See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
 """
 function surfvoid(array      :: AbstractArray,
                   phase;
-                  len        :: Integer          = (array |> size  |> minimum) ÷ 2,
-                  directions :: Vector{Symbol}   = array |> default_directions,
-                  periodic   :: Bool             = false,
-                  plans      :: S2FTPlans        = S2FTPlans(array, periodic),
-                  edgemode   :: Maybe{EdgesMode} = nothing,
-                  void_phase                     = 0)
+                  len        :: Integer         = (array |> size  |> minimum) ÷ 2,
+                  directions :: Vector{Symbol}  = array |> default_directions,
+                  periodic   :: Bool            = false,
+                  plans      :: S2FTPlans       = S2FTPlans(array, periodic),
+                  edgemode   :: Maybe{EdgeMode} = nothing,
+                  void_phase                    = 0)
     χ = phase2ind(phase)
     χ_void = phase2ind(void_phase)
     ph = map(χ, array)
