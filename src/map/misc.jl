@@ -29,32 +29,25 @@ function dir_from_map(m::AbstractArray, direction; periodic=false)
 end
 
 """
-    average_directions(cfmap)
+    average_directions(cfmap; len = (cfmap |> size |> minimum) ÷ 2)
 
 Average correlation map `cfmap` over all directions. The result is a
-vector with indices being equal to correlation length + 1.
+vector of length `len` with indices being equal to correlation length + 1.
 """
-function average_directions(cfmap :: AbstractArray{T}) where T
-    num  = Dict{Int, Int}()
-    vals = Dict{Int, Vector{T}}()
+function average_directions(cfmap :: AbstractArray{T};
+                            len   :: Integer = (cfmap |> size |> minimum) ÷ 2) where T
+    counter = zeros(Int, len)
+    accum   = zeros(T,   len)
+
     for idx in CartesianIndices(cfmap)
-        dist = ((Tuple(idx) .- 1) .^ 2) |> sum |> sqrt |> round |> Int
-        v = get(vals, dist, T[])
-        push!(v, cfmap[idx])
-        num[dist]  = get(num, dist, 0) + 1
-        vals[dist] = v
+        dist = round(Int, ((Tuple(idx) .- 1) .^ 2) |> sum |> sqrt) + 1
+        if dist <= len
+            accum[dist] += cfmap[idx]
+            counter[dist] += 1
+        end
     end
 
-    len = num |> keys |> maximum
-    avg = Vector{Float64}(undef, len)
-
-    for idx in 1:len
-        n = get(num,  idx-1, 1)
-        v = get(vals, idx-1, T[])
-        avg[idx] = sum(v) / n
-    end
-
-    return avg
+    return accum ./ counter
 end
 
 #====================#

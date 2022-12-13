@@ -29,7 +29,5 @@ end
     data = two_phase_noise_3d()
     s2avg  = Directional.s2(data, false; periodic = true) |> mean
     s2avg2 = Map.s2(data, false; periodic = true) |> Map.average_directions
-
-    s2avg2 = s2avg2[1:length(s2avg)]
     @test relerr_norm(s2avg, s2avg2) < 0.05
 end
