@@ -61,12 +61,11 @@ end
     disk   = draw_ball((S, S), R)
     th(r)  = ss_theory(r, R)
     calc   = Directional.surfsurf(disk, false; periodic = true) |> mean
-    theory = th.(0:boundary) / S^2
+    theory = th.(10:boundary-10) / S^2
 
     @test Utilities.lowfreq_energy_ratio(disk) > 0.97
-    # FIXME: There values are almost zero, hence the high percentage.
-    @test relerr_norm(calc[2:length(theory)-1], theory[2:end-1]) < 0.16
-    @test maximum(calc[boundary+5:end]) < 1e-5
+    @test relerr_norm(calc[10:boundary-10], theory) < 0.08
+    @test maximum(calc[boundary+10:end]) < 1e-5
 end
 
 @testset "SV for a disk" begin

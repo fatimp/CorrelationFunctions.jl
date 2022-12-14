@@ -53,11 +53,10 @@ end
     ball   = draw_ball((S, S, S), R)
     th(r)  = ss_theory(r, R)
     calc   = Directional.surfsurf(ball, false; periodic = true) |> mean
-    theory = th.(0:boundary) / S^3
+    theory = th.(5:boundary-5) / S^3
 
     @test Utilities.lowfreq_energy_ratio(ball) > 0.97
-    # FIXME: There values are almost zero, hence the high percentage.
-    @test relerr_norm(calc[2:length(theory)-1], theory[2:end-1]) < 0.20
+    @test relerr_norm(calc[5:boundary-5], theory) < 0.15
     @test maximum(calc[boundary+5:end]) < 1e-5
 end
 
