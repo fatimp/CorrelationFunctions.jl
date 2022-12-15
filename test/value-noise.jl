@@ -18,9 +18,6 @@ function testreflect(func)
     end
 end
 
-ssdt(array, phase; periodic) =
-    Directional.surfsurf(array, phase;
-                         periodic, edgemode = Utilities.EdgeDistanceTransform())
 ssfp(array, phase; periodic) =
     Directional.surfsurf(array, phase;
                          periodic, edgemode = Utilities.EdgeFilterPeriodic())
@@ -37,7 +34,6 @@ svfr(array, phase; periodic) =
 testreflect(Directional.s2)
 testreflect(Directional.l2)
 testreflect(Directional.c2)
-testreflect(ssdt)
 testreflect(ssfp)
 testreflect(ssfr)
 # TODO: somehow test histograms returned by pore_size and chord_length

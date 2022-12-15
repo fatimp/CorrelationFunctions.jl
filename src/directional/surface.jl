@@ -15,8 +15,7 @@ to `len` which defaults to half of the minimal dimension of the
 array.
 
 You can chose how an edge between phases are selected by passing
-`edgemode` argument which can be either
-`Utilities.EdgeDistanceTransform()`, `Utilities.EdgeFilterReflect()`
+`edgemode` argument which can be either `Utilities.EdgeFilterReflect()`
 or `Utilities.EdgeFilterPeriodic()`. Usually,
 `Utilities.EdgeFilterPeriodic()` gives much better results and
 `Utilities.EdgeFilterReflect()` is there for compatibility with
@@ -66,8 +65,7 @@ all `x`s in the range from `1` to `len` which defaults to half of the
 minimal dimension of the array.
 
 You can chose how an edge between phases are selected by passing
-`edgemode` argument which can be either
-`Utilities.EdgeDistanceTransform()`, `Utilities.EdgeFilterReflect()`
+`edgemode` argument which can be either `Utilities.EdgeFilterReflect()`
 or `Utilities.EdgeFilterPeriodic()`. Usually,
 `Utilities.EdgeFilterPeriodic()` gives much better results and
 `Utilities.EdgeFilterReflect()` is there for compatibility with

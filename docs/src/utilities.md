@@ -5,7 +5,6 @@ Utilities.read_cuboid
 Utilities.lowfreq_energy_ratio
 Utilities.extract_edges
 Utilities.EdgeMode
-Utilities.EdgeDistanceTransform
 Utilities.EdgeFilterPeriodic
 Utilities.EdgeFilterReflect
 ```

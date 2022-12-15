@@ -262,21 +262,9 @@ end
 Abstract type which specifies one of edge extraction algorithms for
 `extract_edges` function.
 
-See also: [`EdgeDistanceTransform`](@ref),
-[`EdgeFilterPeriodic`](@ref), [`EdgeFilterReflect`](@ref).
+See also: [`EdgeFilterPeriodic`](@ref), [`EdgeFilterReflect`](@ref).
 """
 abstract type EdgeMode end
-
-"""
-    EdgeDistanceTransform()
-
-Edge detection algorithm which uses distance transfrom to extract
-edges. Currently it's the worst algorithm and exists for historical
-reasons.
-
-See also: [`EdgeMode`](@ref), [`extract_edges`](@ref).
-"""
-struct EdgeDistanceTransform <: EdgeMode end
 
 """
     EdgeFilterPeriodic()
@@ -308,8 +296,8 @@ Perform edge extraction in the same way as in `surfsurf` and
 be a CUDA array or an ordinary array. `mode` is a value of `EdgeMode`
 type which selects an edge extraction algorithm.
 
-See also: [`EdgeMode`](@ref), [`EdgeDistanceTransform`](@ref),
-[`EdgeFilterPeriodic`](@ref), [`EdgeFilterReflect`](@ref).
+See also: [`EdgeMode`](@ref), [`EdgeFilterPeriodic`](@ref),
+[`EdgeFilterReflect`](@ref).
 """
 function extract_edges end
 
@@ -343,11 +331,6 @@ edge2pad(:: EdgeFilterReflect)  = Images.Pad(:reflect)
 
 extract_edges(array :: AbstractArray, mode :: EdgeMode) =
     abs.(Images.imfilter(array, edge_3x3(array), edge2pad(mode)))
-
-extract_edges(array :: AbstractArray, :: EdgeDistanceTransform) =
-    let distances = array .|> Bool |> Images.feature_transform |> Images.distance_transform
-        Float64.(distances .== 1.0)
-    end
 
 """
     choose_mode(edgemode, periodic)
