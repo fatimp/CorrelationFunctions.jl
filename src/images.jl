@@ -204,58 +204,52 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 # Edge detection #
 ##################
 
-"""
-    edge_3x3(array)
+scale_3x3(:: AbstractArray{<:Any, 2}) = 6
+scale_3x3(:: AbstractArray{<:Any, 3}) = 18
+scale_5x5(:: AbstractArray{<:Any, 2}) = 30
+scale_5x5(:: AbstractArray{<:Any, 3}) = 150
 
-Make an edge detection filter for an array `array`. This filter is
-suboptimal and must be used only for images with insufficient
-resolution (`lowfreq_energy_ratio(array) ≈ 0.97`).
-
-See also: [`lowfreq_energy_ratio`](@ref).
-"""
-function edge_3x3(array :: AbstractArray{<:Any, N}) where N
-    filter    = Images.centered(ones(Float64, (3 for _ in 1:N)...))
-    center    = 3^N - 1
+function edge_filter(array :: AbstractArray{<:Any, N}, width, scale) where N
+    filter    = Images.centered(ones(Float64, (width for _ in 1:N)...))
+    center    = width^N - 1
     centeridx = CartesianIndex((0 for _ in 1:N)...)
     filter[centeridx] = -center
 
-    local scale
-    if N == 2
-        scale = 6
-    elseif N == 3
-        scale = 18
-    else
-        error("Only dimensions 2 and 3 are supported")
-    end
-    
-    return filter / scale
+    return filter / scale(array)
 end
 
 """
-    edge_5x5(array)
+    FilterKernel
 
-Make an edge detection filter for an array `array` which is suited for
-the most cases (`lowfreq_energy_ratio(array) > 0.97`).
+Abstract type for one of edge detecting filters.
 
-See also: [`lowfreq_energy_ratio`](@ref).
+See also: [`Kernel3x3`](@ref), [`Kernel5x5`](@ref).
 """
-function edge_5x5(array :: AbstractArray{<:Any, N}) where N
-    filter    = Images.centered(ones(Float64, (5 for _ in 1:N)...))
-    center    = 5^N - 1
-    centeridx = CartesianIndex((0 for _ in 1:N)...)
-    filter[centeridx] = -center
+abstract type FilterKernel end
 
-    local scale
-    if N == 2
-        scale = 30
-    elseif N == 3
-        scale = 150
-    else
-        error("Only dimensions 2 and 3 are supported")
-    end
-    
-    return filter / scale
-end
+"""
+    Kernel3x3()
+
+Make a suboptimal 3x3 edge detection filter. This filter must be used
+only for images with insufficient resolution
+(`lowfreq_energy_ratio(array) ≈ 0.97`).
+
+See also: [`FilterKernel`](@ref), [`extract_edges`](@ref).
+"""
+struct Kernel3x3 <: FilterKernel end
+
+"""
+    Kernel5x5()
+
+Make a 5x5 edge detection filter which is suited for the most cases
+(`lowfreq_energy_ratio(array) > 0.97`).
+
+See also: [`FilterKernel`](@ref), [`extract_edges`](@ref).
+"""
+struct Kernel5x5 <: FilterKernel end
+
+edge_filter(array :: AbstractArray, :: Kernel3x3) = edge_filter(array, 3, scale_3x3)
+edge_filter(array :: AbstractArray, :: Kernel5x5) = edge_filter(array, 5, scale_5x5)
 
 """
     BoundaryConditions
@@ -293,20 +287,21 @@ See also: [`BoundaryConditions`](@ref), [`extract_edges`](@ref).
 """
 struct BCReflect <: BoundaryConditions end
 
-"""
-    EdgeFilter(filter, bc)
-
-Create a filter used for edge detection by `extract_edges`. `filter`
-is a filter function, either `edge_3x3` or `edge_5x5`, and `bc` is
-boundary conditions of type `BoundaryConditions`.
-
-See also: [`BoundaryConditions`](@ref), [`extract_edges`](@ref),
-[`edge_3x3`](@ref), [`edge_5x5`](@ref).
-"""
-struct EdgeFilter{BC <: BoundaryConditions}
-    filter :: Function
-    bc     :: BC
+struct EdgeFilter{BC <: BoundaryConditions, Kernel <: FilterKernel}
 end
+
+"""
+    EdgeFilter(bc, kernel)
+
+Make an edge detection filter for `extract_edges` function. `bc` are
+boundary conditions of type `BoundaryConditions` and `kernel` is the
+kernel of type `FilterKernel`.
+
+See also: [`extract_edges`](@ref), [`BoundaryConditions`](@ref),
+[`FilterKernel`](@ref).
+"""
+EdgeFilter(bc :: BC, kernel :: Kernel) where {BC <: BoundaryConditions, Kernel <: FilterKernel} =
+    EdgeFilter{BC, Kernel}()
 
 """
     extract_edges(array, filter)
@@ -320,8 +315,8 @@ See also: [`EdgeFilter`](@ref), [`BoundaryConditions`](@ref).
 """
 function extract_edges end
 
-extract_edges(array :: AbstractArray, filter :: EdgeFilter) =
-    extract_edges(array, filter.filter, filter.bc)
+extract_edges(array :: AbstractArray, :: EdgeFilter{BC, Filter}) where {BC, Filter} =
+    extract_edges(array, Filter(), BC())
 
 # On GPU we apply filter with FFT transform because FFT is a basic
 # operation on arrays
@@ -353,8 +348,8 @@ end
 edge2pad(:: BCPeriodic) = Images.Pad(:circular)
 edge2pad(:: BCReflect)  = Images.Pad(:reflect)
 
-extract_edges(array :: AbstractArray, filter :: Function, bc :: BoundaryConditions) =
-    abs.(Images.imfilter(array, filter(array), edge2pad(bc)))
+extract_edges(array :: AbstractArray, filter :: FilterKernel, bc :: BoundaryConditions) =
+    abs.(Images.imfilter(array, edge_filter(array, filter), edge2pad(bc)))
 
 """
     choose_filter(filter, periodic)
@@ -366,4 +361,4 @@ function choose_filter end
 
 choose_filter(filter :: EdgeFilter, :: Bool) = filter
 choose_filter(:: Nothing, periodic :: Bool) =
-    periodic ? EdgeFilter(edge_5x5, BCPeriodic()) : EdgeFilter(edge_5x5, BCReflect())
+    periodic ? EdgeFilter(BCPeriodic(), Kernel5x5()) : EdgeFilter(BCReflect(), Kernel5x5())

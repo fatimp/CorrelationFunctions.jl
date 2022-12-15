@@ -7,7 +7,8 @@ Utilities.extract_edges
 Utilities.BoundaryConditions
 Utilities.BCPeriodic
 Utilities.BCReflect
+Utilities.FilterKernel
+Utilities.Kernel3x3
+Utilities.Kernel5x5
 Utilities.EdgeFilter
-Utilities.edge_3x3
-Utilities.edge_5x5
 ```

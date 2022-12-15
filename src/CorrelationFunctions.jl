@@ -14,8 +14,10 @@ include("utility.jl")
 include("lowfreq_energy_ratio.jl")
 include("images.jl")
 
-export read_cuboid, lowfreq_energy_ratio, extract_edges, choose_filter,
-    BoundaryConditions, BCPeriodic, BCReflect, EdgeFilter, edge_3x3, edge_5x5,
+export read_cuboid, lowfreq_energy_ratio,
+    extract_edges, choose_filter, EdgeFilter,
+    BoundaryConditions, BCPeriodic, BCReflect,
+    FilterKernel, Kernel3x3, Kernel5x5,
     Topology, Torus, Plane, Maybe
 end
 

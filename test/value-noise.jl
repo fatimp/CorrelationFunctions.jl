@@ -20,20 +20,20 @@ end
 
 ssfp(array, phase; periodic) =
     Directional.surfsurf(array, phase;
-                         periodic, filter = Utilities.EdgeFilter(Utilities.edge_5x5,
-                                                                 Utilities.BCPeriodic()))
+                         periodic, filter = Utilities.EdgeFilter(Utilities.BCPeriodic(),
+                                                                 Utilities.Kernel5x5()))
 ssfz(array, phase; periodic) =
     Directional.surfsurf(array, phase;
-                         periodic, filter = Utilities.EdgeFilter(Utilities.edge_5x5,
-                                                                 Utilities.BCReflect()))
+                         periodic, filter = Utilities.EdgeFilter(Utilities.BCReflect(),
+                                                                 Utilities.Kernel5x5()))
 svfp(array, phase; periodic) =
     Directional.surfvoid(array, phase;
-                         periodic, filter = Utilities.EdgeFilter(Utilities.edge_5x5,
-                                                                 Utilities.BCPeriodic()))
+                         periodic, filter = Utilities.EdgeFilter(Utilities.BCPeriodic(),
+                                                                 Utilities.Kernel5x5()))
 svfz(array, phase; periodic) =
     Directional.surfvoid(array, phase;
-                         periodic, filter = Utilities.EdgeFilter(Utilities.edge_5x5,
-                                                                 Utilities.BCReflect()))
+                         periodic, filter = Utilities.EdgeFilter(Utilities.BCReflect(),
+                                                                 Utilities.Kernel5x5()))
 
 testreflect(Directional.s2)
 testreflect(Directional.l2)
