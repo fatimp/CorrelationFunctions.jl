@@ -320,30 +320,19 @@ extract_edges(array :: AbstractArray, :: EdgeFilter{BC, Filter}) where {BC, Filt
 
 # On GPU we apply filter with FFT transform because FFT is a basic
 # operation on arrays
-#=
-function extract_edges(array :: CuArray, :: EdgeFilterPeriodic)
-    s = size(array)
-    flt = zeros(Float64, s)
-    fidx = flt |> CartesianIndices |> first
-    uidx = fidx |> oneunit
-    dims = ndims(array)
-
-    circflt = CircularArray(flt)
-    for idx in fidx-uidx:fidx+uidx
-        circflt[idx] = 1
-    end
-    circflt[fidx] = -(3^dims - 1)
-    flt = CuArray(circflt.data)
+function extract_edges(array :: CuArray, filter :: FilterKernel, :: BCPeriodic)
+    kernel = edge_filter(array, filter)
+    cflt = CircularArray(zeros(Float64, size(array)))
+    cflt[map(axis -> axis .+ 1, axes(kernel))...] = kernel
+    flt = CuArray(cflt.data)
 
     plan = plan_rfft(array)
     ftflt = plan * flt
     ftarr = plan * array
     ftres = @. conj(ftflt) * ftarr
 
-    res = abs.(irfft(ftres, size(array, 1)))
-    return res / filter_scale(array)
+    return abs.(irfft(ftres, size(array, 1)))
 end
-=#
 
 edge2pad(:: BCPeriodic) = Images.Pad(:circular)
 edge2pad(:: BCReflect)  = Images.Pad(:reflect)
