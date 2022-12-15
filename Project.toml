@@ -1,7 +1,7 @@
 name = "CorrelationFunctions"
 uuid = "cd8c4018-4f35-43b7-8520-d042ebaeaa2d"
 authors = ["Vasily Postnicov <shamaz.mazum@gmail.com>", "Alexey Samarin <liotbiu1@gmail.com>"]
-version = "0.7.1"
+version = "0.8.0"
 
 [deps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
