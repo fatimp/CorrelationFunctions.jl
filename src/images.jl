@@ -209,7 +209,7 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 
 Make an edge detection filter for an array `array`. This filter is
 suboptimal and must be used only for images with insufficient
-resolution (lowfreq_energy_ratio(array) ≈ 0.97).
+resolution (`lowfreq_energy_ratio(array) ≈ 0.97`).
 
 See also: [`lowfreq_energy_ratio`](@ref).
 """
@@ -235,7 +235,7 @@ end
     edge_5x5(array)
 
 Make an edge detection filter for an array `array` which is suited for
-the most cases (lowfreq_energy_ratio(array) > 0.97).
+the most cases (`lowfreq_energy_ratio(array) > 0.97`).
 
 See also: [`lowfreq_energy_ratio`](@ref).
 """
@@ -293,6 +293,16 @@ See also: [`BoundaryConditions`](@ref), [`extract_edges`](@ref).
 """
 struct BCReflect <: BoundaryConditions end
 
+"""
+    EdgeFilter(filter, bc)
+
+Create a filter used for edge detection by `extract_edges`. `filter`
+is a filter function, either `edge_3x3` or `edge_5x5`, and `bc` is
+boundary conditions of type `BoundaryConditions`.
+
+See also: [`BoundaryConditions`](@ref), [`extract_edges`](@ref),
+[`edge_3x3`](@ref), [`edge_5x5`](@ref).
+"""
 struct EdgeFilter{BC <: BoundaryConditions}
     filter :: Function
     bc     :: BC

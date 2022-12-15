@@ -62,18 +62,18 @@ a = l2(rand(MersenneTwister(1453), 0:1, (100, 100, 100)), 1)
 a[:y]
 ```
 
-Also you can average results along multiple directions using `StatsBase.mean`
+Also you can average results along multiple directions using `Statistics.mean`
 function:
 ```@example
 using CorrelationFunctions.Directional
 using Random
-using StatsBase
+using Statistics
 
 a = l2(rand(MersenneTwister(1453), 0:1, (100, 100, 100)), 1)
 mean(a, [:x, :y])
 ```
 
-Calling `StatsBase.mean` without the second argument averages along all computed
+Calling `Statistics.mean` without the second argument averages along all computed
 directions.
 
 Another useful function is `Directional.direction`:

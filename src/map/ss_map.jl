@@ -12,7 +12,7 @@ julia> surfsurf([1 0; 0 1], 1; periodic=true)
  0.125  0.125
 ```
 
-See also: [`Utilities.EdgeMode`](@ref)
+See also: [`Utilities.EdgeFilter`](@ref)
 """
 function surfsurf(image, phase;
                   periodic :: Bool              = false,

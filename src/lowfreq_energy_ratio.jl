@@ -25,7 +25,7 @@ calculations.
 
 This function can be helpful in estimating if `array` is suitable for
 calculating surface-surface or surface-void function. An empirical
-criterion is that if this function returns a value greater than `0.95`,
+criterion is that if this function returns a value greater than `0.97`,
 the array is good.
 """
 function lowfreq_energy_ratio(array    :: AbstractArray,

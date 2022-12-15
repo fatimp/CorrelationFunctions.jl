@@ -12,7 +12,7 @@ julia> surfvoid([1 0; 0 1], 1; periodic=true)
  0.5  0.5
 ```
 
-See also: [`Utilities.EdgeMode`](@ref)
+See also: [`Utilities.EdgeFilter`](@ref)
 """
 function surfvoid(image, phase;
                   periodic :: Bool              = false,

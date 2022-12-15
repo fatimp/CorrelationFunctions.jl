@@ -14,7 +14,7 @@ calculates surface-surface function for all `x`s in the range from `1`
 to `len` which defaults to half of the minimal dimension of the
 array.
 
-You can chose how an edge between phases are selected by passing
+You can chose how an edge between phases is selected by passing
 `filter` argument of type `Utilities.EdgeFilter`.
 
 If `phase` is a function it is applied to array to select the phase of
@@ -59,7 +59,7 @@ phase `0`. This implementation calculates surface-void function for
 all `x`s in the range from `1` to `len` which defaults to half of the
 minimal dimension of the array.
 
-You can chose how an edge between phases are selected by passing
+You can chose how an edge between phases is selected by passing
 `filter` argument of type `Utilities.EdgeFilter`.
 
 If `phase` is a function it is applied to array to select the phase of
