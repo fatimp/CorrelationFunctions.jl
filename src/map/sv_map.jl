@@ -1,5 +1,5 @@
 @doc raw"""
-    surfvoid(image, phase; periodic = false, edgemode)
+    surfvoid(image, phase; periodic = false, filter)
 
 Calculate $F_{sv}$ (surface-void) correlation function for phase
 `phase` on N-dimensional image. Phase `0` is considered to be void.
@@ -15,10 +15,9 @@ julia> surfvoid([1 0; 0 1], 1; periodic=true)
 See also: [`Utilities.EdgeMode`](@ref)
 """
 function surfvoid(image, phase;
-                  periodic :: Bool            = false,
-                  edgemode :: Maybe{EdgeMode} = nothing)
-    M = Utilities.extract_edges(image .== phase,
-                                choose_edgemode(edgemode, periodic))
+                  periodic :: Bool              = false,
+                  filter   :: Maybe{EdgeFilter} = nothing)
+    M = extract_edges(image .== phase, choose_filter(filter, periodic))
     V = image .== 0
 
     return cross_correlation(V, M; periodic)

@@ -204,105 +204,118 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 # Edge detection #
 ##################
 
-# In order to get correct results for surfsurf/surfvoid functions we
-# must apply correct scaling multiplier to the edge detection
-# filter. Consider an edge detection filter for 2D case:
-#
-#     |-       -|
-#     | 1  1  1 |
-# A = | 1 -8  1 |
-#     | 1  1  1 |
-#     |-       -|
-#
-# and surface-surface correlation function for an image of a square:
-#
-#                { 0            when |x| > L or |y| > L
-#                {
-# F_{ss}(x, y) = { undefined    when x = 0 or y = 0 or |x| = L or |y| = L
-#                {
-#                { 2/S          otherwise
-#
-# Here L is a side of a square, S is a total surface of the image.
-#
-# Now consider filter A is applied to the image. We get the folowing
-# image on the interface between void (0) and solid phases (1):
-#
-# Void    3  3  3  3  3
-# ---------------------
-# Solid  -3 -3 -3 -3 -3
-#
-# and so on. Now taking absolute value and multiplying element wise
-# with a shifted square (shifting by (x, y): 0 < x < L, 0 < y < L) we
-# get 4 non-zero elements in one of two points where two squares
-# intersect:
-#
-#  9  9
-#
-#  9  9
-#
-# Hence we need to apply a scaling factor of 1/sqrt(4 * 9) = 1/6 to
-# get the correct result.
-#
-# A similar argument applyied to 3D case gives a scaling factor of
-# 1/18.
-filter_scale(:: AbstractArray{<:Any, 2}) = 6
-filter_scale(:: AbstractArray{<:Any, 3}) = 18
+"""
+    edge_3x3(array)
 
+Make an edge detection filter for an array `array`. This filter is
+suboptimal and must be used only for images with insufficient
+resolution (lowfreq_energy_ratio(array) ≈ 0.97).
+
+See also: [`lowfreq_energy_ratio`](@ref).
+"""
 function edge_3x3(array :: AbstractArray{<:Any, N}) where N
     filter    = Images.centered(ones(Float64, (3 for _ in 1:N)...))
     center    = 3^N - 1
     centeridx = CartesianIndex((0 for _ in 1:N)...)
     filter[centeridx] = -center
-    return filter / filter_scale(array)
+
+    local scale
+    if N == 2
+        scale = 6
+    elseif N == 3
+        scale = 18
+    else
+        error("Only dimensions 2 and 3 are supported")
+    end
+    
+    return filter / scale
 end
 
 """
-    EdgeMode
+    edge_5x5(array)
 
-Abstract type which specifies one of edge extraction algorithms for
-`extract_edges` function.
+Make an edge detection filter for an array `array` which is suited for
+the most cases (lowfreq_energy_ratio(array) > 0.97).
 
-See also: [`EdgeFilterPeriodic`](@ref), [`EdgeFilterReflect`](@ref).
+See also: [`lowfreq_energy_ratio`](@ref).
 """
-abstract type EdgeMode end
+function edge_5x5(array :: AbstractArray{<:Any, N}) where N
+    filter    = Images.centered(ones(Float64, (5 for _ in 1:N)...))
+    center    = 5^N - 1
+    centeridx = CartesianIndex((0 for _ in 1:N)...)
+    filter[centeridx] = -center
 
-"""
-    EdgeFilterPeriodic()
-
-Use simple filter for edge extraction. The signal is extended over
-borders periodically. This algorithm works both for CPU and GPU and is
-default.
-
-See also: [`EdgeMode`](@ref), [`extract_edges`](@ref).
-"""
-struct EdgeFilterPeriodic <: EdgeMode end
-
-"""
-    EdgeFilterReflect()
-
-Use simple filter for edge extraction. The signal is extended over
-borders by reflection. This algorithm exists for compatibility with
-CorrelationTrackers.jl
-
-See also: [`EdgeMode`](@ref), [`extract_edges`](@ref).
-"""
-struct EdgeFilterReflect <: EdgeMode end
+    local scale
+    if N == 2
+        scale = 30
+    elseif N == 3
+        scale = 150
+    else
+        error("Only dimensions 2 and 3 are supported")
+    end
+    
+    return filter / scale
+end
 
 """
-    extract_edges(array, mode)
+    BoundaryConditions
+
+Abstract type which specifies boundary conditions for edge extraction filter.
+
+See also: [`BCPeriodic`](@ref), [`BCReflect`](@ref).
+"""
+abstract type BoundaryConditions end
+
+"""
+    BCPeriodic()
+
+The signal is extended over borders periodically. These conditions
+have implementation for CPU and GPU and are default if `periodic`
+argument to surface functions is `true`.
+
+See also: [`BoundaryConditions`](@ref), [`extract_edges`](@ref).
+"""
+struct BCPeriodic <: BoundaryConditions end
+
+@doc raw"""
+    BCReflect()
+
+The signal is extended over borders by reflecting relative to the
+edge. This is a default setting when `periodic` argument to surface
+functions is `false`.
+
+**NB**: It's natural to assume zero padding must be used for
+non-periodic mode. But we want an equality
+$F_{ss}^{(false)} = F_{ss}^{(true)}$ for two-phase system, hence we
+cannot pad the input with some constant value.
+
+See also: [`BoundaryConditions`](@ref), [`extract_edges`](@ref).
+"""
+struct BCReflect <: BoundaryConditions end
+
+struct EdgeFilter{BC <: BoundaryConditions}
+    filter :: Function
+    bc     :: BC
+end
+
+"""
+    extract_edges(array, filter)
 
 Perform edge extraction in the same way as in `surfsurf` and
 `surfvoid` functions from `Map` and `Directional` modules. `array` may
-be a CUDA array or an ordinary array. `mode` is a value of `EdgeMode`
+be a CUDA array or an ordinary array. `filter` is a value of `EdgeFilter`
 type which selects an edge extraction algorithm.
 
-See also: [`EdgeMode`](@ref), [`EdgeFilterPeriodic`](@ref),
-[`EdgeFilterReflect`](@ref).
+See also: [`EdgeFilter`](@ref), [`BoundaryConditions`](@ref).
 """
 function extract_edges end
 
+extract_edges(array :: AbstractArray, filter :: EdgeFilter) =
+    extract_edges(array, filter.filter, filter.bc)
+
 # On GPU we apply filter with FFT transform because FFT is a basic
 # operation on arrays
+#=
 function extract_edges(array :: CuArray, :: EdgeFilterPeriodic)
     s = size(array)
     flt = zeros(Float64, s)
@@ -325,20 +338,22 @@ function extract_edges(array :: CuArray, :: EdgeFilterPeriodic)
     res = abs.(irfft(ftres, size(array, 1)))
     return res / filter_scale(array)
 end
+=#
 
-edge2pad(:: EdgeFilterPeriodic) = Images.Pad(:circular)
-edge2pad(:: EdgeFilterReflect)  = Images.Pad(:reflect)
+edge2pad(:: BCPeriodic) = Images.Pad(:circular)
+edge2pad(:: BCReflect)  = Images.Pad(:reflect)
 
-extract_edges(array :: AbstractArray, mode :: EdgeMode) =
-    abs.(Images.imfilter(array, edge_3x3(array), edge2pad(mode)))
+extract_edges(array :: AbstractArray, filter :: Function, bc :: BoundaryConditions) =
+    abs.(Images.imfilter(array, filter(array), edge2pad(bc)))
 
 """
-    choose_mode(edgemode, periodic)
+    choose_filter(filter, periodic)
 
-Choose the most suitable edge detection filter if `edgemode` is `nothing`.
+Choose the most suitable edge detection filter if `filter` is
+`nothing`.
 """
-function choose_edgemode end
+function choose_filter end
 
-choose_edgemode(edgemode :: EdgeMode, :: Bool) = edgemode
-choose_edgemode(:: Nothing, periodic :: Bool) =
-    periodic ? EdgeFilterPeriodic() : EdgeFilterReflect()
+choose_filter(filter :: EdgeFilter, :: Bool) = filter
+choose_filter(:: Nothing, periodic :: Bool) =
+    periodic ? EdgeFilter(edge_5x5, BCPeriodic()) : EdgeFilter(edge_5x5, BCReflect())

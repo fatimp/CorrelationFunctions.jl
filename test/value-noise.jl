@@ -20,22 +20,26 @@ end
 
 ssfp(array, phase; periodic) =
     Directional.surfsurf(array, phase;
-                         periodic, edgemode = Utilities.EdgeFilterPeriodic())
-ssfr(array, phase; periodic) =
+                         periodic, filter = Utilities.EdgeFilter(Utilities.edge_5x5,
+                                                                 Utilities.BCPeriodic()))
+ssfz(array, phase; periodic) =
     Directional.surfsurf(array, phase;
-                         periodic, edgemode = Utilities.EdgeFilterReflect())
+                         periodic, filter = Utilities.EdgeFilter(Utilities.edge_5x5,
+                                                                 Utilities.BCReflect()))
 svfp(array, phase; periodic) =
     Directional.surfvoid(array, phase;
-                         periodic, edgemode = Utilities.EdgeFilterPeriodic())
-svfr(array, phase; periodic) =
+                         periodic, filter = Utilities.EdgeFilter(Utilities.edge_5x5,
+                                                                 Utilities.BCPeriodic()))
+svfz(array, phase; periodic) =
     Directional.surfvoid(array, phase;
-                         periodic, edgemode = Utilities.EdgeFilterReflect())
+                         periodic, filter = Utilities.EdgeFilter(Utilities.edge_5x5,
+                                                                 Utilities.BCReflect()))
 
 testreflect(Directional.s2)
 testreflect(Directional.l2)
 testreflect(Directional.c2)
 testreflect(ssfp)
-testreflect(ssfr)
+testreflect(ssfz)
 # TODO: somehow test histograms returned by pore_size and chord_length
 
 function testsurface(func)
@@ -46,6 +50,6 @@ function testsurface(func)
 end
 
 testsurface(ssfp)
-testsurface(ssfr)
+testsurface(ssfz)
 testsurface(svfp)
-testsurface(svfr)
+testsurface(svfz)
