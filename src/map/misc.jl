@@ -1,31 +1,34 @@
 """
     dir_from_map(m, dir)
 
-Extract a direction from a correlation map. `direction` can be either
-`:x`, `:y`, `:z`, `:xy` or `:yx`.
+Extract a direction from a correlation map. `direction` must be of
+type `DirX`, `DirY`, `DirZ`, `DirXY` or `DirYX`.
 """
-function dir_from_map(m::AbstractArray, direction; periodic=false)
-    if direction == :x
+function dir_from_map(m         :: AbstractArray,
+                      direction :: AbstractDirection;
+                      periodic  :: Bool  = false)
+    if direction == DirX()
         q = periodic ? size(m, 1) : size(m, 1) ÷ 2 + 1
         ixs = CartesianIndex.(1:q, 1, 1)
-    elseif direction == :y
+    elseif direction == DirY()
         q = periodic ? size(m, 2) : size(m, 2) ÷ 2 + 1
         ixs = CartesianIndex.(1, 1:q, 1)
-    elseif direction == :z
+    elseif direction == DirZ()
         q = periodic ? size(m, 3) : size(m, 3) ÷ 2 + 1
         ixs = CartesianIndex.(1, 1, 1:q)
-    elseif direction == :xy
+    elseif direction == DirXY()
         a = minimum(size(m)[1:2])
         q = periodic ? a : a ÷ 2 + 1
         ixs = CartesianIndex.(1:q, 1:q, 1)
-    elseif direction == :yx
+    elseif direction == DirYX()
         a = minimum(size(m)[1:2])
         q = periodic ? a : a ÷ 2 + 1
         b = 1:q
         c = @. mod(1 - b, a) + 1
         ixs = CartesianIndex.(c, b, 1)
     end
-    m[ixs]
+
+    return m[ixs]
 end
 
 """

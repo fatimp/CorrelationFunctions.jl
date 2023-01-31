@@ -40,7 +40,7 @@ pore_size_theory(r, R, λ) = 4π*λ*(r + R)^2 * exp(-4/3*π*λ * (r^3 + 3r^2*R +
 
     th(r)  = s2_theory(r, R)
     disk   = draw_ball((S, S, S), R)
-    calc   = Directional.s2(disk, true; periodic = true) |> mean
+    calc   = D.s2(disk, true; periodic = true) |> mean
     theory = th.(0:length(calc)-1) / S^3
 
     @test relerr_norm(calc, theory) < 0.01
@@ -52,10 +52,10 @@ end
 
     ball   = draw_ball((S, S, S), R)
     th(r)  = ss_theory(r, R)
-    calc   = Directional.surfsurf(ball, false; periodic = true) |> mean
+    calc   = D.surfsurf(ball, false; periodic = true) |> mean
     theory = th.(5:boundary-5) / S^3
 
-    @test Utilities.lowfreq_energy_ratio(ball) > 0.97
+    @test U.lowfreq_energy_ratio(ball) > 0.97
     @test relerr_norm(calc[5:boundary-5], theory) < 0.15
     @test maximum(calc[boundary+5:end]) < 1e-5
 end
@@ -65,10 +65,10 @@ end
 
     th(r)  = sv_theory(r, R)
     ball   = draw_ball((S, S, S), R)
-    calc   = Directional.surfvoid(ball, false; periodic = true) |> mean
+    calc   = D.surfvoid(ball, false; periodic = true) |> mean
     theory = th.(0:length(calc)-1) / S^3
 
-    @test Utilities.lowfreq_energy_ratio(ball) > 0.97
+    @test U.lowfreq_energy_ratio(ball) > 0.97
     @test relerr_norm(calc, theory) < 0.03
 end
 
@@ -79,7 +79,7 @@ end
     S = 500; R = 20; λ = 3e-5; N = 100
     balls = genballs(S, R, λ)
 
-    calc = Directional.l2(balls, 0; len = N, periodic = true) |> mean .|> log
+    calc = D.l2(balls, 0; len = N, periodic = true) |> mean .|> log
     theory = [log(l2_theory(r - 1, R, λ)) for r in 0:N - 1]
     err = relerr.(calc, theory)
 
@@ -92,7 +92,7 @@ end
     S = 500; R = 30; λ = 1e-5
     balls = genballs(S, R, λ)
 
-    calc = pore_size(balls; nbins = 20)
+    calc = D.pore_size(balls; nbins = 20)
     edges = calc.edges[1]
     s = step(edges)
     theory = [integrate(x -> pore_size_theory(x, R, λ), n:0.05:n+s)
@@ -111,7 +111,7 @@ end
     S = 300; R = 100
 
     disk = draw_ball((S, S, S), R)
-    data = Directional.chord_length(disk, true)
+    data = D.chord_length(disk, true)
     μ    = π^2/8 * R
     σ    = sqrt((1024 - 9π^4)/576) * R
 

@@ -25,7 +25,7 @@ size. Plans can be computed with `S2FTPlans` constructor.
 
 # Examples
 ```jldoctest
-julia> s2([1,1,1,0,1,1], 1; len = 6)[:x]
+julia> s2([1,1,1,0,1,1], 1; len = 6)[DirX()]
 6-element Array{Float64,1}:
  0.8333333333333334
  0.6
@@ -35,9 +35,9 @@ julia> s2([1,1,1,0,1,1], 1; len = 6)[:x]
  1.0
 ```
 
-See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
-[`direction3Dp`](@ref), [`SeparableIndicator`](@ref),
-[`InseparableIndicator`](@ref), [`S2FTPlans`](@ref).
+See also: [`Utilities.AbstractDirection`](@ref),
+[`SeparableIndicator`](@ref), [`InseparableIndicator`](@ref),
+[`S2FTPlans`](@ref).
 """
 function s2 end
 
@@ -87,18 +87,18 @@ S2FTPlans(array :: AbstractArray, periodic :: Bool) =
 
 function s2(array      :: AbstractArray,
             indicator  :: SeparableIndicator;
-            len        :: Integer        = (array |> size |> minimum) ÷ 2,
-            directions :: Vector{Symbol} = array |> default_directions,
-            periodic   :: Bool           = false,
-            plans      :: S2FTPlans      = S2FTPlans(array, periodic))
-    cd = CorrelationData(len, check_directions(directions, size(array), periodic))
+            len        :: Integer                   = (array |> size |> minimum) ÷ 2,
+            directions :: Vector{AbstractDirection} = array |> default_directions,
+            periodic   :: Bool                      = false,
+            plans      :: S2FTPlans                 = S2FTPlans(array, periodic))
+    cd = CorrelationData(len, check_directions(directions, array, periodic))
     topology = periodic ? Torus() : Plane()
     χ1, χ2 = indicator_function(indicator)
 
     for direction in directions
         success = cd.success[direction]
         total = cd.total[direction]
-        slicer = slice_generators(array, periodic, Val(direction))
+        slicer = slice_generators(array, periodic, direction)
 
         for slice in slicer
             # Get plans for FFT and inverse FFT
@@ -138,14 +138,14 @@ end
 
 function s2(array      :: AbstractArray,
             indicator  :: InseparableIndicator;
-            len        :: Integer        = (array |> size |> minimum) ÷ 2,
-            directions :: Vector{Symbol} = array |> default_directions,
-            periodic   :: Bool           = false)
-    cd = CorrelationData(len, check_directions(directions, size(array), periodic))
+            len        :: Integer                   = (array |> size |> minimum) ÷ 2,
+            directions :: Vector{AbstractDirection} = array |> default_directions,
+            periodic   :: Bool                      = false)
+    cd = CorrelationData(len, check_directions(directions, array, periodic))
     χ = indicator_function(indicator)
 
     for direction in directions
-        slicer = slice_generators(array, periodic, Val(direction))
+        slicer = slice_generators(array, periodic, direction)
 
         for slice in slicer
             slen = length(slice)
@@ -175,12 +175,9 @@ end
 
 s2(array      :: AbstractArray,
    phase;
-   len        :: Integer        = (array |> size |> minimum) ÷ 2,
-   directions :: Vector{Symbol} = array |> default_directions,
-   periodic   :: Bool           = false,
-   plans      :: S2FTPlans      = S2FTPlans(array, periodic)) =
+   len        :: Integer                   = (array |> size |> minimum) ÷ 2,
+   directions :: Vector{AbstractDirection} = array |> default_directions,
+   periodic   :: Bool                      = false,
+   plans      :: S2FTPlans                 = S2FTPlans(array, periodic)) =
        s2(array, SeparableIndicator(x -> x == phase);
-          len        = len,
-          directions = directions,
-          periodic   = periodic,
-          plans      = plans)
+          len, directions, periodic, plans)

@@ -19,25 +19,25 @@ function testreflect(func)
 end
 
 ssfp(array, phase; periodic) =
-    Directional.surfsurf(array, phase;
-                         periodic, filter = Utilities.EdgeFilter(Utilities.BCPeriodic(),
-                                                                 Utilities.Kernel5x5()))
+    D.surfsurf(array, phase;
+               periodic, filter = U.EdgeFilter(U.BCPeriodic(),
+                                               U.Kernel5x5()))
 ssfz(array, phase; periodic) =
-    Directional.surfsurf(array, phase;
-                         periodic, filter = Utilities.EdgeFilter(Utilities.BCReflect(),
-                                                                 Utilities.Kernel5x5()))
+    D.surfsurf(array, phase;
+               periodic, filter = U.EdgeFilter(U.BCReflect(),
+                                               U.Kernel5x5()))
 svfp(array, phase; periodic) =
-    Directional.surfvoid(array, phase;
-                         periodic, filter = Utilities.EdgeFilter(Utilities.BCPeriodic(),
-                                                                 Utilities.Kernel5x5()))
+    D.surfvoid(array, phase;
+               periodic, filter = U.EdgeFilter(U.BCPeriodic(),
+                                               U.Kernel5x5()))
 svfz(array, phase; periodic) =
-    Directional.surfvoid(array, phase;
-                         periodic, filter = Utilities.EdgeFilter(Utilities.BCReflect(),
-                                                                 Utilities.Kernel5x5()))
+    D.surfvoid(array, phase;
+               periodic, filter = U.EdgeFilter(U.BCReflect(),
+                                               U.Kernel5x5()))
 
-testreflect(Directional.s2)
-testreflect(Directional.l2)
-testreflect(Directional.c2)
+testreflect(D.s2)
+testreflect(D.l2)
+testreflect(D.c2)
 testreflect(ssfp)
 testreflect(ssfz)
 # TODO: somehow test histograms returned by pore_size and chord_length

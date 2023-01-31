@@ -9,9 +9,8 @@ function test_gpu(fn, image)
         # FIXME: only periodic boundary conditions for filters are
         # supported now.
         local cpu_map, gpu_map
-        if fn ∈ [Map.surfsurf, Map.surfvoid]
-            flt = Utilities.EdgeFilter(Utilities.BCPeriodic(),
-                                       Utilities.Kernel5x5())
+        if fn ∈ [M.surfsurf, M.surfvoid]
+            flt = U.EdgeFilter(U.BCPeriodic(), U.Kernel5x5())
             cpu_map = fn(image,          true;
                          periodic = periodic, filter = flt)
             gpu_map = fn(CuArray(image), true;
@@ -27,6 +26,6 @@ end
 for noise_fn in noisegen
     image = noise_fn()
     for fn in cfs[ndims(image)]
-        test_gpu(Map.eval(fn), image)
+        test_gpu(M.eval(fn), image)
     end
 end

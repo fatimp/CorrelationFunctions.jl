@@ -55,22 +55,24 @@ a = l2(rand(MersenneTwister(1453), 0:1, (100, 100, 100)), 1)
 
 You can extract the values along any computed direction using indexing operator:
 ```@example
-using CorrelationFunctions.Directional
+import CorrelationFunctions.Directional as D
+import CorrelationFunctions.Utilities as U
 using Random
 
-a = l2(rand(MersenneTwister(1453), 0:1, (100, 100, 100)), 1)
-a[:y]
+a = D.l2(rand(MersenneTwister(1453), 0:1, (100, 100, 100)), 1)
+a[U.DirY()]
 ```
 
 Also you can average results along multiple directions using `Statistics.mean`
 function:
 ```@example
-using CorrelationFunctions.Directional
+import CorrelationFunctions.Directional as D
+import CorrelationFunctions.Utilities as U
 using Random
 using Statistics
 
-a = l2(rand(MersenneTwister(1453), 0:1, (100, 100, 100)), 1)
-mean(a, [:x, :y])
+a = D.l2(rand(MersenneTwister(1453), 0:1, (100, 100, 100)), 1)
+mean(a, [U.DirX(), U.DirY()])
 ```
 
 Calling `Statistics.mean` without the second argument averages along all computed
@@ -103,33 +105,8 @@ Directional.S2FTPlans
 
 ## Directions
 
-Correlation functions can be computed in many directions depending on how test
-line segments are aligned with the input array. The default directions are
-`[:x]` for 1D, `[:x, :y]` for 2D and `[:x, :y, :z]` for 3D arrays. Possible
-directions and their meaning are described in the documentation for
-`directionNDp` functions where `N` stands for `1`, `2` and `3`.
-
-```@docs
-Directional.direction1Dp
-Directional.direction2Dp
-Directional.direction3Dp
-Directional.default_directions
-Directional.unit_length
-```
-
-These rules can help you to memoize the correspondence between symbolic
-designations and vectors:
-
-* Symbolic designations can contain characters `x`, `y` and `z` and be from one
-  to three symbols long. Each character can occur only once (so `xyz` is a valid
-  designation and `xxy` is not).
-* When a character does not occur is a designation (e.g, `xy`) that coordinate
-  remains constant in a slice (in the example above $z = \text{const}$).
-* The names of the axes have a "natural order" which is `x`, `y`, `z`. In a
-  designation the first axis which breaks that order get the minus sign in the
-  direction vector (e.g. `xzy` equals to `(1, -1, 1)` because `y` is in the
-  third position, not in the second, `zx` equals to `(-1, 0, 1)` because `x` is
-  in the second position, no in the first, etc.)
+Version 0.9 and newer: Now there are special types serving as direction
+designators in the module `Utilities`: [Available directions](@ref).
 
 ## Indicator Functions
 

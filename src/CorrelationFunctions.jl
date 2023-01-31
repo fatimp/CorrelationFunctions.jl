@@ -10,15 +10,20 @@ using CUDA: CuArray
 import CUDA.CUFFT
 import Images
 
-include("utility.jl")
-include("lowfreq_energy_ratio.jl")
-include("images.jl")
+include("utility/misc.jl")
+include("utility/lowfreq_energy_ratio.jl")
+include("utility/images.jl")
+include("utility/directions.jl")
 
 export read_cuboid, lowfreq_energy_ratio,
     extract_edges, choose_filter, EdgeFilter,
     BoundaryConditions, BCPeriodic, BCReflect,
     FilterKernel, Kernel3x3, Kernel5x5,
-    Topology, Torus, Plane, Maybe
+    Topology, Torus, Plane, Maybe,
+    AbstractDirection, DirX, DirY, DirZ,
+    DirXY, DirYX, DirXZ, DirZX, DirYZ, DirZY,
+    DirXYZ, DirXZY, DirYXZ, DirZYX,
+    default_directions, check_directions
 end
 
 module Directional
@@ -31,7 +36,6 @@ using Base.Iterators
 using FFTW: plan_rfft, plan_irfft
 using CircularArrays: CircularArray
 
-include("directional/directions.jl")
 include("directional/corrdata.jl")
 include("directional/slicer.jl")
 include("directional/indicator.jl")
@@ -45,12 +49,10 @@ include("directional/pore-size.jl")
 
 export l2, s2, c2,
     surfsurf, surfvoid, lowfreq_energy_ratio, chord_length, pore_size,
-    ChordLengthInfo,
+    ChordLengthInfo, CorrelationData,
     AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans,
-    CorrelationData, default_directions, directions, unit_length
+    directions
 
-# These are exported for their docstrings.
-export direction1Dp, direction2Dp, direction3Dp
 end # Directional
 
 module Map

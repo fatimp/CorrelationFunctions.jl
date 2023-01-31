@@ -33,13 +33,13 @@ julia> chord_length([1, 0, 0, 0, 0, 1, 0, 1], 0)
 Chord length info (mean = 2.5, std = 2.1213203435596424)
 ```
 
-For a list of possible dimensions, see also: [`direction1Dp`](@ref),
-[`direction2Dp`](@ref), [`direction3Dp`](@ref).
+For a list of possible dimensions, see also:
+[`Utilities.AbstractDirection`](@ref).
 """
 function chord_length(array      :: AbstractArray,
                       phase;
-                      directions :: Vector{Symbol} = array |> default_directions,
-                      nbins      :: Integer       = 10)
+                      directions :: Vector{AbstractDirection} = array |> default_directions,
+                      nbins      :: Integer                   = 10)
     # Select needed phase by applying indicator function to array
     ph = map(x -> x == phase, array)
 
@@ -56,7 +56,7 @@ function chord_length(array      :: AbstractArray,
     # Combine the edge with the original picture
     combo = min.(edge + array, edge_phase)
     for direction in directions
-        slicer = slice_generators(combo, false, Val(direction))
+        slicer = slice_generators(combo, false, direction)
         for slice in slicer
             len = 0
             startonedge = false

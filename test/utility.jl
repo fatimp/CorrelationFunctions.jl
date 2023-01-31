@@ -1,7 +1,7 @@
-const known_directions = [:x,   :y,   :z,
-                          :yz,  :xz,  :xy,
-                          :zy,  :zx,  :yx,
-                          :xyz, :yxz, :xzy, :zyx]
+const known_directions = [U.DirX(),   U.DirY(),   U.DirZ(),
+                          U.DirYZ(),  U.DirXZ(),  U.DirXY(),
+                          U.DirZY(),  U.DirZX(),  U.DirYX(),
+                          U.DirXYZ(), U.DirYXZ(), U.DirZYX()]
 
 """
     draw_ball(s, r)

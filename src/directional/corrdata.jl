@@ -5,13 +5,13 @@ This structure holds correlation data computated along specified
 directions. To access those data use the `mean` function.
 """
 struct CorrelationData
-    directions :: Vector{Symbol}
-    success    :: Dict{Symbol, Vector{Float64}}
-    total      :: Dict{Symbol, Vector{Float64}}
+    directions :: Vector{AbstractDirection}
+    success    :: Dict{AbstractDirection, Vector{Float64}}
+    total      :: Dict{AbstractDirection, Vector{Float64}}
 end
 
 function CorrelationData(len        :: Integer,
-                         directions :: Vector{Symbol})
+                         directions :: Vector{AbstractDirection})
     success = Dict(map(x -> x => zeros(len), directions))
     total   = Dict(map(x -> x => zeros(len), directions))
     return CorrelationData(directions, success, total)
@@ -60,7 +60,7 @@ Base.length(x :: CorrelationData) = let dir = first(x.directions); length(x[dir]
 
 import StatsBase: mean
 """
-    mean(data :: CorrelationData, directions::Vector{Symbol})
+    mean(data :: CorrelationData, directions :: Vector{AbstractDirection})
     mean(data :: CorrelationData)
 
 Return mean of correlation function stored in `data` calculated along
@@ -72,7 +72,7 @@ argument, mean of all computed directions is returned.
 """
 function mean end
 
-function mean(data :: CorrelationData, directions::Vector{Symbol})
+function mean(data :: CorrelationData, directions :: Vector{AbstractDirection})
     if !all(x -> x ∈ data.directions, directions)
         error("Correlation function is not computed for directions $directions")
     end
@@ -97,9 +97,9 @@ Return directions along which a correlation function is computed.
 # Examples
 ```jldoctest
 julia> directions(l2(rand(0:1, (50, 10)), 1))
-2-element Vector{Symbol}:
- :x
- :y
+2-element Vector{CorrelationFunctions.Directional.AbstractDirection}:
+ CorrelationFunctions.Directional.DirX()
+ CorrelationFunctions.Directional.DirY()
 ```
 """
 directions(data :: CorrelationData) = data.directions
@@ -110,4 +110,5 @@ directions(data :: CorrelationData) = data.directions
 Return `true` in correlation data `corrdata` is computed for a
 direction `direction`.
 """
-Base.in(direction :: Symbol, data :: CorrelationData) = direction ∈ directions(data)
+Base.in(direction :: AbstractDirection, data :: CorrelationData) =
+    direction ∈ directions(data)

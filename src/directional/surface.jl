@@ -25,16 +25,16 @@ An argument `plans` can be used to support precomputed FFT plans which
 can be helpful if you call `surfsurf` often with the array of the same
 size. Plans can be computed with `S2FTPlans` constructor.
 
-See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
-[`direction3Dp`](@ref), [`S2FTPlans`](@ref), [`Utilities.EdgeFilter`](@ref).
+See also: [`Utilities.AbstractDirection`](@ref),
+[`Utilities.EdgeFilter`](@ref).
 """
 function surfsurf(array      :: AbstractArray,
                   phase;
-                  len        :: Integer           = (array |> size  |> minimum) ÷ 2,
-                  directions :: Vector{Symbol}    = array |> default_directions,
-                  periodic   :: Bool              = false,
-                  plans      :: S2FTPlans         = S2FTPlans(array, periodic),
-                  filter     :: Maybe{EdgeFilter} = nothing)
+                  len        :: Integer                   = (array |> size  |> minimum) ÷ 2,
+                  directions :: Vector{AbstractDirection} = array |> default_directions,
+                  periodic   :: Bool                      = false,
+                  plans      :: S2FTPlans                 = S2FTPlans(array, periodic),
+                  filter     :: Maybe{EdgeFilter}         = nothing)
     χ = phase2ind(phase)
     ph = map(χ, array)
     edge = extract_edges(ph, choose_filter(filter, periodic))
@@ -72,17 +72,16 @@ An argument `plans` can be used to support precomputed FFT plans which
 can be helpful if you call `surfvoid` often with the array of the same
 size. Plans can be computed with `S2FTPlans` constructor.
 
-See also: [`direction1Dp`](@ref), [`direction2Dp`](@ref),
-[`direction3Dp`](@ref), [`S2FTPlans`](@ref), [`EdgeFilter`](@ref).
+See also: [`Utilities.AbstractDirection`](@ref), [`S2FTPlans`](@ref), [`EdgeFilter`](@ref).
 """
 function surfvoid(array      :: AbstractArray,
                   phase;
-                  len        :: Integer           = (array |> size  |> minimum) ÷ 2,
-                  directions :: Vector{Symbol}    = array |> default_directions,
-                  periodic   :: Bool              = false,
-                  plans      :: S2FTPlans         = S2FTPlans(array, periodic),
-                  filter     :: Maybe{EdgeFilter} = nothing,
-                  void_phase                      = 0)
+                  len        :: Integer                   = (array |> size  |> minimum) ÷ 2,
+                  directions :: Vector{AbstractDirection} = array |> default_directions,
+                  periodic   :: Bool                      = false,
+                  plans      :: S2FTPlans                 = S2FTPlans(array, periodic),
+                  filter     :: Maybe{EdgeFilter}         = nothing,
+                  void_phase                              = 0)
     χ = phase2ind(phase)
     χ_void = phase2ind(void_phase)
     ph = map(χ, array)

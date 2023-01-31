@@ -57,7 +57,7 @@ to `len` which defaults to half of the minimal dimension of the array.
 
 # Examples
 ```jldoctest
-julia> l2([1,1,1,0,1,1], 1; len = 6)[:x]
+julia> l2([1,1,1,0,1,1], 1; len = 6)[DirX()]
 6-element Array{Float64,1}:
  0.8333333333333334
  0.6
@@ -67,19 +67,19 @@ julia> l2([1,1,1,0,1,1], 1; len = 6)[:x]
  0.0
 ```
 
-For a list of possible dimensions, see also: [`direction1Dp`](@ref),
-[`direction2Dp`](@ref), [`direction3Dp`](@ref).
+For a list of possible dimensions, see also:
+[`Utilities.AbstractDirection`](@ref).
 """
 function l2(array      :: AbstractArray,
             phase;
-            len        :: Integer        = (array |> size |> minimum) ÷ 2,
-            directions :: Vector{Symbol} = array |> default_directions,
-            periodic   :: Bool           = false,
-            plans      :: Any            = nothing)
-    cd = CorrelationData(len, check_directions(directions, size(array), periodic))
+            len        :: Integer                   = (array |> size |> minimum) ÷ 2,
+            directions :: Vector{AbstractDirection} = array |> default_directions,
+            periodic   :: Bool                      = false,
+            plans      :: Any                       = nothing)
+    cd = CorrelationData(len, check_directions(directions, array, periodic))
 
     for direction in directions
-        slicer = slice_generators(array, periodic, Val(direction))
+        slicer = slice_generators(array, periodic, direction)
 
         for slice in slicer
             slen = length(slice)

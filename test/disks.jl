@@ -36,7 +36,7 @@ pore_size_theory(r, R, λ) = 2λ*π*(r + R)*exp(-λ*π*(r^2 + 2r*R))
     S = 7000; R = 40; λ = 5e-5; N = 700
 
     disks = gendisks(S, R, λ)
-    calc = Directional.l2(disks, 0; len = N, periodic = true) |> mean .|> log
+    calc = D.l2(disks, 0; len = N, periodic = true) |> mean .|> log
     theory = [(log ∘ l2_theory)(r-1, R, λ) for r in 0:N - 1]
 
     err = relerr.(calc, theory)
@@ -48,7 +48,7 @@ end
 
     th(r)  = s2_theory(r, R)
     disk   = draw_ball((S, S), R)
-    calc   = Directional.s2(disk, true; periodic = true) |> mean
+    calc   = D.s2(disk, true; periodic = true) |> mean
     theory = th.(0:length(calc)-1) / S^2
 
     @test relerr_norm(calc, theory) < 0.01
@@ -60,10 +60,10 @@ end
 
     disk   = draw_ball((S, S), R)
     th(r)  = ss_theory(r, R)
-    calc   = Directional.surfsurf(disk, false; periodic = true) |> mean
+    calc   = D.surfsurf(disk, false; periodic = true) |> mean
     theory = th.(10:boundary-10) / S^2
 
-    @test Utilities.lowfreq_energy_ratio(disk) > 0.97
+    @test U.lowfreq_energy_ratio(disk) > 0.97
     @test relerr_norm(calc[10:boundary-10], theory) < 0.08
     @test maximum(calc[boundary+10:end]) < 1e-5
 end
@@ -73,10 +73,10 @@ end
 
     th(r)  = sv_theory(r, R)
     disk   = draw_ball((S, S), R)
-    calc   = Directional.surfvoid(disk, false; periodic = true) |> mean
+    calc   = D.surfvoid(disk, false; periodic = true) |> mean
     theory = th.(0:length(calc)-1) / S^2
 
-    @test Utilities.lowfreq_energy_ratio(disk) > 0.97
+    @test U.lowfreq_energy_ratio(disk) > 0.97
     @test relerr_norm(calc, theory) < 0.03
 end
 
@@ -85,7 +85,7 @@ end
     S = 7000; R = 50; λ = 5e-5
     disks = gendisks(S, R, λ)
 
-    calc = pore_size(disks; nbins = 20)
+    calc = D.pore_size(disks; nbins = 20)
     edges = calc.edges[1]
     s = step(edges)
     theory = [integrate(x -> pore_size_theory(x, R, λ), n:0.05:n+s)
@@ -104,7 +104,7 @@ end
     S = 500; R = 200
 
     disk = draw_ball((S, S), R)
-    data = Directional.chord_length(disk, true)
+    data = D.chord_length(disk, true)
     μ    = π/2 * R
     σ    = sqrt((32 - 3π^2)/12) * R
 

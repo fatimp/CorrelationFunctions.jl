@@ -1,18 +1,18 @@
 const max_labels_for_ft = 50
 
 function c2fft(labels     :: AbstractArray;
-               directions :: Vector{Symbol},
+               directions :: Vector{AbstractDirection},
                len        :: Integer,
                periodic   :: Bool,
                plans      :: S2FTPlans = S2FTPlans(labels, periodic))
-    cd = CorrelationData(len, check_directions(directions, size(labels), periodic))
+    cd = CorrelationData(len, check_directions(directions, labels, periodic))
     topology = periodic ? Utilities.Torus() : Utilities.Plane()
     maxlabel = maximum(labels)
 
     for direction in directions
         success = cd.success[direction]
         total   = cd.total[direction]
-        slicer  = slice_generators(labels, periodic, Val(direction))
+        slicer  = slice_generators(labels, periodic, direction)
 
         for slice in slicer
             slen = length(slice)
@@ -62,7 +62,7 @@ minimal dimension of the array.
 
 # Examples
 ```jldoctest
-julia> c2([1,1,1,0,1,1], 1; len = 6)[:x]
+julia> c2([1,1,1,0,1,1], 1; len = 6)[DirX()]
 6-element Array{Float64,1}:
  0.8333333333333334
  0.6
@@ -72,14 +72,14 @@ julia> c2([1,1,1,0,1,1], 1; len = 6)[:x]
  0.0
 ```
 
-For a list of possible dimensions, see also: [`direction1Dp`](@ref),
-[`direction2Dp`](@ref), [`direction3Dp`](@ref).
+For a list of possible dimensions, see also:
+[`Utilities.AbstractDirection`](@ref).
 """
 function c2(array      :: AbstractArray,
             phase;
-            directions :: Vector{Symbol} = array |> default_directions,
-            len        :: Integer = (array |> size |> minimum) ÷ 2,
-            periodic   :: Bool = false)
+            directions :: Vector{AbstractDirection} = array |> default_directions,
+            len        :: Integer                   = (array |> size |> minimum) ÷ 2,
+            periodic   :: Bool                      = false)
     field = map(x -> x == phase, array)
     labels = label_components(field, periodic ? Utilities.Torus() : Utilities.Plane())
     if maximum(labels) < max_labels_for_ft

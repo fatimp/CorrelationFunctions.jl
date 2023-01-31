@@ -1,4 +1,6 @@
-using CorrelationFunctions
+import CorrelationFunctions.Utilities as U
+import CorrelationFunctions.Directional as D
+import CorrelationFunctions.Map as M
 using XUnit
 using Distributions: Poisson
 using Base.Iterators: zip, drop, countfrom
