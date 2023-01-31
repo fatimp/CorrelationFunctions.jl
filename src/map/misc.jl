@@ -1,34 +1,38 @@
+map_slice_len(dim :: Int64, periodic :: Bool) =
+    periodic ? dim : dim ÷ 2 + 1
+
 """
     dir_from_map(m, dir)
 
 Extract a direction from a correlation map. `direction` must be of
-type `DirX`, `DirY`, `DirZ`, `DirXY` or `DirYX`.
-"""
-function dir_from_map(m         :: AbstractArray,
-                      direction :: AbstractDirection;
-                      periodic  :: Bool  = false)
-    if direction == DirX()
-        q = periodic ? size(m, 1) : size(m, 1) ÷ 2 + 1
-        ixs = CartesianIndex.(1:q, 1, 1)
-    elseif direction == DirY()
-        q = periodic ? size(m, 2) : size(m, 2) ÷ 2 + 1
-        ixs = CartesianIndex.(1, 1:q, 1)
-    elseif direction == DirZ()
-        q = periodic ? size(m, 3) : size(m, 3) ÷ 2 + 1
-        ixs = CartesianIndex.(1, 1, 1:q)
-    elseif direction == DirXY()
-        a = minimum(size(m)[1:2])
-        q = periodic ? a : a ÷ 2 + 1
-        ixs = CartesianIndex.(1:q, 1:q, 1)
-    elseif direction == DirYX()
-        a = minimum(size(m)[1:2])
-        q = periodic ? a : a ÷ 2 + 1
-        b = 1:q
-        c = @. mod(1 - b, a) + 1
-        ixs = CartesianIndex.(c, b, 1)
-    end
+type `AbstractDirection`.
 
-    return m[ixs]
+See also: [`Utilities.AbstractDirection`](@ref).
+"""
+function dir_from_map end
+
+dir_from_map(x :: AbstractArray, :: DirX; periodic :: Bool = false) =
+    let q = map_slice_len(size(x, 1), periodic)
+        x[CartesianIndex.(1:q, 1, 1)]
+    end
+dir_from_map(x :: AbstractArray, :: DirY; periodic :: Bool = false) =
+    let q = map_slice_len(size(x, 2), periodic)
+        x[CartesianIndex.(1, 1:q, 1)]
+    end
+dir_from_map(x :: AbstractArray, :: DirZ; periodic :: Bool = false) =
+    let q = map_slice_len(size(x, 3), periodic)
+        x[CartesianIndex.(1, 1, 1:q)]
+    end
+dir_from_map(x :: AbstractArray, :: DirXY; periodic :: Bool = false) =
+    let q = map_slice_len(minimum(size(x)[1:2]), periodic)
+        x[CartesianIndex.(1:q, 1:q, 1)]
+    end
+function dir_from_map(x :: AbstractArray, :: DirYX; periodic :: Bool = false)
+    a = minimum(size(x)[1:2])
+    q = map_slice_len(a, periodic)
+    b = 1:q
+    c = @. mod(1 - b, a) + 1
+    return x[CartesianIndex.(c, b, 1)]
 end
 
 """
