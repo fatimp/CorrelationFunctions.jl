@@ -58,3 +58,16 @@ function s3(array  :: AbstractArray;
     calc_s3 = plane -> plane => s3_plane(array, plane, len)
     return Dict{AbstractPlane, Matrix{Float64}}(map(calc_s3, planes))
 end
+
+"""
+    s3(array, phase; [planes :: Vector{AbstractPlane}, len])
+
+The same as s3(array .= phase; ...). Kept for consistency with other
+parts of the API.
+"""
+function s3(array        :: AbstractArray, phase;
+            planes       :: Vector{AbstractPlane} = default_planes(array),
+            len = (array |> size |> minimum) ÷ 2)
+    # BitArray's are too damn slow
+    return s3(Array(array .== phase); planes, len)
+end
