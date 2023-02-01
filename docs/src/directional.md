@@ -53,7 +53,8 @@ using Random
 a = l2(rand(MersenneTwister(1453), 0:1, (100, 100, 100)), 1)
 ```
 
-You can extract the values along any computed direction using indexing operator:
+`CorrelationData` implements `AbstractDict` interface. For example, you can
+extract the values along any computed direction using indexing operator:
 ```@example
 import CorrelationFunctions.Directional as D
 import CorrelationFunctions.Utilities as U
@@ -77,11 +78,6 @@ mean(a, [U.DirX(), U.DirY()])
 
 Calling `Statistics.mean` without the second argument averages along all computed
 directions.
-
-Another useful function is `Directional.direction`:
-```@docs
-Directional.directions
-```
 
 ## Boundary Conditions
 

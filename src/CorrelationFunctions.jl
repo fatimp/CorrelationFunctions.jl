@@ -31,7 +31,6 @@ using ..Utilities
 using StatsBase: fit, Histogram, mean, std
 using LinearAlgebra: normalize
 using Images: feature_transform, distance_transform, label_components
-using PrettyTables: pretty_table
 using Base.Iterators
 using FFTW: plan_rfft, plan_irfft
 using CircularArrays: CircularArray
@@ -50,8 +49,7 @@ include("directional/pore-size.jl")
 export l2, s2, c2,
     surfsurf, surfvoid, lowfreq_energy_ratio, chord_length, pore_size,
     ChordLengthInfo, CorrelationData,
-    AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans,
-    directions
+    AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans
 
 end # Directional
 

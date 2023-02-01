@@ -1,10 +1,12 @@
 """
-Structure returned by correlation functions (`l2`, `s2` and `c2`).
+    CorrelationData
+
+Structure returned by correlation functions (e.g. `l2`, `s2` or `c2`).
 
 This structure holds correlation data computated along specified
 directions. To access those data use the `mean` function.
 """
-struct CorrelationData
+struct CorrelationData <: AbstractDict{AbstractDirection, Vector{Float64}}
     directions :: Vector{AbstractDirection}
     success    :: Dict{AbstractDirection, Vector{Float64}}
     total      :: Dict{AbstractDirection, Vector{Float64}}
@@ -28,35 +30,33 @@ function CorrelationData(data :: CorrelationData)
                            Dict(x => total[x]   for x in directions))
 end
 
-function Base.getindex(x :: CorrelationData, i)
-    directions = x.directions
-    if i ∉ directions
-        error("Requested direction $i is not among calculated directions $directions")
+
+# Undocumented AbstractDict interface
+Base.keys(cd :: CorrelationData) = cd.directions
+Base.haskey(cd :: CorrelationData, key) = key ∈ cd.directions
+Base.length(cd :: CorrelationData) = length(cd.directions)
+
+function Base.get(cd :: CorrelationData, key, default)
+    if key ∈ cd.directions
+        success = cd.success[key]
+        total   = cd.total[key]
+        return success ./ max.(total, 1)
+    else
+        return default
     end
-
-    success = x.success[i]
-    # Define correlation function f(a, x) = 0 for x > dimension of a
-    total = (x -> max(x, 1)).(x.total[i])
-    return success ./ total
 end
 
-function Base.show(io :: IO, x :: CorrelationData)
-    directions = x.directions
-    corr = reduce(hcat, x[direction] for direction in directions)
-    pretty_table(io, corr; header = directions)
-end
-
-function Base.iterate(x :: CorrelationData, state = nothing)
-    next = state != nothing ? iterate(x.directions, state) : iterate(x.directions)
-    if next != nothing
-        direction, next = next
-        return (direction, x[direction]), next
+function nextstate(cd :: CorrelationData, state)
+    if state != nothing
+        direction, next = state
+        return direction => cd[direction], next
     else
         return nothing
     end
 end
 
-Base.length(x :: CorrelationData) = let dir = first(x.directions); length(x[dir]) end
+Base.iterate(cd :: CorrelationData) = nextstate(cd, iterate(cd.directions))
+Base.iterate(cd :: CorrelationData, state) = nextstate(cd, iterate(cd.directions, state))
 
 import StatsBase: mean
 """
@@ -88,27 +88,3 @@ end
 function mean(data :: CorrelationData)
     return mean(data, data.directions)
 end
-
-"""
-    directions(data :: CorrelationData)
-
-Return directions along which a correlation function is computed.
-
-# Examples
-```jldoctest
-julia> directions(l2(rand(0:1, (50, 10)), 1))
-2-element Vector{CorrelationFunctions.Directional.AbstractDirection}:
- CorrelationFunctions.Directional.DirX()
- CorrelationFunctions.Directional.DirY()
-```
-"""
-directions(data :: CorrelationData) = data.directions
-
-"""
-    direction ∈ corrdata
-
-Return `true` in correlation data `corrdata` is computed for a
-direction `direction`.
-"""
-Base.in(direction :: AbstractDirection, data :: CorrelationData) =
-    direction ∈ directions(data)
