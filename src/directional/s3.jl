@@ -24,6 +24,34 @@ function s3_plane(array :: AbstractArray,
     return result / length(array)
 end
 
+"""
+    s3(array; [planes :: Vector{AbstractPlane}, len])
+
+Calculate the three-point correlation function using a right triangle
+pattern.
+
+This function takes an array and a vector of planes parallel to axes
+of the array. For each plane all possible right triangles with length
+of a side ≤ `len` and parallel to that plane are generated and tested
+against the array. A dictionary of type `Dict{AbstractPlane,
+Matrix{Float64}}` is returned as a result. Indices of arrays equal to
+lengths of catheti of a right triangle. This function works only with
+periodic boundary conditions.
+
+The following invariants hold:
+```jldoctest
+julia> array = rand(Bool, (100, 100));
+julia> vals2 = s2(array, 1; periodic = true);
+julia> vals3 = s3(array);
+julia> vals2[DirX()] == vals3[PlaneXY][:, 1]
+true
+julia> vals2[DirY()] == vals3[PlaneXY][1, :]
+true
+```
+The same is true for other planes.
+
+See also: [`AbstractPlane`](@ref), [`s2`](@ref).
+"""
 function s3(array  :: AbstractArray;
             planes :: Vector{AbstractPlane} = default_planes(array),
             len                             = (array |> size |> minimum) ÷ 2)

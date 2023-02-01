@@ -21,3 +21,4 @@ Here is a documentation for each of those modules and some helper functions.
 * **[Correlation Maps](@ref)**. Correlation maps or correlation functions in all
   directions.
 * **[Utilities](@ref)**. Utility functions.
+* **[Higher order statistics](@ref)**. Three-point correlation functions.
