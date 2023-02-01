@@ -45,12 +45,15 @@ include("directional/surface.jl")
 include("directional/chord-length.jl")
 # FIXME: not actually directional, but uses the same set of functions
 include("directional/pore-size.jl")
+include("directional/planes.jl")
+include("directional/s3.jl")
 
 export l2, s2, c2,
     surfsurf, surfvoid, lowfreq_energy_ratio, chord_length, pore_size,
     ChordLengthInfo, CorrelationData,
     AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans,
-    correlation_length
+    correlation_length,
+    AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ, s3
 
 end # Directional
 
