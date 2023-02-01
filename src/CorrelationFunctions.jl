@@ -49,7 +49,8 @@ include("directional/pore-size.jl")
 export l2, s2, c2,
     surfsurf, surfvoid, lowfreq_energy_ratio, chord_length, pore_size,
     ChordLengthInfo, CorrelationData,
-    AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans
+    AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans,
+    correlation_length
 
 end # Directional
 

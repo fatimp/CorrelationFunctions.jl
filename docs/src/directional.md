@@ -79,6 +79,10 @@ mean(a, [U.DirX(), U.DirY()])
 Calling `Statistics.mean` without the second argument averages along all computed
 directions.
 
+```@docs
+Directional.correlation_length
+```
+
 ## Boundary Conditions
 
 When calculating the value of correlation functions like $S_2$ or $L_2$ it may

@@ -30,6 +30,12 @@ function CorrelationData(data :: CorrelationData)
                            Dict(x => total[x]   for x in directions))
 end
 
+"""
+    correlation_length(cd :: CorrelationData)
+
+Return length of correlation vectors stored in `cd`.
+"""
+correlation_length(cd :: CorrelationData) = cd[cd |> keys |> first] |> length
 
 # Undocumented AbstractDict interface
 Base.keys(cd :: CorrelationData) = cd.directions
