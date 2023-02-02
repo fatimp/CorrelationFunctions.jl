@@ -70,9 +70,9 @@ end
 The same as s3(array .= phase; ...). Kept for consistency with other
 parts of the API.
 """
-function s3(array        :: AbstractArray, phase;
+function s3(array        :: T, phase;
             planes       :: Vector{AbstractPlane} = default_planes(array),
-            len = (array |> size |> minimum) ÷ 2)
-    # BitArray's are too damn slow
-    return s3(Array(array .== phase); planes, len)
+            len = (array |> size |> minimum) ÷ 2) where T <: AbstractArray
+    # Prevent implicit conversion to BitArray, they are slow
+    return s3(T(array .== phase); planes, len)
 end
