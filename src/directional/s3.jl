@@ -1,5 +1,3 @@
-function s3 end
-
 # This works just like autocorrelation, but replaces (*) with generic
 # ternary operation.
 function autocorr3(array :: AbstractArray,
