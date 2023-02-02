@@ -67,7 +67,7 @@ conditions.
 See also: [`s2`](@ref), [`surfsurf`](@ref), [`surfvoid`](@ref).
 """
 function S2FTPlans(array    :: AbstractArray,
-                   topology :: Topology)
+                   topology :: AbstractTopology)
     m = expand_coefficient(topology)
     fft_plans  = Dict(s => zeros(Float64, m*s) |> plan_rfft for s in size(array))
     ifft_plans = Dict(s => plan_irfft(fft_plans[s] * zeros(Float64, m*s), m*s) for s in size(array))

@@ -8,9 +8,9 @@ manhattan_dist(x :: NTuple{N, Int}, y :: NTuple{N, Int}) where N =
 manhattan_dist(x :: CartesianIndex{N}, y :: CartesianIndex{N}) where N =
     manhattan_dist(x |> Tuple, y |> Tuple)
 
-abstract type Topology end
-struct Plane <: Topology end # For non-periodic c2
-struct Torus <: Topology end # For periodic c2
+abstract type AbstractTopology end
+struct Plane <: AbstractTopology end # For non-periodic c2
+struct Torus <: AbstractTopology end # For periodic c2
 
 function wrapidx(idx :: CartesianIndex{N}, array :: AbstractArray{T, N}) where {T, N}
     tuple = mod.(Tuple(idx), axes(array))
@@ -98,7 +98,7 @@ Images.label_components(input :: AbstractArray, :: Plane) = Images.label_compone
 # The bad thing is that Julia is against any beauty.
 
 function edt(array    :: AbstractArray{Bool},
-             topology :: Topology)
+             topology :: AbstractTopology)
     len = array |> length |> Float64
     binary = map(x -> len^2*(1-x), array)
     return edt!(binary, topology) .|> sqrt
@@ -167,7 +167,8 @@ function edt!(array :: AbstractVector{Float64}, :: Torus)
     return array
 end
 
-function edt!(array :: AbstractMatrix{Float64}, topology :: Topology)
+function edt!(array    :: AbstractMatrix{Float64},
+              topology :: AbstractTopology)
     x, y = size(array)
     local edtfn!(x) = edt!(x, topology)
 
@@ -180,7 +181,8 @@ function edt!(array :: AbstractMatrix{Float64}, topology :: Topology)
     return array
 end
 
-function edt!(array :: AbstractArray{Float64, 3}, topology :: Topology)
+function edt!(array    :: AbstractArray{Float64, 3},
+              topology :: AbstractTopology)
     x, y, z = size(array)
     local edtfn!(x) = edt!(x, topology)
 
