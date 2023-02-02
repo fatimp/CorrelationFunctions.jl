@@ -49,8 +49,8 @@ function iterate_adjacent(index :: CartesianIndex{N},
     return (wrapidx(index + adj, array) for adj in adjacent_elements(N))
 end
 
-function Images.label_components(input :: AbstractArray{T, N},
-                                 _     :: Torus) where {T <: Integer, N}
+function label_components(input :: AbstractArray{T, N},
+                          _     :: Torus) where {T <: Integer, N}
     # -1 means an absence of label
     output = fill(-1, size(input))
     # Current label
@@ -88,10 +88,12 @@ function Images.label_components(input :: AbstractArray{T, N},
     return output
 end
 
-Images.label_components(input :: AbstractArray, :: Plane) = Images.label_components(input)
+label_components(input :: AbstractArray, :: Plane) = Images.label_components(input)
 ## FIXME: Maybe really parallel algorithm is needed here
 Images.label_components(input :: CuArray, topology :: AbstractTopology) =
-    CuArray(Images.label_components(Array(input), topology))
+    CuArray(label_components(Array(input), topology))
+Images.label_components(input :: AbstractArray, topology :: AbstractTopology) =
+    label_components(input, topology)
 
 
 ################################
