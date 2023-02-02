@@ -1,9 +1,3 @@
-mylabel(img, periodic::Bool) =
-    label_components(img, periodic ? Torus() : Plane())
-mylabel(img::CuArray, periodic::Bool) =
-    CuArray(mylabel(Array(img), periodic))
-
-
 @doc raw"""
     c2(image, phase; periodic = false)
 
@@ -19,7 +13,8 @@ julia> c2([1 0; 0 1], 1; periodic=true)
 ```
 """
 function c2(image, phase; periodic :: Bool = false)
-    labeled_img = mylabel(image .== phase, periodic)
+    topology = periodic ? Torus() : Plane()
+    labeled_img = label_components(image .== phase, topology)
     labels = maximum(labeled_img)
     sim = periodic ? labeled_img : zeropad(labeled_img)
     plan = plan_rfft(sim)
