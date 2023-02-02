@@ -24,4 +24,5 @@ This section describes higher order correlation functions.
 
 ```@docs
 Directional.s3
+Directional.c3
 ```

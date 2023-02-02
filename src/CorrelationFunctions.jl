@@ -47,6 +47,7 @@ include("directional/chord-length.jl")
 include("directional/pore-size.jl")
 include("directional/planes.jl")
 include("directional/s3.jl")
+include("directional/c3.jl")
 
 export l2, s2, c2,
     surfsurf, surfvoid, lowfreq_energy_ratio, chord_length, pore_size,

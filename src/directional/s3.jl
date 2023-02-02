@@ -67,7 +67,7 @@ end
 """
     s3(array, phase; [planes :: Vector{AbstractPlane}, len])
 
-The same as s3(array .= phase; ...). Kept for consistency with other
+The same as `s3(array .== phase; ...)`. Kept for consistency with other
 parts of the API.
 """
 function s3(array        :: T, phase;

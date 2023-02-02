@@ -89,6 +89,10 @@ function Images.label_components(input :: AbstractArray{T, N},
 end
 
 Images.label_components(input :: AbstractArray, :: Plane) = Images.label_components(input)
+## FIXME: Maybe really parallel algorithm is needed here
+Images.label_components(input :: CuArray, topology :: AbstractTopology) =
+    CuArray(Images.label_components(Array(input), topology))
+
 
 ################################
 # Euclidean distance transform #
