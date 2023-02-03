@@ -13,7 +13,7 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
-CUDA = "3.2, 4"
+CUDA = "3.2"
 CircularArrays = "1.2"
 FFTW = "1.4"
 Images = "0.24, 0.25"
