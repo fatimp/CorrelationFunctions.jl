@@ -4,9 +4,9 @@ function padded_area(array :: AbstractArray{<:Any, N},
     return prod(size(array) .- shift)
 end
 
-function padshift(array :: AbstractArray{<:Any, N},
-                  shift :: NTuple{N, Int}) where N
-    result = similar(array)
+function padshift!(result :: AbstractArray{<:Any, N},
+                   array :: AbstractArray{<:Any, N},
+                   shift :: NTuple{N, Int}) where N
     result .= 0
     indices = CartesianIndices(array)
     fidx, lidx = first(indices), last(indices)
@@ -17,8 +17,8 @@ function padshift(array :: AbstractArray{<:Any, N},
     return result
 end
 
-arrayshift(array, shift, topology :: Plane) = padshift(array, shift)
-arrayshift(array, shift, topology :: Torus) = circshift(array, shift)
+arrayshift!(result, array, shift, topology :: Plane) = padshift!(result, array, shift)
+arrayshift!(result, array, shift, topology :: Torus) = circshift!(result, array, shift)
 
 autocorr3_norm(array :: AbstractArray, :: Any, :: Any, :: Torus) = length(array)
 autocorr3_norm(array :: AbstractArray, s1, s2, :: Plane) =
@@ -31,18 +31,19 @@ function autocorr3_plane(array    :: AbstractArray,
                          plane    :: AbstractPlane,
                          topology :: AbstractTopology,
                          len)
+    rot1 = similar(array)
+    rot2 = similar(array)
     shift2, shift1 = unit_shifts(array, plane)
     result = zeros(Float64, (len, len))
 
     for i in 1:len
         s1 = (i - 1) .* shift1
-        rot1 = arrayshift(array, s1, topology)
+        rot1 = arrayshift!(rot1, array, s1, topology)
         for j in 1:len
             s2 = (j - 1) .* shift2
-            rot2 = arrayshift(array, s2, topology)
-
-            acc = op.(array, rot1, rot2)
-            result[j, i] = sum(acc) / autocorr3_norm(array, s1, s2, topology)
+            rot2 = arrayshift!(rot2, array, s2, topology)
+            result[j, i] = mapreduce(op, +, array, rot1, rot2) /
+                autocorr3_norm(array, s1, s2, topology)
         end
     end
 
