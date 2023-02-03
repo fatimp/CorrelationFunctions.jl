@@ -31,17 +31,19 @@ function autocorr3_plane(array    :: AbstractArray,
                          plane    :: AbstractPlane,
                          topology :: AbstractTopology,
                          len)
-    shift1, shift2 = unit_shifts(array, plane)
+    shift2, shift1 = unit_shifts(array, plane)
     result = zeros(Float64, (len, len))
 
-    for idx in CartesianIndices(result)
-        s1 = (idx[1] - 1) .* shift1
-        s2 = (idx[2] - 1) .* shift2
-
+    for i in 1:len
+        s1 = (i - 1) .* shift1
         rot1 = arrayshift(array, s1, topology)
-        rot2 = arrayshift(array, s2, topology)
-        acc = op.(array, rot1, rot2)
-        result[idx] = sum(acc) / autocorr3_norm(array, s1, s2, topology)
+        for j in 1:len
+            s2 = (j - 1) .* shift2
+            rot2 = arrayshift(array, s2, topology)
+
+            acc = op.(array, rot1, rot2)
+            result[j, i] = sum(acc) / autocorr3_norm(array, s1, s2, topology)
+        end
     end
 
     return result
