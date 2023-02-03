@@ -76,16 +76,20 @@ end
 end
 
 @testcase "Check some properties of s3" begin
-    s2 = D.s2(rand_array, true; periodic = true)
-    s3 = D.s3(rand_array, true)
-    @test relerr(maximum(s3[D.PlaneXY()][2:end, 2:end]), prob[2]^3) < 0.04
-    @test s3[D.PlaneXY()][:,1] == s2[D.DirX()]
-    @test s3[D.PlaneXY()][1,:] == s2[D.DirY()]
+    for periodic in (false, true)
+        s2 = D.s2(rand_array, true; periodic)
+        s3 = D.s3(rand_array, true; periodic)
+        @test relerr(maximum(s3[D.PlaneXY()][2:end, 2:end]), prob[2]^3) < 0.04
+        @test s3[D.PlaneXY()][:,1] == s2[D.DirX()]
+        @test s3[D.PlaneXY()][1,:] == s2[D.DirY()]
+    end
 end
 
 @testcase "Check some properties of c3" begin
-    c2 = D.c2(rand_array, true; periodic = true)
-    c3 = D.c3(rand_array, true)
-    @test c3[D.PlaneXY()][:,1] == c2[D.DirX()]
-    @test c3[D.PlaneXY()][1,:] == c2[D.DirY()]
+    for periodic in (false, true)
+        c2 = D.c2(rand_array, true; periodic)
+        c3 = D.c3(rand_array, true; periodic)
+        @test c3[D.PlaneXY()][:,1] == c2[D.DirX()]
+        @test c3[D.PlaneXY()][1,:] == c2[D.DirY()]
+    end
 end
