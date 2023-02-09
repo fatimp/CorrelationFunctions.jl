@@ -34,6 +34,7 @@ using Images: feature_transform, distance_transform, label_components
 using Base.Iterators
 using FFTW: plan_rfft, plan_irfft
 using CircularArrays: CircularArray
+using CUDA: CuArray
 
 include("directional/corrdata.jl")
 include("directional/slicer.jl")
