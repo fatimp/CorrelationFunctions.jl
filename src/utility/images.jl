@@ -212,20 +212,6 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 # Edge detection #
 ##################
 
-scale_3x3(:: AbstractArray{<:Any, 2}) = 6
-scale_3x3(:: AbstractArray{<:Any, 3}) = 18
-scale_5x5(:: AbstractArray{<:Any, 2}) = 30
-scale_5x5(:: AbstractArray{<:Any, 3}) = 150
-
-function edge_filter(array :: AbstractArray{<:Any, N}, width, scale) where N
-    filter    = Images.centered(ones(Float64, (width for _ in 1:N)...))
-    center    = width^N - 1
-    centeridx = CartesianIndex((0 for _ in 1:N)...)
-    filter[centeridx] = -center
-
-    return filter / scale(array)
-end
-
 """
     FilterKernel
 
@@ -256,8 +242,23 @@ See also: [`FilterKernel`](@ref), [`extract_edges`](@ref).
 """
 struct Kernel5x5 <: FilterKernel end
 
-edge_filter(array :: AbstractArray, :: Kernel3x3) = edge_filter(array, 3, scale_3x3)
-edge_filter(array :: AbstractArray, :: Kernel5x5) = edge_filter(array, 5, scale_5x5)
+edge_filter_factor(:: Kernel3x3, :: AbstractArray{<:Any, 2}) = 6
+edge_filter_factor(:: Kernel3x3, :: AbstractArray{<:Any, 3}) = 18
+edge_filter_factor(:: Kernel5x5, :: AbstractArray{<:Any, 2}) = 30
+edge_filter_factor(:: Kernel5x5, :: AbstractArray{<:Any, 3}) = 150
+
+edge_filter_width(:: Kernel3x3) = 3
+edge_filter_width(:: Kernel5x5) = 5
+
+function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: FilterKernel) where N
+    width     = edge_filter_width(kernel)
+    filter    = Images.centered(ones(Float64, (width for _ in 1:N)...))
+    center    = width^N - 1
+    centeridx = CartesianIndex((0 for _ in 1:N)...)
+    filter[centeridx] = -center
+
+    return filter / edge_filter_factor(kernel, array)
+end
 
 """
     BoundaryConditions
