@@ -55,8 +55,10 @@ Utilities.BoundaryConditions
 Utilities.BCPeriodic
 Utilities.BCReflect
 Utilities.FilterKernel
-Utilities.Kernel3x3
-Utilities.Kernel5x5
+Utilities.ConvKernel
+Utilities.MorphKernel
+Utilities.ConvKernel3x3
+Utilities.ConvKernel5x5
 Utilities.EdgeFilter
 ```
 
