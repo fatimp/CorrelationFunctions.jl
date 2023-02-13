@@ -56,10 +56,7 @@ Utilities.BCPeriodic
 Utilities.BCReflect
 Utilities.FilterKernel
 Utilities.ConvKernel
-Utilities.MorphKernel
-Utilities.ConvKernel3x3
-Utilities.ConvKernel5x5
-Utilities.ErosionKernel5x5
+Utilities.ErosionKernel
 Utilities.EdgeFilter
 ```
 

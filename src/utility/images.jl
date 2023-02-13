@@ -217,86 +217,58 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 
 Abstract type for one of edge detecting filters.
 
-See also: [`ConvKernel`](@ref), [`MorphKernel`](@ref).
+See also: [`ConvKernel`](@ref), [`ErosionKernel`](@ref).
 """
 abstract type FilterKernel end
 
 """
-    ConvKernel
+    ConvKernel(n)
 
-Abstract type for filters which work convolving a signal with a filter
-kernel.
+Convolution kernel of width `n` used in edge detection. Values `3` and
+`5` are possible values for `n`. Using `n = 5` works best for the most
+cases (`lowfreq_energy_ratio(array) > 0.97`).
 
-See also: [`FilterKernel`](@ref), [`ConvKernel3x3`](@ref),
-[`ConvKernel5x5`](@ref).
+See also: [`FilterKernel`](@ref), [`extract_edges`](@ref).
 """
-abstract type ConvKernel <: FilterKernel end
-
-"""
-    MorphKernel
-
-Abstract type for filters which work applying generalized convolution
-with a specific kernel to an input signal.
-
-See also: [`FilterKernel`](@ref).
-"""
-abstract type MorphKernel <: FilterKernel end
+struct ConvKernel <: FilterKernel
+    width :: Int64
+end
 
 """
-    ConvKernel3x3()
+    ErosionKernel(n)
 
-Make a suboptimal 3x3 edge detection filter. This filter must be used
-only for images with insufficient resolution
-(`lowfreq_energy_ratio(array) ≈ 0.97`).
+Erosion kernel of width `n` used in edge detection. Used in
+three-point surface correlation functions.
 
-See also: [`ConvKernel`](@ref), [`extract_edges`](@ref).
+See also: [`FilterKernel`](@ref), [`extract_edges`](@ref).
 """
-struct ConvKernel3x3 <: ConvKernel end
+struct ErosionKernel <: FilterKernel
+    width :: Int64
+end
 
-"""
-    ConvKernel5x5()
+# Values are (2D case factor, 3D case factor)
+const conv_factors = Dict(
+    3 => (6, 18),
+    5 => (30, 150)
+)
 
-Make a 5x5 edge detection filter which is suited for the most cases
-(`lowfreq_energy_ratio(array) > 0.97`).
-
-See also: [`ConvKernel`](@ref), [`extract_edges`](@ref).
-"""
-struct ConvKernel5x5 <: ConvKernel end
-
-"""
-    ErosionKernel5x5()
-
-Make a 5x5 edge detection filter which works by subtracting erosion
-from the original input. This kernel is not very precise and is used
-for n-point correlation functions.
-
-See also: [`MorphKernel`](@ref), [`extract_edges`](@ref).
-"""
-struct ErosionKernel5x5 <: MorphKernel end
-
-edge_filter_factor(:: ConvKernel3x3,    :: AbstractArray{<:Any, 2}) = 6
-edge_filter_factor(:: ConvKernel3x3,    :: AbstractArray{<:Any, 3}) = 18
-edge_filter_factor(:: ConvKernel5x5,    :: AbstractArray{<:Any, 2}) = 30
-edge_filter_factor(:: ConvKernel5x5,    :: AbstractArray{<:Any, 3}) = 150
-edge_filter_factor(:: ErosionKernel5x5, :: Any) = 2
-
-edge_filter_width(:: ConvKernel3x3)    = 3
-edge_filter_width(:: ConvKernel5x5)    = 5
-edge_filter_width(:: ErosionKernel5x5) = 5
+const erosion_factors = Dict(
+    5 => 2
+)
 
 function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ConvKernel) where N
-    width     = edge_filter_width(kernel)
+    width     = kernel.width
     filter    = Images.centered(ones(Float64, (width for _ in 1:N)...))
     center    = width^N - 1
     centeridx = CartesianIndex((0 for _ in 1:N)...)
     filter[centeridx] = -center
     @assert isodd(width)
 
-    return filter / edge_filter_factor(kernel, array)
+    return filter / conv_factors[width][N-1]
 end
 
-function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: MorphKernel) where N
-    width   = edge_filter_width(kernel)
+function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ErosionKernel) where N
+    width   = kernel.width
     radius  = width ÷ 2
     irange  = Tuple(-radius:radius for _ in 1:N) :: NTuple{N, UnitRange{Int64}}
     indices = CartesianIndices(irange)
@@ -347,9 +319,6 @@ See also: [`BoundaryConditions`](@ref), [`extract_edges`](@ref).
 """
 struct BCReflect <: BoundaryConditions end
 
-struct EdgeFilter{BC <: BoundaryConditions, Kernel <: FilterKernel}
-end
-
 """
     EdgeFilter(bc, kernel)
 
@@ -360,8 +329,10 @@ kernel of type `FilterKernel`.
 See also: [`extract_edges`](@ref), [`BoundaryConditions`](@ref),
 [`FilterKernel`](@ref).
 """
-EdgeFilter(bc :: BC, kernel :: Kernel) where {BC <: BoundaryConditions, Kernel <: FilterKernel} =
-    EdgeFilter{BC, Kernel}()
+struct EdgeFilter{BC <: BoundaryConditions, Kernel <: FilterKernel}
+    bc     :: BC
+    kernel :: Kernel
+end
 
 """
     extract_edges(array, filter)
@@ -375,8 +346,8 @@ See also: [`EdgeFilter`](@ref), [`BoundaryConditions`](@ref).
 """
 function extract_edges end
 
-extract_edges(array :: AbstractArray, :: EdgeFilter{BC, Filter}) where {BC, Filter} =
-    extract_edges(array, Filter(), BC())
+extract_edges(array :: AbstractArray, filter :: EdgeFilter) =
+    extract_edges(array, filter.kernel, filter.bc)
 
 # On GPU we apply filter with FFT transform because FFT is a basic
 # operation on arrays
@@ -401,10 +372,10 @@ extract_edges(array :: AbstractArray, filter :: ConvKernel, bc :: BoundaryCondit
     abs.(Images.imfilter(array, edge_filter(array, filter), edge2pad(bc)))
 
 # erode from ImageMorphology.jl does not allow to use a custom kernel
-extract_edges(array :: AbstractArray, filter :: MorphKernel, bc :: BoundaryConditions) =
+extract_edges(array :: AbstractArray, filter :: ErosionKernel, bc :: BoundaryConditions) =
     let kernel = edge_filter(array, filter);
         eroded = Images.imfilter(array, kernel, edge2pad(bc)) .== sum(kernel)
-        (array .- eroded) / edge_filter_factor(filter, array)
+        (array .- eroded) / erosion_factors[filter.width]
     end
 
 """
@@ -417,4 +388,4 @@ function choose_filter end
 
 choose_filter(filter :: EdgeFilter, :: Bool) = filter
 choose_filter(:: Nothing, periodic :: Bool) =
-    periodic ? EdgeFilter(BCPeriodic(), ConvKernel5x5()) : EdgeFilter(BCReflect(), ConvKernel5x5())
+    periodic ? EdgeFilter(BCPeriodic(), ConvKernel(5)) : EdgeFilter(BCReflect(), ConvKernel(5))

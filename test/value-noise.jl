@@ -21,19 +21,19 @@ end
 ssfp(array, phase; periodic) =
     D.surfsurf(array, phase;
                periodic, filter = U.EdgeFilter(U.BCPeriodic(),
-                                               U.ConvKernel5x5()))
+                                               U.ConvKernel(5)))
 ssfz(array, phase; periodic) =
     D.surfsurf(array, phase;
                periodic, filter = U.EdgeFilter(U.BCReflect(),
-                                               U.ConvKernel5x5()))
+                                               U.ConvKernel(5)))
 svfp(array, phase; periodic) =
     D.surfvoid(array, phase;
                periodic, filter = U.EdgeFilter(U.BCPeriodic(),
-                                               U.ConvKernel5x5()))
+                                               U.ConvKernel(5)))
 svfz(array, phase; periodic) =
     D.surfvoid(array, phase;
                periodic, filter = U.EdgeFilter(U.BCReflect(),
-                                               U.ConvKernel5x5()))
+                                               U.ConvKernel(5)))
 
 testreflect(D.s2)
 testreflect(D.l2)
