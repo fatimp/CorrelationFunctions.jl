@@ -93,3 +93,14 @@ end
         @test c3[D.PlaneXY()][1,:] == c2[D.DirY()]
     end
 end
+
+@testcase "Check some properties of surf3" begin
+    for periodic in (false, true)
+        topology = periodic ? U.Torus() : U.Plane()
+        flt = U.EdgeFilter(topology, U.ErosionKernel(5))
+        ss  = D.surfsurf(rand_array, true; periodic, filter = flt)
+        sss = D.surf3(rand_array, true; periodic)
+        @test sss[D.PlaneXY()][:,1] == ss[D.DirX()]
+        @test sss[D.PlaneXY()][1,:] == ss[D.DirY()]
+    end
+end
