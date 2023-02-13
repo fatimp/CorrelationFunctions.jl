@@ -6,9 +6,8 @@ const noisegen = [
 
 function test_surf(fn, image)
     for kernel in [U.ConvKernel(5), U.ErosionKernel(5)]
-        flt = U.EdgeFilter(U.Torus(), kernel)
-        cpu_map = fn(image, true;          periodic = true, filter = flt)
-        gpu_map = fn(CuArray(image), true; periodic = true, filter = flt)
+        cpu_map = fn(image, true;          periodic = true, filter = kernel)
+        gpu_map = fn(CuArray(image), true; periodic = true, filter = kernel)
         @test CuArray(cpu_map) ≈ gpu_map
     end
 end

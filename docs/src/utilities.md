@@ -57,7 +57,6 @@ Utilities.Torus
 Utilities.FilterKernel
 Utilities.ConvKernel
 Utilities.ErosionKernel
-Utilities.EdgeFilter
 ```
 
 ## Misc

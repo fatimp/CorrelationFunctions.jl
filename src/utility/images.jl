@@ -321,35 +321,19 @@ function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ErosionKernel) 
 end
 
 """
-    EdgeFilter(topology, kernel)
-
-Make an edge detection filter for `extract_edges` function. `topology`
-is a topology of the input (must be of type `AbstractTopology`) and
-`kernel` is the kernel of type `FilterKernel`.
-
-See also: [`extract_edges`](@ref), [`AbstractTopology`](@ref),
-[`FilterKernel`](@ref).
-"""
-struct EdgeFilter{BC <: AbstractTopology, Kernel <: FilterKernel}
-    bc     :: BC
-    kernel :: Kernel
-end
-
-"""
-    extract_edges(array, filter)
+    extract_edges(array, filter, topology)
 
 Perform edge extraction in the same way as in `surfsurf` and
 `surfvoid` functions from `Map` and `Directional` modules. `array` may
-be a CUDA array or an ordinary array. `filter` is a value of `EdgeFilter`
-type which selects an edge extraction algorithm.
+be a CUDA array or an ordinary array. `filter` is a value of
+`FilterKernel` type which selects an edge extraction
+algorithm. Boundary conditions are affected by `topology`. Periodic
+boundary conditions are assumed if `topology` is `Torus()` and
+reflection from the boundaries is used if `topology` is `Plane()`.
 
-See also: [`EdgeFilter`](@ref), [`FilterKernel`](@ref),
-[`AbstractTopology`](@ref).
+See also: [`FilterKernel`](@ref), [`AbstractTopology`](@ref).
 """
 function extract_edges end
-
-extract_edges(array :: AbstractArray, filter :: EdgeFilter) =
-    extract_edges(array, filter.kernel, filter.bc)
 
 # On GPU we apply filter with FFT transform because FFT is a basic
 # operation on arrays
@@ -393,15 +377,3 @@ extract_edges(array :: CuArray, filter :: ErosionKernel, :: Torus) =
         eroded = filter_periodic(array, kernel) .== sum(kernel)
         (array .- eroded) / erosion_factors[filter.width]
     end
-
-"""
-    choose_filter(filter, periodic)
-
-Choose the most suitable edge detection filter if `filter` is
-`nothing`.
-"""
-function choose_filter end
-
-choose_filter(filter :: EdgeFilter, :: Bool) = filter
-choose_filter(:: Nothing, periodic :: Bool) =
-    periodic ? EdgeFilter(Torus(), ConvKernel(5)) : EdgeFilter(Plane(), ConvKernel(5))

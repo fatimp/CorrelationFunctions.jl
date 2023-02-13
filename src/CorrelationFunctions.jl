@@ -18,7 +18,7 @@ include("utility/directions.jl")
 export read_cuboid, lowfreq_energy_ratio,
     extract_edges, choose_filter, EdgeFilter,
     FilterKernel, ConvKernel, ErosionKernel,
-    AbstractTopology, Torus, Plane, Maybe,
+    AbstractTopology, Torus, Plane,
     AbstractDirection, DirX, DirY, DirZ,
     DirXY, DirYX, DirXZ, DirZX, DirYZ, DirZY,
     DirXYZ, DirXZY, DirYXZ, DirZYX,
@@ -70,8 +70,7 @@ include("map/misc.jl")
 include("map/cc_map.jl")
 include("map/s2_map.jl")
 include("map/c2_map.jl")
-include("map/ss_map.jl")
-include("map/sv_map.jl")
+include("map/surface.jl")
 
 export s2, c2, surfsurf, surfvoid, cross_correlation,
     dir_from_map, average_directions
