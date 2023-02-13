@@ -380,7 +380,7 @@ end
 # erode from ImageMorphology.jl does not allow to use a custom kernel
 extract_edges(array :: AbstractArray, filter :: ErosionKernel, topology :: AbstractTopology) =
     let kernel = edge_filter(array, filter);
-        eroded = Images.imfilter(array, kernel, edge2pad(topology)) .== sum(kernel)
+        eroded = Images.imfilter(Float64, array, kernel, edge2pad(topology)) .== sum(kernel)
         (array .- eroded) / erosion_factors[filter.width]
     end
 
