@@ -353,8 +353,7 @@ extract_edges(array :: AbstractArray, filter :: EdgeFilter) =
 
 # On GPU we apply filter with FFT transform because FFT is a basic
 # operation on arrays
-function extract_edges(array :: CuArray, filter :: ConvKernel, :: Torus)
-    kernel = edge_filter(array, filter)
+function filter_periodic(array, kernel)
     cflt = CircularArray(zeros(Float64, size(array)))
     cflt[map(axis -> axis .+ 1, axes(kernel))...] = kernel
     flt = CuArray(cflt.data)
@@ -364,7 +363,7 @@ function extract_edges(array :: CuArray, filter :: ConvKernel, :: Torus)
     ftarr = plan * array
     ftres = @. conj(ftflt) * ftarr
 
-    return abs.(irfft(ftres, size(array, 1)))
+    return irfft(ftres, size(array, 1))
 end
 
 edge2pad(:: Torus) = Images.Pad(:circular)
@@ -381,6 +380,17 @@ end
 extract_edges(array :: AbstractArray, filter :: ErosionKernel, topology :: AbstractTopology) =
     let kernel = edge_filter(array, filter);
         eroded = Images.imfilter(Float64, array, kernel, edge2pad(topology)) .== sum(kernel)
+        (array .- eroded) / erosion_factors[filter.width]
+    end
+
+# CUDA methods
+extract_edges(array :: CuArray{<:Any, N}, filter :: ConvKernel, :: Torus) where N =
+    let kernel = edge_filter(array, filter)
+        abs.(filter_periodic(array, kernel)) / conv_factors[filter.width][N-1]
+    end
+extract_edges(array :: CuArray, filter :: ErosionKernel, :: Torus) =
+    let kernel = edge_filter(array, filter);
+        eroded = filter_periodic(array, kernel) .== sum(kernel)
         (array .- eroded) / erosion_factors[filter.width]
     end
 
