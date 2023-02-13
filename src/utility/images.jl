@@ -268,7 +268,7 @@ function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ConvKernel) whe
     filter[centeridx] = -center
     @assert isodd(width)
 
-    return filter / conv_factors[width][N-1]
+    return filter
 end
 
 function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ErosionKernel) where N
@@ -372,8 +372,12 @@ end
 edge2pad(:: BCPeriodic) = Images.Pad(:circular)
 edge2pad(:: BCReflect)  = Images.Pad(:reflect)
 
-extract_edges(array :: AbstractArray, filter :: ConvKernel, bc :: BoundaryConditions) =
-    abs.(Images.imfilter(array, edge_filter(array, filter), edge2pad(bc)))
+function extract_edges(array  :: AbstractArray{<:Any, N},
+                       filter :: ConvKernel,
+                       bc     :: BoundaryConditions) where N
+    edge = abs.(Images.imfilter(array, edge_filter(array, filter), edge2pad(bc)))
+    return edge / conv_factors[filter.width][N-1]
+end
 
 # erode from ImageMorphology.jl does not allow to use a custom kernel
 extract_edges(array :: AbstractArray, filter :: ErosionKernel, bc :: BoundaryConditions) =
