@@ -18,28 +18,10 @@ function testreflect(func)
     end
 end
 
-ssfp(array, phase; periodic) =
-    D.surfsurf(array, phase;
-               periodic, filter = U.EdgeFilter(U.Torus(),
-                                               U.ConvKernel(5)))
-ssfz(array, phase; periodic) =
-    D.surfsurf(array, phase;
-               periodic, filter = U.EdgeFilter(U.Plane(),
-                                               U.ConvKernel(5)))
-svfp(array, phase; periodic) =
-    D.surfvoid(array, phase;
-               periodic, filter = U.EdgeFilter(U.Torus(),
-                                               U.ConvKernel(5)))
-svfz(array, phase; periodic) =
-    D.surfvoid(array, phase;
-               periodic, filter = U.EdgeFilter(U.Plane(),
-                                               U.ConvKernel(5)))
-
 testreflect(D.s2)
 testreflect(D.l2)
 testreflect(D.c2)
-testreflect(ssfp)
-testreflect(ssfz)
+testreflect(D.surfsurf)
 # TODO: somehow test histograms returned by pore_size and chord_length
 
 function testsurface(func)
@@ -49,7 +31,5 @@ function testsurface(func)
     end
 end
 
-testsurface(ssfp)
-testsurface(ssfz)
-testsurface(svfp)
-testsurface(svfz)
+testsurface(D.surfvoid)
+testsurface(D.surfsurf)
