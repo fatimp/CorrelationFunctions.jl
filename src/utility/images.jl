@@ -263,13 +263,26 @@ See also: [`ConvKernel`](@ref), [`extract_edges`](@ref).
 """
 struct ConvKernel5x5 <: ConvKernel end
 
-edge_filter_factor(:: ConvKernel3x3, :: AbstractArray{<:Any, 2}) = 6
-edge_filter_factor(:: ConvKernel3x3, :: AbstractArray{<:Any, 3}) = 18
-edge_filter_factor(:: ConvKernel5x5, :: AbstractArray{<:Any, 2}) = 30
-edge_filter_factor(:: ConvKernel5x5, :: AbstractArray{<:Any, 3}) = 150
+"""
+    ErosionKernel5x5()
 
-edge_filter_width(:: ConvKernel3x3) = 3
-edge_filter_width(:: ConvKernel5x5) = 5
+Make a 5x5 edge detection filter which works by subtracting erosion
+from the original input. This kernel is not very precise and is used
+for n-point correlation functions.
+
+See also: [`MorphKernel`](@ref), [`extract_edges`](@ref).
+"""
+struct ErosionKernel5x5 <: MorphKernel end
+
+edge_filter_factor(:: ConvKernel3x3,    :: AbstractArray{<:Any, 2}) = 6
+edge_filter_factor(:: ConvKernel3x3,    :: AbstractArray{<:Any, 3}) = 18
+edge_filter_factor(:: ConvKernel5x5,    :: AbstractArray{<:Any, 2}) = 30
+edge_filter_factor(:: ConvKernel5x5,    :: AbstractArray{<:Any, 3}) = 150
+edge_filter_factor(:: ErosionKernel5x5, :: Any) = 2
+
+edge_filter_width(:: ConvKernel3x3)    = 3
+edge_filter_width(:: ConvKernel5x5)    = 5
+edge_filter_width(:: ErosionKernel5x5) = 5
 
 function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ConvKernel) where N
     width     = edge_filter_width(kernel)
@@ -277,8 +290,25 @@ function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ConvKernel) whe
     center    = width^N - 1
     centeridx = CartesianIndex((0 for _ in 1:N)...)
     filter[centeridx] = -center
+    @assert isodd(width)
 
     return filter / edge_filter_factor(kernel, array)
+end
+
+function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: MorphKernel) where N
+    width   = edge_filter_width(kernel)
+    radius  = width ÷ 2
+    irange  = Tuple(-radius:radius for _ in 1:N) :: NTuple{N, UnitRange{Int64}}
+    indices = CartesianIndices(irange)
+    sqradius  = radius^2
+    @assert isodd(width)
+
+    result = map(indices) do idx
+        dist = sum(Tuple(idx) .^ 2)
+        dist <= sqradius
+    end
+
+    return Images.centered(result)
 end
 
 """
@@ -369,6 +399,13 @@ edge2pad(:: BCReflect)  = Images.Pad(:reflect)
 
 extract_edges(array :: AbstractArray, filter :: ConvKernel, bc :: BoundaryConditions) =
     abs.(Images.imfilter(array, edge_filter(array, filter), edge2pad(bc)))
+
+# erode from ImageMorphology.jl does not allow to use a custom kernel
+extract_edges(array :: AbstractArray, filter :: MorphKernel, bc :: BoundaryConditions) =
+    let kernel = edge_filter(array, filter);
+        eroded = Images.imfilter(array, kernel, edge2pad(bc)) .== sum(kernel)
+        (array .- eroded) / edge_filter_factor(filter, array)
+    end
 
 """
     choose_filter(filter, periodic)
