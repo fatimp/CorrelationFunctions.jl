@@ -251,10 +251,6 @@ const conv_factors = Dict(
     5 => (30, 150)
 )
 
-const erosion_factors = Dict(
-    5 => 2
-)
-
 """
     FilterKernel
 
@@ -289,8 +285,8 @@ See also: [`FilterKernel`](@ref), [`extract_edges`](@ref).
 """
 struct ErosionKernel <: FilterKernel
     width :: Int64
-    ErosionKernel(width) = width ∈ keys(erosion_factors) ?
-        new(width) : error("Unsupported width")
+    ErosionKernel(width) = isodd(width) ?
+        new(width) : error("Width must be odd")
 end
 
 function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ConvKernel) where N
@@ -362,9 +358,11 @@ end
 
 # erode from ImageMorphology.jl does not allow to use a custom kernel
 extract_edges(array :: AbstractArray, filter :: ErosionKernel, topology :: AbstractTopology) =
-    let kernel = edge_filter(array, filter);
-        eroded = Images.imfilter(Float64, array, kernel, edge2pad(topology)) .== sum(kernel)
-        (array .- eroded) / erosion_factors[filter.width]
+    let kernel = edge_filter(array, filter)
+        scale  = filter.width ÷ 2
+        eroded = isapprox.(Images.imfilter(Float64, array, kernel, edge2pad(topology)),
+                           sum(kernel); atol = 0.1)
+        (array .- eroded) / scale
     end
 
 # CUDA methods
@@ -373,7 +371,8 @@ extract_edges(array :: CuArray{<:Any, N}, filter :: ConvKernel, :: Torus) where 
         abs.(filter_periodic(array, kernel)) / conv_factors[filter.width][N-1]
     end
 extract_edges(array :: CuArray, filter :: ErosionKernel, :: Torus) =
-    let kernel = edge_filter(array, filter);
-        eroded = filter_periodic(array, kernel) .== sum(kernel)
-        (array .- eroded) / erosion_factors[filter.width]
+    let kernel = edge_filter(array, filter)
+        scale  = filter.width ÷ 2
+        eroded = isapprox.(filter_periodic(array, kernel), sum(kernel); atol = 0.1)
+        (array .- eroded) / scale
     end
