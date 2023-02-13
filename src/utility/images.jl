@@ -212,6 +212,16 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 # Edge detection #
 ##################
 
+# Values are (2D case factor, 3D case factor)
+const conv_factors = Dict(
+    3 => (6, 18),
+    5 => (30, 150)
+)
+
+const erosion_factors = Dict(
+    5 => 2
+)
+
 """
     FilterKernel
 
@@ -232,6 +242,8 @@ See also: [`FilterKernel`](@ref), [`extract_edges`](@ref).
 """
 struct ConvKernel <: FilterKernel
     width :: Int64
+    ConvKernel(width) = width ∈ keys(conv_factors) ?
+        new(width) : error("Unsupported width")
 end
 
 """
@@ -244,17 +256,9 @@ See also: [`FilterKernel`](@ref), [`extract_edges`](@ref).
 """
 struct ErosionKernel <: FilterKernel
     width :: Int64
+    ErosionKernel(width) = width ∈ keys(erosion_factors) ?
+        new(width) : error("Unsupported width")
 end
-
-# Values are (2D case factor, 3D case factor)
-const conv_factors = Dict(
-    3 => (6, 18),
-    5 => (30, 150)
-)
-
-const erosion_factors = Dict(
-    5 => 2
-)
 
 function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ConvKernel) where N
     width     = kernel.width
