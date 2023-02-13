@@ -8,9 +8,42 @@ manhattan_dist(x :: NTuple{N, Int}, y :: NTuple{N, Int}) where N =
 manhattan_dist(x :: CartesianIndex{N}, y :: CartesianIndex{N}) where N =
     manhattan_dist(x |> Tuple, y |> Tuple)
 
+"""
+    AbstractTopology
+
+Abstract type for describing topology of an input array.
+
+See also: [`Plane`](@ref), [`Torus`](@ref).
+"""
 abstract type AbstractTopology end
-struct Plane <: AbstractTopology end # For non-periodic c2
-struct Torus <: AbstractTopology end # For periodic c2
+
+@doc raw"""
+    Plane()
+
+Topology for calculation of correlation functions in non-periodic
+mode. Usually this means zero-padding of an input for out-of-bounds
+array access.
+
+**NB**: When extracting edges with `Plane` topology, reflection from
+array borders is used for out-of-bounds access. Although, it's natural
+to assume zero padding must be used, we want an equality
+$F_{ss}^{(false)} = F_{ss}^{(true)}$ for two-phase system, hence we
+cannot pad the input with some constant value.
+
+See also: [`AbstractTopology`](@ref).
+"""
+struct Plane <: AbstractTopology end
+
+"""
+    Torus()
+
+Topology for calculation of correlation functions in periodic mode. An
+input is extended to the infinity periodically as if it was wrapped
+around a torus.
+
+See also: [`AbstractTopology`](@ref).
+"""
+struct Torus <: AbstractTopology end
 
 function wrapidx(idx :: CartesianIndex{N}, array :: AbstractArray{T, N}) where {T, N}
     tuple = mod.(Tuple(idx), axes(array))
@@ -288,52 +321,16 @@ function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ErosionKernel) 
 end
 
 """
-    BoundaryConditions
+    EdgeFilter(topology, kernel)
 
-Abstract type which specifies boundary conditions for edge extraction filter.
+Make an edge detection filter for `extract_edges` function. `topology`
+is a topology of the input (must be of type `AbstractTopology`) and
+`kernel` is the kernel of type `FilterKernel`.
 
-See also: [`BCPeriodic`](@ref), [`BCReflect`](@ref).
-"""
-abstract type BoundaryConditions end
-
-"""
-    BCPeriodic()
-
-The signal is extended over borders periodically. These conditions
-have implementation for CPU and GPU and are default if `periodic`
-argument to surface functions is `true`.
-
-See also: [`BoundaryConditions`](@ref), [`extract_edges`](@ref).
-"""
-struct BCPeriodic <: BoundaryConditions end
-
-@doc raw"""
-    BCReflect()
-
-The signal is extended over borders by reflecting relative to the
-edge. This is a default setting when `periodic` argument to surface
-functions is `false`.
-
-**NB**: It's natural to assume zero padding must be used for
-non-periodic mode. But we want an equality
-$F_{ss}^{(false)} = F_{ss}^{(true)}$ for two-phase system, hence we
-cannot pad the input with some constant value.
-
-See also: [`BoundaryConditions`](@ref), [`extract_edges`](@ref).
-"""
-struct BCReflect <: BoundaryConditions end
-
-"""
-    EdgeFilter(bc, kernel)
-
-Make an edge detection filter for `extract_edges` function. `bc` are
-boundary conditions of type `BoundaryConditions` and `kernel` is the
-kernel of type `FilterKernel`.
-
-See also: [`extract_edges`](@ref), [`BoundaryConditions`](@ref),
+See also: [`extract_edges`](@ref), [`AbstractTopology`](@ref),
 [`FilterKernel`](@ref).
 """
-struct EdgeFilter{BC <: BoundaryConditions, Kernel <: FilterKernel}
+struct EdgeFilter{BC <: AbstractTopology, Kernel <: FilterKernel}
     bc     :: BC
     kernel :: Kernel
 end
@@ -346,7 +343,8 @@ Perform edge extraction in the same way as in `surfsurf` and
 be a CUDA array or an ordinary array. `filter` is a value of `EdgeFilter`
 type which selects an edge extraction algorithm.
 
-See also: [`EdgeFilter`](@ref), [`BoundaryConditions`](@ref).
+See also: [`EdgeFilter`](@ref), [`FilterKernel`](@ref),
+[`AbstractTopology`](@ref).
 """
 function extract_edges end
 
@@ -355,7 +353,7 @@ extract_edges(array :: AbstractArray, filter :: EdgeFilter) =
 
 # On GPU we apply filter with FFT transform because FFT is a basic
 # operation on arrays
-function extract_edges(array :: CuArray, filter :: ConvKernel, :: BCPeriodic)
+function extract_edges(array :: CuArray, filter :: ConvKernel, :: Torus)
     kernel = edge_filter(array, filter)
     cflt = CircularArray(zeros(Float64, size(array)))
     cflt[map(axis -> axis .+ 1, axes(kernel))...] = kernel
@@ -369,20 +367,20 @@ function extract_edges(array :: CuArray, filter :: ConvKernel, :: BCPeriodic)
     return abs.(irfft(ftres, size(array, 1)))
 end
 
-edge2pad(:: BCPeriodic) = Images.Pad(:circular)
-edge2pad(:: BCReflect)  = Images.Pad(:reflect)
+edge2pad(:: Torus) = Images.Pad(:circular)
+edge2pad(:: Plane) = Images.Pad(:reflect)
 
-function extract_edges(array  :: AbstractArray{<:Any, N},
-                       filter :: ConvKernel,
-                       bc     :: BoundaryConditions) where N
-    edge = abs.(Images.imfilter(array, edge_filter(array, filter), edge2pad(bc)))
+function extract_edges(array    :: AbstractArray{<:Any, N},
+                       filter   :: ConvKernel,
+                       topology :: AbstractTopology) where N
+    edge = abs.(Images.imfilter(array, edge_filter(array, filter), edge2pad(topology)))
     return edge / conv_factors[filter.width][N-1]
 end
 
 # erode from ImageMorphology.jl does not allow to use a custom kernel
-extract_edges(array :: AbstractArray, filter :: ErosionKernel, bc :: BoundaryConditions) =
+extract_edges(array :: AbstractArray, filter :: ErosionKernel, topology :: AbstractTopology) =
     let kernel = edge_filter(array, filter);
-        eroded = Images.imfilter(array, kernel, edge2pad(bc)) .== sum(kernel)
+        eroded = Images.imfilter(array, kernel, edge2pad(topology)) .== sum(kernel)
         (array .- eroded) / erosion_factors[filter.width]
     end
 
@@ -396,4 +394,4 @@ function choose_filter end
 
 choose_filter(filter :: EdgeFilter, :: Bool) = filter
 choose_filter(:: Nothing, periodic :: Bool) =
-    periodic ? EdgeFilter(BCPeriodic(), ConvKernel(5)) : EdgeFilter(BCReflect(), ConvKernel(5))
+    periodic ? EdgeFilter(Torus(), ConvKernel(5)) : EdgeFilter(Plane(), ConvKernel(5))

@@ -51,9 +51,9 @@ used to extract edges from an image on CPU and GPU.
 
 ```@docs
 Utilities.extract_edges
-Utilities.BoundaryConditions
-Utilities.BCPeriodic
-Utilities.BCReflect
+Utilities.AbstractTopology
+Utilities.Plane
+Utilities.Torus
 Utilities.FilterKernel
 Utilities.ConvKernel
 Utilities.ErosionKernel

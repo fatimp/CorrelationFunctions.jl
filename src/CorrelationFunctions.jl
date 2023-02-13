@@ -17,7 +17,6 @@ include("utility/directions.jl")
 
 export read_cuboid, lowfreq_energy_ratio,
     extract_edges, choose_filter, EdgeFilter,
-    BoundaryConditions, BCPeriodic, BCReflect,
     FilterKernel, ConvKernel, ErosionKernel,
     AbstractTopology, Torus, Plane, Maybe,
     AbstractDirection, DirX, DirY, DirZ,
