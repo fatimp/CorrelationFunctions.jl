@@ -11,7 +11,7 @@ s.
 """
 function draw_ball(s, r)
     array = zeros(Bool, s)
-	center = @. (s ÷ 2) |> floor |> Int
+    center = @. (s ÷ 2) |> floor |> Int
 
     for idx in CartesianIndices(array)
         dist = sum((Tuple(idx) .- center) .^ 2)
