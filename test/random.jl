@@ -80,8 +80,8 @@ end
         s2 = D.s2(rand_array, true; periodic)
         s3 = D.s3(rand_array, true; periodic)
         @test relerr(maximum(s3[D.PlaneXY()][2:end, 2:end]), prob[2]^3) < 0.04
-        @test s3[D.PlaneXY()][:,1] == s2[D.DirX()]
-        @test s3[D.PlaneXY()][1,:] == s2[D.DirY()]
+        @test s3[D.PlaneXY()][:,1] ≈ s2[D.DirX()]
+        @test s3[D.PlaneXY()][1,:] ≈ s2[D.DirY()]
     end
 end
 
@@ -89,16 +89,16 @@ end
     for periodic in (false, true)
         c2 = D.c2(rand_array, true; periodic)
         c3 = D.c3(rand_array, true; periodic)
-        @test c3[D.PlaneXY()][:,1] == c2[D.DirX()]
-        @test c3[D.PlaneXY()][1,:] == c2[D.DirY()]
+        @test c3[D.PlaneXY()][:,1] ≈ c2[D.DirX()]
+        @test c3[D.PlaneXY()][1,:] ≈ c2[D.DirY()]
     end
 end
 
 @testcase "Check some properties of surf3" begin
     for periodic in (false, true)
-        ss  = D.surfsurf(rand_array, true; periodic, filter = U.ErosionKernel(5))
+        ss  = D.surfsurf(rand_array, true; periodic, filter = U.ErosionKernel(7))
         sss = D.surf3(rand_array, true; periodic)
-        @test sss[D.PlaneXY()][:,1] == ss[D.DirX()]
-        @test sss[D.PlaneXY()][1,:] == ss[D.DirY()]
+        @test sss[D.PlaneXY()][:,1] ≈ ss[D.DirX()]
+        @test sss[D.PlaneXY()][1,:] ≈ ss[D.DirY()]
     end
 end

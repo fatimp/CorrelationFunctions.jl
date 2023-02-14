@@ -16,7 +16,7 @@ See also: [`s3`](@ref), [`AbstractPlane`](@ref),
 function surf3(array        :: AbstractArray, phase;
                planes       :: Vector{AbstractPlane} = default_planes(array),
                periodic     :: Bool                  = false,
-               filter       :: ErosionKernel         = ErosionKernel(5),
+               filter       :: ErosionKernel         = ErosionKernel(7),
                len = (array |> size |> minimum) ÷ 2)
     topology = periodic ? Torus() : Plane()
     edges = extract_edges(array .== phase, filter, topology)

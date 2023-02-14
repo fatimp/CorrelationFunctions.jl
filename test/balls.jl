@@ -52,10 +52,16 @@ end
 
     ball   = draw_ball((S, S, S), R)
     th(r)  = ss_theory(r, R)
-    calc   = D.surfsurf(ball, false; periodic = true) |> mean
     theory = th.(5:boundary-5) / S^3
-
     @test U.lowfreq_energy_ratio(ball) > 0.97
+
+    calc = D.surfsurf(ball, false;
+                      periodic = true, filter = U.ConvKernel(5)) |> mean
+    @test relerr_norm(calc[5:boundary-5], theory) < 0.15
+    @test maximum(calc[boundary+5:end]) < 1e-5
+
+    calc = D.surfsurf(ball, false;
+                      periodic = true, filter = U.ErosionKernel(7)) |> mean
     @test relerr_norm(calc[5:boundary-5], theory) < 0.15
     @test maximum(calc[boundary+5:end]) < 1e-5
 end
