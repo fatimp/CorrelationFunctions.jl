@@ -349,6 +349,11 @@ end
 edge2pad(:: Torus) = Images.Pad(:circular)
 edge2pad(:: Plane) = Images.Pad(:reflect)
 
+# Fuck Julia for being unable to vectorize isapprox!
+# Julia is a piece of shit, why don't we use python (which is the same
+# shit, but starts faster).
+myapproxp(x, y, atol) = abs(x - y) < atol
+
 function extract_edges(array    :: AbstractArray{<:Any, N},
                        filter   :: ConvKernel,
                        topology :: AbstractTopology) where N
@@ -360,8 +365,8 @@ end
 extract_edges(array :: AbstractArray, filter :: ErosionKernel, topology :: AbstractTopology) =
     let kernel = edge_filter(array, filter)
         scale  = filter.width ÷ 2
-        eroded = isapprox.(Images.imfilter(Float64, array, kernel, edge2pad(topology)),
-                           sum(kernel); atol = 0.1)
+        eroded = myapproxp.(Images.imfilter(Float64, array, kernel, edge2pad(topology)),
+                           sum(kernel), 0.1)
         (array .- eroded) / scale
     end
 
@@ -373,6 +378,6 @@ extract_edges(array :: CuArray{<:Any, N}, filter :: ConvKernel, :: Torus) where 
 extract_edges(array :: CuArray, filter :: ErosionKernel, :: Torus) =
     let kernel = edge_filter(array, filter)
         scale  = filter.width ÷ 2
-        eroded = isapprox.(filter_periodic(array, kernel), sum(kernel); atol = 0.1)
+        eroded = myapproxp.(filter_periodic(array, kernel), sum(kernel), 0.1)
         (array .- eroded) / scale
     end
