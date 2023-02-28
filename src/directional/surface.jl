@@ -34,7 +34,7 @@ function surfsurf(array      :: AbstractArray,
                   directions :: Vector{AbstractDirection} = array |> default_directions,
                   periodic   :: Bool                      = false,
                   plans      :: S2FTPlans                 = S2FTPlans(array, periodic),
-                  filter     :: FilterKernel              = ConvKernel(5))
+                  filter     :: FilterKernel              = ConvKernel(7))
     χ = phase2ind(phase)
     ph = map(χ, array)
     edge = extract_edges(ph, filter, periodic ? Torus() : Plane())
@@ -81,7 +81,7 @@ function surfvoid(array      :: AbstractArray,
                   directions :: Vector{AbstractDirection} = array |> default_directions,
                   periodic   :: Bool                      = false,
                   plans      :: S2FTPlans                 = S2FTPlans(array, periodic),
-                  filter     :: FilterKernel              = ConvKernel(5),
+                  filter     :: FilterKernel              = ConvKernel(7),
                   void_phase                              = 0)
     χ = phase2ind(phase)
     χ_void = phase2ind(void_phase)

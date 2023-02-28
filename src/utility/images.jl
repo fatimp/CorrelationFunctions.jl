@@ -247,8 +247,8 @@ Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
 
 # Values are (2D case factor, 3D case factor)
 const conv_factors = Dict(
-    3 => (6, 18),
-    5 => (30, 150)
+    5 => (15.023417395492078, 61.6817177261953),
+    7 => (30.458490738761892, 172.9623215184969)
 )
 
 """
@@ -290,14 +290,21 @@ struct ErosionKernel <: FilterKernel
 end
 
 function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ConvKernel) where N
-    width     = kernel.width
-    filter    = Images.centered(ones(Float64, (width for _ in 1:N)...))
-    center    = width^N - 1
-    centeridx = CartesianIndex((0 for _ in 1:N)...)
-    filter[centeridx] = -center
+    width   = kernel.width
+    radius  = width ÷ 2
+    irange  = Tuple(-radius:radius for _ in 1:N) :: NTuple{N, UnitRange{Int64}}
+    indices = CartesianIndices(irange)
+	sqradius  = radius^2
     @assert isodd(width)
 
-    return filter
+    res = map(indices) do idx
+        1/sqrt(sum(Tuple(idx) .^ 2))
+    end
+
+    cres = Images.centered(res)
+    cres[0*indices[1]] = 0
+    cres[0*indices[1]] = -sum(cres)
+    return cres
 end
 
 function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ErosionKernel) where N

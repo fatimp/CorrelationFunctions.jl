@@ -16,7 +16,7 @@ See also: [`Utilities.FilterKernel`](@ref)
 """
 function surfsurf(image, phase;
                   periodic :: Bool         = false,
-                  filter   :: FilterKernel = ConvKernel(5))
+                  filter   :: FilterKernel = ConvKernel(7))
     M = extract_edges(image .== phase, filter, periodic ? Torus() : Plane())
     return s2(M; periodic)
 end
@@ -39,7 +39,7 @@ See also: [`Utilities.FilterKernel`](@ref)
 """
 function surfvoid(image, phase;
                   periodic :: Bool         = false,
-                  filter   :: FilterKernel = ConvKernel(5))
+                  filter   :: FilterKernel = ConvKernel(7))
     M = extract_edges(image .== phase, filter, periodic ? Torus() : Plane())
     V = image .== 0
 
