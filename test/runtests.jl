@@ -5,7 +5,7 @@ using XUnit
 using Distributions: Poisson
 using Base.Iterators: zip, drop, countfrom
 using Statistics: mean
-using Images: feature_transform, distance_transform
+using Images: feature_transform, distance_transform, centered
 using LinearAlgebra: norm
 using CUDA: CuArray
 
@@ -18,6 +18,7 @@ include("utility.jl")
 @testset "Value noise"         begin include("value-noise.jl") end
 @testset "Overlapping disks"   begin include("disks.jl") end
 @testset "Overlapping balls"   begin include("balls.jl") end
+@testset "Square"              begin include("square.jl") end
 @testset "Correlation maps"    begin include("maps.jl") end
 @testset "Supplementary stuff" begin include("supplementary.jl") end
 
