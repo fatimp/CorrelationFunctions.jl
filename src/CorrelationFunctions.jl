@@ -17,7 +17,7 @@ include("utility/directions.jl")
 
 export read_cuboid, lowfreq_energy_ratio,
     extract_edges, choose_filter,
-    FilterKernel, ConvKernel, ErosionKernel,
+    AbstractKernel, ConvKernel, ErosionKernel,
     AbstractTopology, Torus, Plane,
     AbstractDirection, DirX, DirY, DirZ,
     DirXY, DirYX, DirXZ, DirZX, DirYZ, DirZY,

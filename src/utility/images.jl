@@ -252,13 +252,13 @@ const conv_factors = Dict(
 )
 
 """
-    FilterKernel
+    AbstractKernel
 
 Abstract type for one of edge detecting filters.
 
 See also: [`ConvKernel`](@ref), [`ErosionKernel`](@ref).
 """
-abstract type FilterKernel end
+abstract type AbstractKernel end
 
 """
     ConvKernel(n)
@@ -267,9 +267,9 @@ Convolution kernel of width `n` used in edge detection. Values `3` and
 `5` are possible values for `n`. Using `n = 5` works best for the most
 cases (`lowfreq_energy_ratio(array) > 0.97`).
 
-See also: [`FilterKernel`](@ref), [`extract_edges`](@ref).
+See also: [`AbstractKernel`](@ref), [`extract_edges`](@ref).
 """
-struct ConvKernel <: FilterKernel
+struct ConvKernel <: AbstractKernel
     width :: Int64
     ConvKernel(width) = width ∈ keys(conv_factors) ?
         new(width) : error("Unsupported width")
@@ -281,9 +281,9 @@ end
 Erosion kernel of width `n` used in edge detection. Used in
 three-point surface correlation functions.
 
-See also: [`FilterKernel`](@ref), [`extract_edges`](@ref).
+See also: [`AbstractKernel`](@ref), [`extract_edges`](@ref).
 """
-struct ErosionKernel <: FilterKernel
+struct ErosionKernel <: AbstractKernel
     width :: Int64
     ErosionKernel(width) = isodd(width) ?
         new(width) : error("Width must be odd")
@@ -329,12 +329,12 @@ end
 Perform edge extraction in the same way as in `surfsurf` and
 `surfvoid` functions from `Map` and `Directional` modules. `array` may
 be a CUDA array or an ordinary array. `filter` is a value of
-`FilterKernel` type which selects an edge extraction
+`AbstractKernel` type which selects an edge extraction
 algorithm. Boundary conditions are affected by `topology`. Periodic
 boundary conditions are assumed if `topology` is `Torus()` and
 reflection from the boundaries is used if `topology` is `Plane()`.
 
-See also: [`FilterKernel`](@ref), [`AbstractTopology`](@ref).
+See also: [`AbstractKernel`](@ref), [`AbstractTopology`](@ref).
 """
 function extract_edges end
 

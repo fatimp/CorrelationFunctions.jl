@@ -54,7 +54,7 @@ Utilities.extract_edges
 Utilities.AbstractTopology
 Utilities.Plane
 Utilities.Torus
-Utilities.FilterKernel
+Utilities.AbstractKernel
 Utilities.ConvKernel
 Utilities.ErosionKernel
 ```

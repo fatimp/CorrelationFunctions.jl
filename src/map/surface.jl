@@ -12,11 +12,11 @@ julia> surfsurf([1 0; 0 1], 1; periodic=true)
  0.125  0.125
 ```
 
-See also: [`Utilities.FilterKernel`](@ref)
+See also: [`Utilities.AbstractKernel`](@ref)
 """
 function surfsurf(image, phase;
-                  periodic :: Bool         = false,
-                  filter   :: FilterKernel = ConvKernel(7))
+                  periodic :: Bool           = false,
+                  filter   :: AbstractKernel = ConvKernel(7))
     M = extract_edges(image .== phase, filter, periodic ? Torus() : Plane())
     return s2(M; periodic)
 end
@@ -35,11 +35,11 @@ julia> surfvoid([1 0; 0 1], 1; periodic=true)
  0.5  0.5
 ```
 
-See also: [`Utilities.FilterKernel`](@ref)
+See also: [`Utilities.AbstractKernel`](@ref)
 """
 function surfvoid(image, phase;
-                  periodic :: Bool         = false,
-                  filter   :: FilterKernel = ConvKernel(7))
+                  periodic :: Bool           = false,
+                  filter   :: AbstractKernel = ConvKernel(7))
     M = extract_edges(image .== phase, filter, periodic ? Torus() : Plane())
     V = image .== 0
 

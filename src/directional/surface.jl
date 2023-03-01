@@ -15,7 +15,7 @@ to `len` which defaults to half of the minimal dimension of the
 array.
 
 You can chose how an edge between phases is selected by passing
-`filter` argument of type `Utilities.FilterKernel`.
+`filter` argument of type `Utilities.AbstractKernel`.
 
 If `phase` is a function it is applied to array to select the phase of
 interest, otherwise the phase of interest is selected by testing
@@ -26,7 +26,7 @@ can be helpful if you call `surfsurf` often with the array of the same
 size. Plans can be computed with `S2FTPlans` constructor.
 
 See also: [`Utilities.AbstractDirection`](@ref), [`S2FTPlans`](@ref),
-[`Utilities.FilterKernel`](@ref).
+[`Utilities.AbstractKernel`](@ref).
 """
 function surfsurf(array      :: AbstractArray,
                   phase;
@@ -34,7 +34,7 @@ function surfsurf(array      :: AbstractArray,
                   directions :: Vector{AbstractDirection} = array |> default_directions,
                   periodic   :: Bool                      = false,
                   plans      :: S2FTPlans                 = S2FTPlans(array, periodic),
-                  filter     :: FilterKernel              = ConvKernel(7))
+                  filter     :: AbstractKernel            = ConvKernel(7))
     χ = phase2ind(phase)
     ph = map(χ, array)
     edge = extract_edges(ph, filter, periodic ? Torus() : Plane())
@@ -60,7 +60,7 @@ all `x`s in the range from `1` to `len` which defaults to half of the
 minimal dimension of the array.
 
 You can chose how an edge between phases is selected by passing
-`filter` argument of type `Utilities.FilterKernel`.
+`filter` argument of type `Utilities.AbstractKernel`.
 
 If `phase` is a function it is applied to array to select the phase of
 interest, otherwise the phase of interest is selected by testing
@@ -73,7 +73,7 @@ can be helpful if you call `surfvoid` often with the array of the same
 size. Plans can be computed with `S2FTPlans` constructor.
 
 See also: [`Utilities.AbstractDirection`](@ref), [`S2FTPlans`](@ref),
-[`Utilities.FilterKernel`](@ref).
+[`Utilities.AbstractKernel`](@ref).
 """
 function surfvoid(array      :: AbstractArray,
                   phase;
@@ -81,7 +81,7 @@ function surfvoid(array      :: AbstractArray,
                   directions :: Vector{AbstractDirection} = array |> default_directions,
                   periodic   :: Bool                      = false,
                   plans      :: S2FTPlans                 = S2FTPlans(array, periodic),
-                  filter     :: FilterKernel              = ConvKernel(7),
+                  filter     :: AbstractKernel            = ConvKernel(7),
                   void_phase                              = 0)
     χ = phase2ind(phase)
     χ_void = phase2ind(void_phase)
