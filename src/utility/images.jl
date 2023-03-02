@@ -304,7 +304,7 @@ function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ConvKernel) whe
     cres = Images.centered(res)
     cres[0*indices[1]] = 0
     cres[0*indices[1]] = -sum(cres)
-    return cres
+    return cres / conv_factors[width][N-1]
 end
 
 function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ErosionKernel) where N
@@ -361,12 +361,8 @@ edge2pad(:: Plane) = Images.Pad(:reflect)
 # shit, but starts faster).
 myapproxp(x, y, atol) = abs(x - y) < atol
 
-function extract_edges(array    :: AbstractArray{<:Any, N},
-                       filter   :: ConvKernel,
-                       topology :: AbstractTopology) where N
-    edge = abs.(Images.imfilter(array, edge_filter(array, filter), edge2pad(topology)))
-    return edge / conv_factors[filter.width][N-1]
-end
+extract_edges(array :: AbstractArray, filter :: ConvKernel, topology :: AbstractTopology) =
+    abs.(Images.imfilter(array, edge_filter(array, filter), edge2pad(topology)))
 
 # erode from ImageMorphology.jl does not allow to use a custom kernel
 extract_edges(array :: AbstractArray, filter :: ErosionKernel, topology :: AbstractTopology) =
@@ -378,10 +374,9 @@ extract_edges(array :: AbstractArray, filter :: ErosionKernel, topology :: Abstr
     end
 
 # CUDA methods
-extract_edges(array :: CuArray{<:Any, N}, filter :: ConvKernel, :: Torus) where N =
-    let kernel = edge_filter(array, filter)
-        abs.(filter_periodic(array, kernel)) / conv_factors[filter.width][N-1]
-    end
+extract_edges(array :: CuArray, filter :: ConvKernel, :: Torus) =
+    abs.(filter_periodic(array, edge_filter(array, filter)))
+
 extract_edges(array :: CuArray, filter :: ErosionKernel, :: Torus) =
     let kernel = edge_filter(array, filter)
         scale  = filter.width ÷ 2
