@@ -25,3 +25,18 @@ function surf3(array        :: AbstractArray, phase;
     calc_s3(plane) = plane => autocorr3_plane(edges, op, plane, topology, len)
     return Dict{AbstractPlane, Matrix{Float64}}(map(calc_s3, planes))
 end
+
+function surf2void(array        :: AbstractArray, phase;
+                   planes       :: Vector{AbstractPlane} = default_planes(array),
+                   periodic     :: Bool                  = false,
+                   filter       :: AbstractKernel        = ConvKernel(7),
+                   len = (array |> size |> minimum) ÷ 2)
+    topology = periodic ? Torus() : Plane()
+    twophase = array .== phase
+    edges = extract_edges(twophase, filter, topology)
+
+    op(x, y, z) = edges[x] * edges[y] * iszero(twophase[z])
+    calc_s3(plane) = plane => autocorr3_plane(CartesianIndices(array),
+                                              op, plane, topology, len)
+    return Dict{AbstractPlane, Matrix{Float64}}(map(calc_s3, planes))
+end
