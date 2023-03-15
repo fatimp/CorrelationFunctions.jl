@@ -22,21 +22,52 @@ function surf3(array        :: AbstractArray, phase;
     edges = extract_edges(array .== phase, filter, topology)
 
     op(x, y, z) = x * y * z
-    calc_s3(plane) = plane => autocorr3_plane(edges, op, plane, topology, len)
-    return Dict{AbstractPlane, Matrix{Float64}}(map(calc_s3, planes))
+    mapping(plane) = plane => autocorr3_plane(edges, op, plane, topology, len)
+    return Dict{AbstractPlane, Matrix{Float64}}(map(mapping, planes))
 end
 
-function surf2void(array        :: AbstractArray, phase;
+# Compute cross-correlation array1 ⋆ array1 ⋆ array2
+function crosscorr3_plane(array1   :: AbstractArray,
+                          array2   :: AbstractArray,
+                          plane    :: AbstractPlane,
+                          topology :: AbstractTopology,
+                          len)
+    @assert size(array1) == size(array2)
+
+    rot1 = similar(array1)
+    rot2 = similar(array2)
+    shift2, shift1 = unit_shifts(array1, plane)
+    result = zeros(Float64, (len, len))
+
+    # Reduction of multidimensional arrays is too damn slow on CUDA
+    # (3.x, 4.0), it is sufficient to make a one-dimensional view of
+    # one of the arrays though.
+    view = maybe_flatten(array1)
+
+    for i in 1:len
+        s1 = (i - 1) .* shift1
+        rot1 = arrayshift!(rot1, array1, s1, topology)
+        for j in 1:len
+            s2 = (j - 1) .* shift2
+            rot2 = arrayshift!(rot2, array2, s2, topology)
+            result[j, i] = mapreduce(*, +, view, rot1, rot2) /
+                autocorr3_norm(array1, s1, s2, topology)
+        end
+    end
+
+    return result
+end
+
+function surf2void(array        :: T, phase;
                    planes       :: Vector{AbstractPlane} = default_planes(array),
                    periodic     :: Bool                  = false,
                    filter       :: AbstractKernel        = ConvKernel(7),
-                   len = (array |> size |> minimum) ÷ 2)
+                   len = (array |> size |> minimum) ÷ 2) where T <: AbstractArray
     topology = periodic ? Torus() : Plane()
-    twophase = array .== phase
+    # Prevent implicit conversion to BitArray, they are slow
+    twophase = T(array .== phase)
     edges = extract_edges(twophase, filter, topology)
 
-    op(x, y, z) = edges[x] * edges[y] * iszero(twophase[z])
-    calc_s3(plane) = plane => autocorr3_plane(CartesianIndices(array),
-                                              op, plane, topology, len)
-    return Dict{AbstractPlane, Matrix{Float64}}(map(calc_s3, planes))
+    mapping(plane) = plane => crosscorr3_plane(edges, twophase, plane, topology, len)
+    return Dict{AbstractPlane, Matrix{Float64}}(map(mapping, planes))
 end
