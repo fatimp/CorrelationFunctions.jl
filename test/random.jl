@@ -2,7 +2,7 @@
 rand_array = rand(Float32, (50, 50, 50))
 rand_array = map(x -> (x<0.3) ? 0 : 1, rand_array)
 
-@testcase "Check s²(a, x) = l²(a, x) = 0 for all x where a is an array without phase 2." begin
+@testset "Check s²(a, x) = l²(a, x) = 0 for all x where a is an array without phase 2." begin
     for p in (false, true)
         for func in (D.s2, D.l2)
             corr = mean(func(rand_array, 2; periodic = p, directions = known_directions))
@@ -11,7 +11,7 @@ rand_array = map(x -> (x<0.3) ? 0 : 1, rand_array)
     end
 end
 
-@testcase "Check that corr(a, len1, phase) = corr(a, len2, phase)[1:len1] for len2>len1" begin
+@testset "Check that corr(a, len1, phase) = corr(a, len2, phase)[1:len1] for len2>len1" begin
     for phase in (0, 1)
         for func in (D.s2, D.l2, D.c2, D.surfsurf, D.surfvoid)
             corr1 = mean(func(rand_array, phase; len = 30))
@@ -26,7 +26,7 @@ p = count(x -> x == 0, rand_array) / length(rand_array) # P{random dot ∈ phase
 q = 1 - p                                               # P{random dot ∈ phase 1}
 prob = [p, q]
 
-@testcase "sᶦ(a,0) = lᶦ(a,0) = P{randomly choosing i}" begin
+@testset "sᶦ(a,0) = lᶦ(a,0) = P{randomly choosing i}" begin
     for p in (false, true)
         for phase in 0:1
             for func in (D.s2, D.l2)
@@ -37,7 +37,7 @@ prob = [p, q]
     end
 end
 
-@testcase "sᶦ(a,1) = lᶦ(a,1)" begin
+@testset "sᶦ(a,1) = lᶦ(a,1)" begin
     for p in (false, true)
         for phase in 0:1
             s = mean(D.s2(rand_array, phase;
@@ -49,7 +49,7 @@ end
     end
 end
 
-@testcase "Check that l2 is non-increasing" begin
+@testset "Check that l2 is non-increasing" begin
     for p in (false, true)
         for phase in 0:1
             l = mean(D.l2(rand_array, phase; directions = known_directions))
@@ -58,7 +58,7 @@ end
     end
 end
 
-@testcase "Check that sⁱ(x) = P{randomly independently choosing i twice} (x > 0)" begin
+@testset "Check that sⁱ(x) = P{randomly independently choosing i twice} (x > 0)" begin
     for p in (false, true)
         for phase in 0:1
             s = mean(D.s2(rand_array, phase;
@@ -68,14 +68,14 @@ end
     end
 end
 
-@testcase "Check pore size and chord length sum" begin
+@testset "Check pore size and chord length sum" begin
     for phase in 0:1
         @test sum(D.pore_size(rand_array, phase).weights) ≈ 1
         @test sum(D.chord_length(rand_array, phase).hist.weights) ≈ 1
     end
 end
 
-@testcase "Check some properties of s3" begin
+@testset "Check some properties of s3" begin
     for periodic in (false, true)
         s2 = D.s2(rand_array, true; periodic)
         s3 = D.s3(rand_array, true; periodic)
@@ -85,7 +85,7 @@ end
     end
 end
 
-@testcase "Check some properties of c3" begin
+@testset "Check some properties of c3" begin
     for periodic in (false, true)
         c2 = D.c2(rand_array, true; periodic)
         c3 = D.c3(rand_array, true; periodic)
