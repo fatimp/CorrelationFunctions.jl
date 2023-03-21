@@ -2,7 +2,7 @@ phase2ind(phase :: Function) = phase
 phase2ind(phase :: Any) = x -> x == phase
 
 """
-    surfsurf(array, phase[; len][, directions][, plans,] periodic = false, filter)
+    surf2(array, phase[; len][, directions][, plans,] periodic = false, filter)
 
 Calculate surface-surface correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -22,19 +22,19 @@ interest, otherwise the phase of interest is selected by testing
 elements of `array` for equality with `phase`.
 
 An argument `plans` can be used to support precomputed FFT plans which
-can be helpful if you call `surfsurf` often with the array of the same
+can be helpful if you call `surf2` often with the array of the same
 size. Plans can be computed with `S2FTPlans` constructor.
 
 See also: [`Utilities.AbstractDirection`](@ref), [`S2FTPlans`](@ref),
 [`Utilities.AbstractKernel`](@ref).
 """
-function surfsurf(array      :: AbstractArray,
-                  phase;
-                  len        :: Integer                   = (array |> size  |> minimum) ÷ 2,
-                  directions :: Vector{AbstractDirection} = array |> default_directions,
-                  periodic   :: Bool                      = false,
-                  plans      :: S2FTPlans                 = S2FTPlans(array, periodic),
-                  filter     :: AbstractKernel            = ConvKernel(7))
+function surf2(array      :: AbstractArray,
+               phase;
+               len        :: Integer                   = (array |> size  |> minimum) ÷ 2,
+               directions :: Vector{AbstractDirection} = array |> default_directions,
+               periodic   :: Bool                      = false,
+               plans      :: S2FTPlans                 = S2FTPlans(array, periodic),
+               filter     :: AbstractKernel            = ConvKernel(7))
     χ = phase2ind(phase)
     ph = map(χ, array)
     edge = extract_edges(ph, filter, periodic ? Torus() : Plane())

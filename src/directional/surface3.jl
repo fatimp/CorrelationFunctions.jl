@@ -75,7 +75,6 @@ You can chose how an edge between phases is selected by passing
 See also: [`s3`](@ref), [`AbstractPlane`](@ref),
 [`ErosionKernel`](@ref).
 """
-
 function surf2void(array        :: T, phase, void_phase  = 0;
                    planes       :: Vector{AbstractPlane} = default_planes(array),
                    periodic     :: Bool                  = false,

@@ -55,15 +55,15 @@ end
     theory = th.(5:boundary-5) / S^3
     @test U.lowfreq_energy_ratio(ball) > 0.97
 
-    calc = D.surfsurf(ball, false; periodic = true, filter = U.ConvKernel(5)) |> mean
+    calc = D.surf2(ball, false; periodic = true, filter = U.ConvKernel(5)) |> mean
     @test relerr_norm(calc[5:boundary-5], theory) < 0.2
     @test maximum(calc[boundary+5:end]) < 1e-5
 
-    calc = D.surfsurf(ball, false; periodic = true, filter = U.ConvKernel(7)) |> mean
+    calc = D.surf2(ball, false; periodic = true, filter = U.ConvKernel(7)) |> mean
     @test relerr_norm(calc[5:boundary-5], theory) < 0.15
     @test maximum(calc[boundary+5:end]) < 1e-5
 
-    calc = D.surfsurf(ball, false; periodic = true, filter = U.ErosionKernel(7)) |> mean
+    calc = D.surf2(ball, false; periodic = true, filter = U.ErosionKernel(7)) |> mean
     @test relerr_norm(calc[5:boundary-5], theory) < 0.15
     @test maximum(calc[boundary+5:end]) < 1e-5
 end

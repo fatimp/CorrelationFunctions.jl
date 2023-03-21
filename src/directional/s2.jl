@@ -64,7 +64,7 @@ and surface-void  correlation functions. `Plane()` corresponds to CW
 boundary conditions and `Torus()` corresponds to periodic boundary
 conditions.
 
-See also: [`s2`](@ref), [`surfsurf`](@ref), [`surfvoid`](@ref).
+See also: [`s2`](@ref), [`surf2`](@ref), [`surfvoid`](@ref).
 """
 function S2FTPlans(array    :: AbstractArray,
                    topology :: AbstractTopology)

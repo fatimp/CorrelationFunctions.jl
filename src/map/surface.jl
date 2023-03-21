@@ -1,12 +1,12 @@
 @doc raw"""
-    surfsurf(image, phase; periodic = false, filter)
+    surf2(image, phase; periodic = false, filter)
 
 Calculate $F_{ss}$ (surface-surface) correlation function for phase
 `phase` on N-dimensional image.
 
 # Examples
 ```jldoctest
-julia> surfsurf([1 0; 0 1], 1; periodic=true)
+julia> surf2([1 0; 0 1], 1; periodic=true)
 2×2 Matrix{Float64}:
  0.125  0.125
  0.125  0.125
@@ -14,9 +14,9 @@ julia> surfsurf([1 0; 0 1], 1; periodic=true)
 
 See also: [`Utilities.AbstractKernel`](@ref)
 """
-function surfsurf(image, phase;
-                  periodic :: Bool           = false,
-                  filter   :: AbstractKernel = ConvKernel(7))
+function surf2(image, phase;
+               periodic :: Bool           = false,
+               filter   :: AbstractKernel = ConvKernel(7))
     M = extract_edges(image .== phase, filter, periodic ? Torus() : Plane())
     return s2(M; periodic)
 end

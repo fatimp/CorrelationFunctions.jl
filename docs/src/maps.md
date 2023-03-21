@@ -17,7 +17,7 @@ The following correlation functions are supported:
 Map.c2
 Map.s2
 Map.cross_correlation
-Map.surfsurf
+Map.surf2
 Map.surfvoid
 Map.average_directions
 ```

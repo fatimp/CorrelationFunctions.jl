@@ -24,7 +24,7 @@ for noise_fn in noisegen
     image = noise_fn()
     for fn in cfs[ndims(image)]
         func = M.eval(fn)
-        if func ∈ [M.surfsurf, M.surfvoid]
+        if func ∈ [M.surf2, M.surfvoid]
             test_surf(func, image)
         else
             test_prob(func, image)

@@ -63,15 +63,15 @@ end
     theory = th.(10:boundary-10) / S^2
     @test U.lowfreq_energy_ratio(disk) > 0.97
 
-    calc = D.surfsurf(disk, false; periodic = true, filter = U.ConvKernel(5)) |> mean
+    calc = D.surf2(disk, false; periodic = true, filter = U.ConvKernel(5)) |> mean
     @test relerr_norm(calc[10:boundary-10], theory) < 0.085
     @test maximum(calc[boundary+10:end]) < 1e-5
 
-    calc = D.surfsurf(disk, false; periodic = true, filter = U.ConvKernel(7)) |> mean
+    calc = D.surf2(disk, false; periodic = true, filter = U.ConvKernel(7)) |> mean
     @test relerr_norm(calc[10:boundary-10], theory) < 0.085
     @test maximum(calc[boundary+10:end]) < 1e-5
 
-    calc = D.surfsurf(disk, false; periodic = true, filter = U.ErosionKernel(7)) |> mean
+    calc = D.surf2(disk, false; periodic = true, filter = U.ErosionKernel(7)) |> mean
     @test relerr_norm(calc[10:boundary-10], theory) < 0.1
     @test maximum(calc[boundary+10:end]) < 1e-5
 end

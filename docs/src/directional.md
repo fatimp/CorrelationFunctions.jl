@@ -32,7 +32,7 @@ The following correlation functions are supported:
 Directional.l2
 Directional.s2
 Directional.c2
-Directional.surfsurf
+Directional.surf2
 Directional.surfvoid
 Directional.pore_size
 Directional.chord_length
@@ -110,7 +110,7 @@ designators in the module `Utilities`: [Available directions](@ref).
 
 ## Indicator Functions
 
-Internally, the functions `c2`, `surfsurf` and `surfvoid` (see
+Internally, the functions `c2`, `surf2` and `surfvoid` (see
 [Correlation Functions](@ref)) are reduced to `s2` passing more generic
 indicator functions rather than simply a phase. This feature is also exposed to
 users. If you want to use a custom indicator function, you need to wrap it to

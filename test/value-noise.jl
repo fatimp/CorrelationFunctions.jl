@@ -21,7 +21,7 @@ end
 testreflect(D.s2)
 testreflect(D.l2)
 testreflect(D.c2)
-testreflect(D.surfsurf)
+testreflect(D.surf2)
 # TODO: somehow test histograms returned by pore_size and chord_length
 
 function testsurface(func)
@@ -32,4 +32,4 @@ function testsurface(func)
 end
 
 testsurface(D.surfvoid)
-testsurface(D.surfsurf)
+testsurface(D.surf2)

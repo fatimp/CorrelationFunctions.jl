@@ -1,7 +1,7 @@
 const cfs  = Dict(
     1 => [:s2, :c2],
-    2 => [:s2, :c2, :surfsurf, :surfvoid],
-    3 => [:s2, :c2, :surfsurf, :surfvoid]
+    2 => [:s2, :c2, :surf2, :surfvoid],
+    3 => [:s2, :c2, :surf2, :surfvoid]
 )
 
 const dirs = Dict(
