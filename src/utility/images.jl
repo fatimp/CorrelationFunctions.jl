@@ -290,11 +290,11 @@ struct ErosionKernel <: AbstractKernel
 end
 
 function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ConvKernel) where N
-    width   = kernel.width
-    radius  = width ÷ 2
-    irange  = Tuple(-radius:radius for _ in 1:N) :: NTuple{N, UnitRange{Int64}}
-    indices = CartesianIndices(irange)
-	sqradius  = radius^2
+    width    = kernel.width
+    radius   = width ÷ 2
+    irange   = Tuple(-radius:radius for _ in 1:N) :: NTuple{N, UnitRange{Int64}}
+    indices  = CartesianIndices(irange)
+    sqradius = radius^2
     @assert isodd(width)
 
     res = map(indices) do idx
