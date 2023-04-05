@@ -289,7 +289,7 @@ struct ErosionKernel <: AbstractKernel
         new(width) : error("Width must be odd")
 end
 
-function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ConvKernel) where N
+function edge_filter(:: AbstractArray{<:Any, N}, kernel :: ConvKernel) where N
     width    = kernel.width
     radius   = width ÷ 2
     irange   = Tuple(-radius:radius for _ in 1:N) :: NTuple{N, UnitRange{Int64}}
@@ -307,7 +307,7 @@ function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ConvKernel) whe
     return cres / conv_factors[width][N-1]
 end
 
-function edge_filter(array :: AbstractArray{<:Any, N}, kernel :: ErosionKernel) where N
+function edge_filter(:: AbstractArray{<:Any, N}, kernel :: ErosionKernel) where N
     width   = kernel.width
     radius  = width ÷ 2
     irange  = Tuple(-radius:radius for _ in 1:N) :: NTuple{N, UnitRange{Int64}}
