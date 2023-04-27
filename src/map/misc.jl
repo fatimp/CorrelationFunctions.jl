@@ -57,9 +57,6 @@ function average_directions(cfmap :: AbstractArray{T};
     return accum ./ counter
 end
 
-#====================#
-# Fuck you Julia! Why maybe_upload_to_gpu() causes "type instability"
-# here but not in extract_edges()?! The worst language ever!
 function cnt_total(c :: AbstractArray{<:Any, N}) where N
     # This works only for arrays with all dimensions being odd, which
     # is OK becase we usually pad arrays to dimensions 2s[i]-1 for
@@ -67,7 +64,7 @@ function cnt_total(c :: AbstractArray{<:Any, N}) where N
     @assert all(isodd, size(c))
 
     # cnt_total[i,j,k] = cnt_total_axis_1[i] * cnt_total_axis_2[j] * …
-    return mapreduce(.*, axes(c), size(c), 1:N) do ix, es, dim
+    result = mapreduce(.*, axes(c), size(c), 1:N) do ix, es, dim
         shape = collect(i == dim ? (:) : 1 for i in 1:N)
         s = (es + 1) ÷ 2
         # We get a descending sequence s, s-1, s-2, …, 1 followed by
@@ -76,16 +73,9 @@ function cnt_total(c :: AbstractArray{<:Any, N}) where N
         # It's necessary to give a hint what a result of reshape is
         reshape(cnt, shape...) :: Array{Int64, N}
     end
-end
 
-function cnt_total(c :: CuArray)
-    return map(axes(c), size(c)) do ix, es
-        s = (es + 1) ÷ 2
-        cnt = @. s - abs(ix - s)
-        cnt |> ifftshift |> CuArray
-    end
+    return maybe_upload_to_gpu(result, c)
 end
-#====================#
 
 function normalize_result(result   :: AbstractArray,
                           periodic :: Bool)

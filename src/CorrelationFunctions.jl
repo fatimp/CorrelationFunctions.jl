@@ -11,6 +11,7 @@ import CUDA.CUFFT
 import Images
 
 include("utility/misc.jl")
+include("utility/rawreader.jl")
 include("utility/lowfreq_energy_ratio.jl")
 include("utility/images.jl")
 include("utility/directions.jl")
