@@ -11,6 +11,7 @@ import CUDA.CUFFT
 import Images
 
 include("utility/misc.jl")
+include("utility/rawreader.jl")
 include("utility/lowfreq_energy_ratio.jl")
 include("utility/images.jl")
 include("utility/directions.jl")
@@ -22,7 +23,8 @@ export read_cuboid, lowfreq_energy_ratio,
     AbstractDirection, DirX, DirY, DirZ,
     DirXY, DirYX, DirXZ, DirZX, DirYZ, DirZY,
     DirXYZ, DirXZY, DirYXZ, DirZYX,
-    default_directions, check_directions
+    default_directions, check_directions,
+    maybe_upload_to_gpu
 end
 
 module Directional
