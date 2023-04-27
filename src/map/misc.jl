@@ -60,11 +60,21 @@ end
 #====================#
 # Fuck you Julia! Why maybe_upload_to_gpu() causes "type instability"
 # here but not in extract_edges()?! The worst language ever!
-function cnt_total(c :: AbstractArray)
-    return map(axes(c), size(c)) do ix, es
+function cnt_total(c :: AbstractArray{<:Any, N}) where N
+    # This works only for arrays with all dimensions being odd, which
+    # is OK becase we usually pad arrays to dimensions 2s[i]-1 for
+    # non-periodic computations
+    @assert all(isodd, size(c))
+
+    # cnt_total[i,j,k] = cnt_total_axis_1[i] * cnt_total_axis_2[j] * …
+    return mapreduce(.*, axes(c), size(c), 1:N) do ix, es, dim
+        shape = collect(i == dim ? (:) : 1 for i in 1:N)
         s = (es + 1) ÷ 2
-        cnt = @. s - abs(ix - s)
-        cnt |> ifftshift
+        # We get a descending sequence s, s-1, s-2, …, 1 followed by
+        # an ascending sequence 1, 2, …, s-1
+        cnt = @. ifelse(ix <= s, s - ix + 1, ix - s)
+        # It's necessary to give a hint what a result of reshape is
+        reshape(cnt, shape...) :: Array{Int64, N}
     end
 end
 
@@ -77,28 +87,9 @@ function cnt_total(c :: CuArray)
 end
 #====================#
 
-cnt_total_reshaped(c :: AbstractArray{T, 1}) where T = cnt_total(c)
-cnt_total_reshaped(c :: AbstractArray{T, 2}) where T =
-    let (t1, t2) = cnt_total(c);
-        (reshape(t1, :, 1), reshape(t2, 1, :))
-    end
-cnt_total_reshaped(c :: AbstractArray{T, 3}) where T =
-    let (t1, t2, t3) = cnt_total(c);
-        (reshape(t1, :, 1, 1), reshape(t2, 1, :, 1), reshape(t3, 1, 1, :))
-    end
-
 function normalize_result(result   :: AbstractArray,
                           periodic :: Bool)
-    local norm
-
-    if periodic
-        norm = result / length(result)
-    else
-        total = cnt_total_reshaped(result)
-        norm = reduce(./, total; init = result)
-    end
-
-    return norm
+    return periodic ? result / length(result) : result ./ cnt_total(result)
 end
 
 function zeropad(image)
