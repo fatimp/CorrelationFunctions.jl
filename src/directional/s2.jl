@@ -152,13 +152,11 @@ function s2(array      :: AbstractArray,
             # Number of shifts (distances between two points for this slice)
             shifts = min(len, slen)
 
-            # Calculate slices where χ(slice[x]) && χ(slice[x+y]) for
-            # all y's from 1 to len.
+            # For all y's from 1 to shifts, calculate number of x'es
+            # for which χ(slice[x], slice[x+y]) == 1
             cd.success[direction][1:shifts] .+= Iterators.map(1:shifts) do shift
-                # Periodic slice, if needed
-                pslice = periodic ? vcat(slice, slice[1:shift-1]) : slice
-                plen = periodic ? slen+shift-1 : slen
-                mapreduce(χ, +, pslice, view(pslice, shift:plen))
+                mapreduce(χ, +, slice,
+                          periodic ? circshift(slice, 1 - shift) : view(slice, shift:slen))
             end
 
             # Calculate total number of slices with lengths from 1 to len
