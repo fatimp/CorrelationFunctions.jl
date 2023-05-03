@@ -41,13 +41,13 @@ function chord_length(array      :: AbstractArray,
                       directions :: Vector{AbstractDirection} = array |> default_directions,
                       nbins      :: Integer                   = 10)
     # Select needed phase by applying indicator function to array.
-    ph = map(x -> x == phase, array)
+    ph = array .== phase
 
     # Extract the interface.
     # Unlike surface correlation functions, distance transform works
     # just fine here.
     dist = ph |> feature_transform |> distance_transform
-    edge = map(x -> x == 1, dist)
+    edge = dist .== 1
 
     # Arary of chord lengths
     lengths = Int[]
@@ -55,7 +55,18 @@ function chord_length(array      :: AbstractArray,
     for direction in directions
         ph_slices   = slice_generators(ph,   false, direction)
         edge_slices = slice_generators(edge, false, direction)
-        for (ph_slice, edge_slice) in Iterators.zip(ph_slices, edge_slices)
+        # KLUDGE: Julia cannot infer types here.
+        #
+        # We restrict ourselves to accept arrays only of type Array or
+        # BitArray. Doing so, we expect slices to be of type BitVector
+        # (slice_generators(...) returns an array of the same type as
+        # its first argument). I thinks those two types will cover all
+        # our needs and if not, we'll get a runtime error.
+        #
+        # Why does Julia infer types in all other places where
+        # slice_generators() is used? Why does @code_warntype fails to
+        # give any sensible information?
+        for (ph_slice :: BitVector, edge_slice :: BitVector) in Iterators.zip(ph_slices, edge_slices)
             len = 0
             startonedge = false
             # ph_slice and edge_slice has the same shape
