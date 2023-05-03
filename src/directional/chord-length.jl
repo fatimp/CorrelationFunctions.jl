@@ -40,34 +40,33 @@ function chord_length(array      :: AbstractArray,
                       phase;
                       directions :: Vector{AbstractDirection} = array |> default_directions,
                       nbins      :: Integer                   = 10)
-    # Select needed phase by applying indicator function to array
+    # Select needed phase by applying indicator function to array.
     ph = map(x -> x == phase, array)
 
-    # Find a new "bogus" space for the edge
-    edge_phase = maximum(array) + 1
+    # Extract the interface.
+    # Unlike surface correlation functions, distance transform works
+    # just fine here.
+    dist = ph |> feature_transform |> distance_transform
+    edge = map(x -> x == 1, dist)
 
     # Arary of chord lengths
-    lengths = Vector{Int}(undef, 0)
+    lengths = Int[]
 
-    # Poor man's edge detection
-    dist = ph |> feature_transform |> distance_transform
-    edge = edge_phase * map(x -> x == 1.0, dist)
-
-    # Combine the edge with the original picture
-    combo = min.(edge + array, edge_phase)
     for direction in directions
-        slicer = slice_generators(combo, false, direction)
-        for slice in slicer
+        ph_slices   = slice_generators(ph,   false, direction)
+        edge_slices = slice_generators(edge, false, direction)
+        for (ph_slice, edge_slice) in Iterators.zip(ph_slices, edge_slices)
             len = 0
             startonedge = false
-            for x in slice
+            # ph_slice and edge_slice has the same shape
+            for idx in CartesianIndices(ph_slice)
                 # Edge found
-                if x == edge_phase
+                if edge_slice[idx]
                     len > 1 && startonedge && push!(lengths, len - 1)
                     len = 0
                     startonedge = true
                 # Not our phase
-                elseif x != phase
+                elseif !ph_slice[idx]
                     startonedge = false
                 end
                 len += 1
