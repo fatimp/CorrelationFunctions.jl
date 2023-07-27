@@ -32,6 +32,7 @@ The following correlation functions are supported:
 Directional.l2
 Directional.s2
 Directional.c2
+Directional.cross_correlation
 Directional.surf2
 Directional.surfvoid
 Directional.pore_size

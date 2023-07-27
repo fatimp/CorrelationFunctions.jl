@@ -49,6 +49,18 @@ end
     end
 end
 
+@testset "Check some properties of cross_correlation" begin
+    for periodic in (false, true)
+        cc = D.cross_correlation(rand_array, true, true; periodic)
+        s2 = D.s2(rand_array, true; periodic)
+        @test mean(cc) == mean(s2)
+
+        cc = D.cross_correlation(rand_array, false, false; periodic)
+        s2 = D.s2(rand_array, false; periodic)
+        @test mean(cc) == mean(s2)
+    end
+end
+
 @testset "Check that l2 is non-increasing" begin
     for p in (false, true)
         for phase in 0:1
