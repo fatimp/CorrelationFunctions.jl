@@ -54,7 +54,7 @@ include("directional/surface3.jl")
 include("directional/cc.jl")
 
 export l2, s2, c2,
-    surf2, surfvoid, lowfreq_energy_ratio, chord_length, pore_size, cross_correlation,
+    surf2, surfvoid, chord_length, pore_size, cross_correlation,
     ChordLengthInfo, CorrelationData,
     AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans,
     correlation_length,
