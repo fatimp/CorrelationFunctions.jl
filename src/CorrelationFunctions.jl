@@ -58,7 +58,7 @@ export l2, s2, c2,
     ChordLengthInfo, CorrelationData,
     AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans,
     correlation_length,
-    AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ, s3, c3, surf3, surf2void
+    AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ, s3, c3, surf3, surf2void, surfvoid2
 
 end # Directional
 
