@@ -44,6 +44,16 @@ pore_size_theory(r, R, λ) = 4π*λ*(r + R)^2 * exp(-4/3*π*λ * (r^3 + 3r^2*R +
     end
 end
 
+@testset "Check some properties of surfvoid2" begin
+    ball = draw_ball((100, 100, 100), 0.2*100)
+    for periodic in (false, true)
+        svv = D.surfvoid2(ball, true; periodic)
+        sv = D.surfvoid(ball, true; periodic) |> mean
+        @test relerr_norm(svv[D.PlaneXY()][end, :], sv) < 0.08
+        @test svv[D.PlaneXY()][:, end] ≈ svv[D.PlaneXY()][end, :]
+    end
+end
+
 @testset "S2 for ball" begin
     S = 300; R = 30
 
