@@ -91,7 +91,7 @@ end
     for periodic in (false, true)
         s2 = D.s2(rand_array, true; periodic)
         s3 = D.s3(rand_array, true; periodic)
-        @test relerr(maximum(s3[D.PlaneXY()][2:end, 2:end]), prob[2]^3) < 0.04
+        @test all(isapprox.(s3[D.PlaneXY()][2:end, 2:end], prob[2]^3; rtol = 0.02))
         @test s3[D.PlaneXY()][:,1] ≈ s2[D.DirX()]
         @test s3[D.PlaneXY()][1,:] ≈ s2[D.DirY()]
     end

@@ -35,6 +35,15 @@ s2_theory(r, R) = (r < 2R) ? 4/3*π*(r^3/16 - 3/4*R^2*r+R^3) : 0
 l2_theory(r, R, λ) = exp(-λ*π*(4/3*R^3 + r*R^2))
 pore_size_theory(r, R, λ) = 4π*λ*(r + R)^2 * exp(-4/3*π*λ * (r^3 + 3r^2*R + 3r*R^2))
 
+@testset "Check some properties of surf2void" begin
+    ball = draw_ball((100, 100, 100), 0.2*100)
+    for periodic in (false, true)
+        ssv = D.surf2void(ball, true; periodic)
+        ss = D.surf2(ball, true; periodic) |> mean
+        @test relerr_norm(ssv[D.PlaneXY()][end, :], ss) < 0.08
+    end
+end
+
 @testset "S2 for ball" begin
     S = 300; R = 30
 

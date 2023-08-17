@@ -1,9 +1,3 @@
-# Used in normalization of correlation functions with zero-padding.
-function padded_area(array :: AbstractArray{<:Any, N},
-                     shift :: NTuple{N, Int}) where N
-    return prod(size(array) .- shift)
-end
-
 function padshift!(result :: AbstractArray{<:Any, N},
                    array :: AbstractArray{<:Any, N},
                    shift :: NTuple{N, Int}) where N
@@ -28,7 +22,7 @@ arrayshift!(result, array, shift, topology :: Torus) = circshift!(result, array,
 
 autocorr3_norm(array :: AbstractArray, :: Any, :: Any, :: Torus) = length(array)
 autocorr3_norm(array :: AbstractArray, s1, s2, :: Plane) =
-    min(padded_area(array, s1), padded_area(array, s2))
+    prod(size(array) .- s1 .- s2)
 
 # This works just like autocorrelation, but replaces (*) with generic
 # ternary operation.
