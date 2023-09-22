@@ -4,7 +4,7 @@
 ## General information
 `CorrelationFunctions.jl` is a library to compute all classical correlation functions from 2D and 3D images.
 Currently, we provide functions to compute:
-1. S_2 (two-point probability)
+1. $S_2$ (two-point probability)
 2. L_2 (lineal path function)
 3. C_2 (cluster function)
 4. F_ss (surface-surface function)
