@@ -1,5 +1,7 @@
 # CorrelationFunctions.jl
 [![CI](https://github.com/shamazmazum/CorrelationFunctions.jl/actions/workflows/test.yml/badge.svg)](https://github.com/shamazmazum/CorrelationFunctions.jl/actions/workflows/test.yml)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://fatimp.github.io/CorrelationFunctions.jl/dev)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://fatimp.github.io/CorrelationFunctions.jl/stable)
 
 ## General information
 `CorrelationFunctions.jl` is a library to compute all classical correlation
