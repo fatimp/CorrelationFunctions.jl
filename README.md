@@ -22,8 +22,7 @@ Currently, we provide functions to compute:
 Some additional three-point or non-classical CFs currently under
 development. The general scheme of computations for all major functions is shown
 in figure below:
-
-TODO - input figure from paper
+![](docs/cf_1.png)
 
 Salvatore Torquato's book
 ["Random Heterogeneous Materials"](https://link.springer.com/book/10.1007/978-1-4757-6355-3)
