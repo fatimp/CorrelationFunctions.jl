@@ -22,7 +22,7 @@ include("utility/infinite_padded_views.jl")
 include("utility/rotation.jl")
 
 export read_cuboid, lowfreq_energy_ratio,
-    extract_edges, choose_filter,
+    label_components, extract_edges, choose_filter,
     AbstractKernel, ConvKernel, ErosionKernel,
     AbstractTopology, Torus, Plane,
     AbstractDirection, DirX, DirY, DirZ,
@@ -37,7 +37,7 @@ module Directional
 using ..Utilities
 using StatsBase: fit, Histogram, mean, std
 using LinearAlgebra: normalize
-using Images: feature_transform, distance_transform, label_components
+using Images: feature_transform, distance_transform
 using Base.Iterators
 using FFTW: plan_rfft, plan_irfft
 using CircularArrays: CircularArray
@@ -73,7 +73,6 @@ using ..Utilities
 using LinearAlgebra: norm
 using CUDA: CuArray
 using FFTW: rfft, irfft, ifftshift, plan_rfft
-using Images: label_components
 import CUDA.CUFFT
 
 include("map/misc.jl")

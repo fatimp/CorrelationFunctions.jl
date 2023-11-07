@@ -45,7 +45,7 @@ See also: [`AbstractTopology`](@ref).
 """
 struct Torus <: AbstractTopology end
 
-function wrapidx(idx :: CartesianIndex{N}, array :: AbstractArray{T, N}) where {T, N}
+function wrapidx(idx :: CartesianIndex{N}, array :: AbstractArray{<:Any, N}) where N
     tuple = mod.(Tuple(idx), axes(array))
     return CartesianIndex(tuple)
 end
@@ -78,16 +78,25 @@ end
 
 # Iterate over adjacent element in a "wrapped" torus space
 function iterate_adjacent(index :: CartesianIndex{N},
-                          array :: AbstractArray{T, N}) where{T, N}
+                          array :: AbstractArray{<:Any, N},
+                          _     :: Torus) where N
     return (wrapidx(index + adj, array) for adj in adjacent_elements(N))
 end
 
-function label_components(input :: AbstractArray{T, N},
-                          _     :: Torus) where {T <: Integer, N}
+# Iterate over adjacent element on a plane
+function iterate_adjacent(index :: CartesianIndex{N},
+                          array :: AbstractArray{<:Any, N},
+                          _     :: Plane) where N
+    return (index + adj for adj in adjacent_elements(N)
+            if checkbounds(Bool, array, index + adj))
+end
+
+function label_components(input    :: AbstractArray{Bool, N},
+                          topology :: AbstractTopology) where N
     # -1 means an absence of label
     output = fill(-1, size(input))
     # Current label
-    label :: Int = 1
+    label = Ref(1)
     # Queue of unlabeled neighbors
     queue = Vector{CartesianIndex{N}}(undef, 0)
 
@@ -97,7 +106,7 @@ function label_components(input :: AbstractArray{T, N},
             output[index] = 0
         elseif output[index] == -1
             # If an element does not have a label, assign current label
-            output[index] = label
+            output[index] = label[]
             push!(queue, index)
         else
             # The item is labeled, do not insert it in the queue
@@ -107,26 +116,26 @@ function label_components(input :: AbstractArray{T, N},
     for index in CartesianIndices(input)
         push_in_queue!(index)
 
-        delta = (length(queue) != 0) ? 1 : 0
+        delta = length(queue) != 0
         while length(queue) > 0
             idx = pop_from_queue!()
 
-            for aidx in iterate_adjacent(idx, input)
+            for aidx in iterate_adjacent(idx, input, topology)
                 push_in_queue!(aidx)
             end
         end
-        label = label + delta
+        label[] = label[] + delta
     end
 
     return output
 end
 
-label_components(input :: AbstractArray, :: Plane) = Images.label_components(input)
+# Image.jl's label_components is broken as of Images 0.26
+#label_components(input :: AbstractArray, :: Plane) = Images.label_components(input)
+
 ## FIXME: Maybe really parallel algorithm is needed here
-Images.label_components(input :: CuArray, topology :: AbstractTopology) =
+label_components(input :: CuArray, topology :: AbstractTopology) =
     CuArray(label_components(Array(input), topology))
-Images.label_components(input :: AbstractArray, topology :: AbstractTopology) =
-    label_components(input, topology)
 
 
 ################################

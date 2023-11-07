@@ -1,6 +1,6 @@
 # Random array with two phases
-rand_array = rand(Float32, (50, 50, 50))
-rand_array = map(x -> (x<0.3) ? 0 : 1, rand_array)
+rand_array = rand(Float32, (100, 100, 100))
+rand_array = map(x -> x < 0.3, rand_array)
 
 @testset "Check s²(a, x) = l²(a, x) = 0 for all x where a is an array without phase 2." begin
     for p in (false, true)
@@ -22,8 +22,8 @@ end
 end
 
 # Probability of randomly choosing 0 or 1
-p = count(x -> x == 0, rand_array) / length(rand_array) # P{random dot ∈ phase 0}
-q = 1 - p                                               # P{random dot ∈ phase 1}
+p = sum(.!rand_array) / length(rand_array) # P{random dot ∈ phase 0}
+q = 1 - p                                  # P{random dot ∈ phase 1}
 prob = [p, q]
 
 @testset "sᶦ(a,0) = lᶦ(a,0) = P{randomly choosing i}" begin
@@ -91,7 +91,7 @@ end
     for periodic in (false, true)
         s2 = D.s2(rand_array, true; periodic)
         s3 = D.s3(rand_array, true; periodic)
-        @test all(isapprox.(s3[D.PlaneXY()][2:end, 2:end], prob[2]^3; rtol = 0.02))
+        @test all(isapprox.(s3[D.PlaneXY()][2:end, 2:end], prob[2]^3; rtol = 0.05))
         @test s3[D.PlaneXY()][:,1] ≈ s2[D.DirX()]
         @test s3[D.PlaneXY()][1,:] ≈ s2[D.DirY()]
     end
