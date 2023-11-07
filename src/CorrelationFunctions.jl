@@ -1,7 +1,10 @@
 module CorrelationFunctions
 
 module Utilities
+using Quaternions
 using CircularArrays: CircularArray
+using OffsetArrays: centered
+using StaticArrays: SVector
 using JSON: JSON, parse
 using LinearAlgebra: norm
 using FFTW: fft, plan_rfft, irfft
@@ -15,6 +18,8 @@ include("utility/rawreader.jl")
 include("utility/lowfreq_energy_ratio.jl")
 include("utility/images.jl")
 include("utility/directions.jl")
+include("utility/infinite_padded_views.jl")
+include("utility/rotation.jl")
 
 export read_cuboid, lowfreq_energy_ratio,
     extract_edges, choose_filter,
@@ -24,7 +29,8 @@ export read_cuboid, lowfreq_energy_ratio,
     DirXY, DirYX, DirXZ, DirZX, DirYZ, DirZY,
     DirXYZ, DirXZY, DirYXZ, DirZYX,
     default_directions, check_directions,
-    maybe_upload_to_gpu
+    maybe_upload_to_gpu,
+    Rotation, make_rotation, rotate_array
 end
 
 module Directional
