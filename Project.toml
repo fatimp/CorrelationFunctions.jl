@@ -16,7 +16,7 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
-CUDA = "3.2, 4"
+CUDA = "3.2, 4, 5"
 CircularArrays = "1.2"
 FFTW = "1.4"
 Images = "0.24, 0.25"
