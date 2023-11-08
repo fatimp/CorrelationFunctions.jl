@@ -9,6 +9,8 @@ Rotation{D}(q :: T) where {D, T} = Rotation{D, T}(q)
     make_rotation(ϕ)
 
 Make a rotation of 2-dimensional data by ϕ radians clockwise.
+
+See also: [`rotate_array`](@ref).
 """
 function make_rotation(ϕ :: AbstractFloat)
     s, c = sincos(ϕ/2)
@@ -20,6 +22,8 @@ end
 
 Make a rotation of 3-dimensional data by ϕ radians around a vector
 `vec` clockwise.
+
+See also: [`rotate_array`](@ref).
 """
 function make_rotation(vec :: SVector{3}, ϕ :: AbstractFloat)
     s, c = sincos(ϕ/2)
@@ -58,6 +62,9 @@ system's origin is placed into the center of the array. Out-of-bounds
 array access is specified by `topology` argument. It is periodic
 extension of the array if `topology` is `Torus()` and zero padding if
 `topology` is `Plane()`.
+
+See also: [`AbstractTopology`](@ref), [`Torus`](@ref),
+[`Plane`](@ref), [`make_rotation`](@ref).
 """
 function rotate_array(array    :: AbstractArray{<:Any, N},
                       rot      :: Rotation{N},
