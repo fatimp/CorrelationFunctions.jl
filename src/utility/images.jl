@@ -272,8 +272,8 @@ abstract type AbstractKernel end
 """
     ConvKernel(n)
 
-Convolution kernel of width `n` used in edge detection. Values `3` and
-`5` are possible values for `n`. Using `n = 5` works best for the most
+Convolution kernel of width `n` used in edge detection. Values `5` and
+`7` are possible values for `n`. Using `n = 7` works best for the most
 cases (`lowfreq_energy_ratio(array) > 0.97`).
 
 See also: [`AbstractKernel`](@ref), [`extract_edges`](@ref).
