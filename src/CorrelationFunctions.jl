@@ -4,8 +4,8 @@ module Utilities
 using Quaternions
 using CircularArrays: CircularArray
 using OffsetArrays: centered
-using StaticArrays: SVector
-using LinearAlgebra: norm
+using StaticArrays: SVector, SMatrix
+using LinearAlgebra: norm, eigvecs, det, Symmetric
 using FFTW: fft, plan_rfft, irfft
 using StatsBase: mean
 using CUDA: CuArray
@@ -19,6 +19,7 @@ include("utility/images.jl")
 include("utility/directions.jl")
 include("utility/infinite_padded_views.jl")
 include("utility/rotation.jl")
+include("utility/anisotropy.jl")
 
 export read_cuboid, lowfreq_energy_ratio,
     label_components, extract_edges, choose_filter,
@@ -29,7 +30,8 @@ export read_cuboid, lowfreq_energy_ratio,
     DirXYZ, DirXZY, DirYXZ, DirZYX,
     default_directions, check_directions,
     maybe_upload_to_gpu,
-    Rotation, make_rotation, rotate_array
+    AbstractRotation, VectorRotation, MatRotation,
+    make_rotation, rotate_array, detect_anisotropy
 end
 
 module Directional

@@ -1,9 +1,14 @@
-# A structure which defines D-dimensional rotation
-struct Rotation{D, T <: Quaternion}
+abstract type AbstractRotation{D} end
+
+struct VectorRotation{D, T <: Quaternion} <: AbstractRotation{D}
     q :: T
 end
 
-Rotation{D}(q :: T) where {D, T} = Rotation{D, T}(q)
+VectorRotation{D}(q :: T) where {D, T} = VectorRotation{D, T}(q)
+
+struct MatRotation{D, T <: SMatrix{D,D}} <: AbstractRotation{D}
+    m :: T
+end
 
 """
     make_rotation(ϕ)
@@ -14,7 +19,7 @@ See also: [`rotate_array`](@ref).
 """
 function make_rotation(ϕ :: AbstractFloat)
     s, c = sincos(ϕ/2)
-    return Rotation{2}(Quaternion(c, 0, 0, s))
+    return VectorRotation{2}(Quaternion(c, 0, 0, s))
 end
 
 """
@@ -28,22 +33,34 @@ See also: [`rotate_array`](@ref).
 function make_rotation(vec :: SVector{3}, ϕ :: AbstractFloat)
     s, c = sincos(ϕ/2)
     v = s * vec / norm(vec)
-    return Rotation{3}(Quaternion(c, v...))
+    return VectorRotation{3}(Quaternion(c, v...))
 end
 
-function rotate(vec :: SVector{2}, rot :: Rotation{2})
+"""
+    make_rotation(m :: SMatrix{D,D})
+
+Make a rotation which transforms unit vectors to columns of `m`. It is
+implicitly assumed that any two columns `c₁` and `c₂` have zero dot
+product: `(c₁, c₂) = 0` and all columns are unit vectors.
+"""
+make_rotation(mat :: T) where {D, T <: SMatrix{D, D}} = MatRotation{D,T}(mat)
+
+function rotate(vec :: SVector{2}, rot :: VectorRotation{2})
     v = Quaternion(0.0, vec..., 0.0)
     q = rot.q
     vr = q * v * conj(q)
     return SVector(vr.v1, vr.v2)
 end
 
-function rotate(vec :: SVector{3}, rot :: Rotation{3})
+function rotate(vec :: SVector{3}, rot :: VectorRotation{3})
     v = Quaternion(0.0, vec...)
     q = rot.q
     vr = q * v * conj(q)
     return SVector(vr.v1, vr.v2, vr.v3)
 end
+
+rotate(vec :: SVector{D}, rot :: MatRotation{D}) where D =
+    rot.m * vec
 
 wrap_array(array :: AbstractArray, :: Torus) =
     CircularArray(centered(array))
@@ -67,7 +84,7 @@ See also: [`AbstractTopology`](@ref), [`Torus`](@ref),
 [`Plane`](@ref), [`make_rotation`](@ref).
 """
 function rotate_array(array    :: AbstractArray{<:Any, N},
-                      rot      :: Rotation{N},
+                      rot      :: AbstractRotation{N},
                       topology :: AbstractTopology) where N
     input  = wrap_array(array, topology)
     output = similar(input)
