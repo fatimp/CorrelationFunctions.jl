@@ -5,7 +5,6 @@ using Quaternions
 using CircularArrays: CircularArray
 using OffsetArrays: centered
 using StaticArrays: SVector
-using JSON: JSON, parse
 using LinearAlgebra: norm
 using FFTW: fft, plan_rfft, irfft
 using StatsBase: mean
