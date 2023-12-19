@@ -26,39 +26,6 @@ function surf3(array        :: AbstractArray, phase;
     return Dict{AbstractPlane, Matrix{Float64}}(map(mapping, planes))
 end
 
-# Compute cross-correlation array1 ⋆ array2 ⋆ array3
-function crosscorr3_plane(array1   :: AbstractArray,
-                          array2   :: AbstractArray,
-                          array3   :: AbstractArray,
-                          plane    :: AbstractPlane,
-                          topology :: AbstractTopology,
-                          len)
-    @assert size(array1) == size(array2) == size(array3)
-
-    rot2 = similar(array2)
-    rot3 = similar(array3)
-    shift2, shift1 = unit_shifts(array1, plane)
-    result = zeros(Float64, (len, len))
-
-    # Reduction of multidimensional arrays is too damn slow on CUDA
-    # (3.x, 4.0), it is sufficient to make a one-dimensional view of
-    # one of the arrays though.
-    view = maybe_flatten(array1)
-
-    for i in 1:len
-        s1 = (i - 1) .* shift1
-        rot2 = arrayshift!(rot2, array2, s1, topology)
-        for j in 1:len
-            s2 = (j - 1) .* shift2
-            rot3 = arrayshift!(rot3, array3, s2, topology)
-            result[j, i] = mapreduce(*, +, view, rot2, rot3) /
-                autocorr3_norm(array1, s1, s2, topology)
-        end
-    end
-
-    return result
-end
-
 @doc raw"""
     surf2void(array, phase[; void_phase = 0,
             planes :: Vector{AbstractPlane}, len, periodic = false, filter :: AbstractKernel])
@@ -85,8 +52,9 @@ function surf2void(array        :: T, phase, void_phase  = 0;
     # Prevent implicit conversion to BitArray, they are slow
     edges = extract_edges(array .== phase, filter, topology)
     void  = T(array .== void_phase)
+    op(x,y,z) = x*y*z
 
-    mapping(plane) = plane => crosscorr3_plane(edges, edges, void, plane, topology, len)
+    mapping(plane) = plane => crosscorr3_plane(edges, edges, void, op, plane, topology, len)
     return Dict{AbstractPlane, Matrix{Float64}}(map(mapping, planes))
 end
 
@@ -114,7 +82,8 @@ function surfvoid2(array        :: T, phase, void_phase  = 0;
     # Prevent implicit conversion to BitArray, they are slow
     edges = extract_edges(array .== phase, filter, topology)
     void  = T(array .== void_phase)
+    op(x,y,z) = x*y*z
 
-    mapping(plane) = plane => crosscorr3_plane(edges, void, void, plane, topology, len)
+    mapping(plane) = plane => crosscorr3_plane(edges, void, void, op, plane, topology, len)
     return Dict{AbstractPlane, Matrix{Float64}}(map(mapping, planes))
 end

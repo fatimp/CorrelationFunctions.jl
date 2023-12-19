@@ -26,34 +26,41 @@ autocorr3_norm(array :: AbstractArray, s1, s2, :: Plane) =
 
 # This works just like autocorrelation, but replaces (*) with generic
 # ternary operation.
-function autocorr3_plane(array    :: AbstractArray,
-                         op       :: Function,
-                         plane    :: AbstractPlane,
-                         topology :: AbstractTopology,
-                         len)
-    rot1 = similar(array)
-    rot2 = similar(array)
-    shift2, shift1 = unit_shifts(array, plane)
+function crosscorr3_plane(array1    :: AbstractArray,
+                          array2    :: AbstractArray,
+                          array3    :: AbstractArray,
+                          op        :: Function,
+                          plane     :: AbstractPlane,
+                          topology  :: AbstractTopology,
+                          len)
+    @assert size(array1) == size(array2) == size(array3)
+
+    rot2 = similar(array2)
+    rot3 = similar(array3)
+    shift3, shift2 = unit_shifts(array1, plane)
     result = zeros(Float64, (len, len))
 
     # Reduction of multidimensional arrays is too damn slow on CUDA
     # (3.x, 4.0), it is sufficient to make a one-dimensional view of
     # one of the arrays though.
-    view = maybe_flatten(array)
+    view = maybe_flatten(array1)
 
     for i in 1:len
-        s1 = (i - 1) .* shift1
-        rot1 = arrayshift!(rot1, array, s1, topology)
+        s2 = (i - 1) .* shift2
+        rot2 = arrayshift!(rot2, array2, s2, topology)
         for j in 1:len
-            s2 = (j - 1) .* shift2
-            rot2 = arrayshift!(rot2, array, s2, topology)
-            result[j, i] = mapreduce(op, +, view, rot1, rot2) /
-                autocorr3_norm(array, s1, s2, topology)
+            s3 = (j - 1) .* shift3
+            rot3 = arrayshift!(rot3, array3, s3, topology)
+            result[j, i] = mapreduce(op, +, view, rot2, rot3) /
+                autocorr3_norm(array1, s2, s3, topology)
         end
     end
 
     return result
 end
+
+autocorr3_plane(array :: AbstractArray, op, plane, topology, len) =
+    crosscorr3_plane(array, array, array, op, plane, topology, len)
 
 """
     s3(array[; planes :: Vector{AbstractPlane}, len, periodic = false])
