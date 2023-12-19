@@ -16,7 +16,7 @@ function c3(array        :: T, phase;
     ind = T(array .== phase)
     topology = periodic ? Torus() : Plane()
     components = label_components(ind, topology)
-    op(x, y, z) = x == y == z != 0
+    op(x, y, z) = x .== y .== z .!= 0
     calc_c3(plane) = plane => autocorr3_plane(components, op, plane, topology, len)
     return Dict{AbstractPlane, Matrix{Float64}}(map(calc_c3, planes))
 end

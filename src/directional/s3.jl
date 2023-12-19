@@ -11,12 +11,6 @@ function padshift!(result :: AbstractArray{<:Any, N},
     return result
 end
 
-function maybe_flatten(array :: CuArray)
-    @assert IndexStyle(array) == IndexLinear()
-    return view(array, 1:length(array))
-end
-maybe_flatten(array :: AbstractArray) = array
-
 arrayshift!(result, array, shift, topology :: Plane) = padshift!(result, array, shift)
 arrayshift!(result, array, shift, topology :: Torus) = circshift!(result, array, shift)
 
@@ -35,15 +29,11 @@ function crosscorr3_plane(array1    :: AbstractArray,
                           len)
     @assert size(array1) == size(array2) == size(array3)
 
+    rot1 = array1
     rot2 = similar(array2)
     rot3 = similar(array3)
     shift3, shift2 = unit_shifts(array1, plane)
     result = zeros(Float64, (len, len))
-
-    # Reduction of multidimensional arrays is too damn slow on CUDA
-    # (3.x, 4.0), it is sufficient to make a one-dimensional view of
-    # one of the arrays though.
-    view = maybe_flatten(array1)
 
     for i in 1:len
         s2 = (i - 1) .* shift2
@@ -51,7 +41,7 @@ function crosscorr3_plane(array1    :: AbstractArray,
         for j in 1:len
             s3 = (j - 1) .* shift3
             rot3 = arrayshift!(rot3, array3, s3, topology)
-            result[j, i] = mapreduce(op, +, view, rot2, rot3) /
+            result[j, i] = sum(op(rot1, rot2, rot3)) /
                 autocorr3_norm(array1, s2, s3, topology)
         end
     end
@@ -95,7 +85,7 @@ function s3(array    :: AbstractArray;
             periodic :: Bool                  = false,
             planes   :: Vector{AbstractPlane} = default_planes(array),
             len                               = (array |> size |> minimum) ÷ 2)
-    op(x,y,z) = x*y*z
+    op(x, y, z) = x .* y .* z
     topology = periodic ? Torus() : Plane()
     calc_s3(plane) = plane => autocorr3_plane(array, op, plane, topology, len)
     return Dict{AbstractPlane, Matrix{Float64}}(map(calc_s3, planes))
