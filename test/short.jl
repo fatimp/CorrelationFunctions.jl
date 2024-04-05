@@ -44,5 +44,5 @@ end
         end
     end
 
-    @test length(D.pore_size(a, 0).weights) == 0
+    @test length(D.pore_size(a, 0)) == 0
 end

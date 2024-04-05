@@ -1,24 +1,37 @@
 """
-    pore_size(array, phase = 0; nbins = 10, periodic = false)
+    pore_size(array, phase = 0; periodic = false)
 
 Calculate pore size correlation function for one-, two- or
-three-dimensional multiphase system.
+three-dimensional multiphase systems.
 
-Pore size correlation function `P(x)` equals to probability of
-inserting a ball with radius `R ∈ [x, x + δx]` into a system so that
-it lies entirely in the phase `phase`.
+This implementation returns an array of pore sizes where each size is
+equal to the distance from a particular point in the pore to the closest
+point not belonging to the phase `phase`.
 
-This implementation divides the range of possible radii into `nbins`
-subranges and returns a normalized histogram of radii. This is roughly
-equal to integrating `P(x)` for each subrange.
+# Example
+```jldoctest
+julia> data = [1 1 1 1 1; 1 1 0 1 1; 1 0 0 0 1; 1 1 0 1 1; 1 1 1 1 1]
+5×5 Matrix{Int64}:
+ 1  1  1  1  1
+ 1  1  0  1  1
+ 1  0  0  0  1
+ 1  1  0  1  1
+ 1  1  1  1  1
+
+julia> D.pore_size(data, 0)
+5-element Vector{Float64}:
+ 1.0
+ 1.0
+ 1.4142135623730951
+ 1.0
+ 1.0
+```
 """
 function pore_size(array    :: AbstractArray,
                    phase               = 0;
-                   nbins    :: Integer = 10,
                    periodic :: Bool    = false)
     indicator = map(x -> x ≠ phase, array)
     distances = distance_transform(indicator, periodic ? Torus() : Plane())
     distances = filter(x -> x != 0, distances)
-    hist = fit(Histogram, distances; nbins = nbins)
-    return normalize(hist; mode = :probability)
+    return distances
 end

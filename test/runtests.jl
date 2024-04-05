@@ -4,9 +4,9 @@ import CorrelationFunctions.Map as M
 using XUnit
 using Distributions: Poisson
 using Base.Iterators: zip, drop, countfrom
-using Statistics: mean
+using StatsBase: mean, std, fit, Histogram
 using Images: feature_transform, distance_transform, centered
-using LinearAlgebra: norm
+using LinearAlgebra: norm, normalize
 using StaticArrays: SVector
 using CUDA: CuArray
 

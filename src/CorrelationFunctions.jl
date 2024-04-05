@@ -7,7 +7,7 @@ using OffsetArrays: centered
 using StaticArrays: SVector, SMatrix
 using LinearAlgebra: norm, eigvecs, det, Symmetric
 using FFTW: fft, plan_rfft, irfft
-using StatsBase: mean
+using Statistics: mean
 using CUDA: CuArray
 import CUDA.CUFFT
 import Images
@@ -36,7 +36,7 @@ end
 
 module Directional
 using ..Utilities
-using StatsBase: fit, Histogram, mean, std
+using Statistics: mean, std
 using LinearAlgebra: normalize
 using Images: feature_transform, distance_transform
 using Base.Iterators

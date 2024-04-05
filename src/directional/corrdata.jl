@@ -64,7 +64,7 @@ end
 Base.iterate(cd :: CorrelationData) = nextstate(cd, iterate(cd.directions))
 Base.iterate(cd :: CorrelationData, state) = nextstate(cd, iterate(cd.directions, state))
 
-import StatsBase: mean
+import Statistics: mean
 """
     mean(data :: CorrelationData, directions :: Vector{AbstractDirection})
     mean(data :: CorrelationData)

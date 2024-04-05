@@ -125,7 +125,7 @@ end
     S = 500; R = 30; λ = 1e-5
     balls = genballs(S, R, λ)
 
-    calc = D.pore_size(balls; nbins = 20)
+    calc = normalize(fit(Histogram, D.pore_size(balls); nbins = 10); mode = :probability)
     edges = calc.edges[1]
     s = step(edges)
     theory = [integrate(x -> pore_size_theory(x, R, λ), n:0.05:n+s)
@@ -148,6 +148,6 @@ end
     μ    = π^2/8 * R
     σ    = sqrt((1024 - 9π^4)/576) * R
 
-    @test relerr(data.μ, μ) < 0.09
-    @test relerr(data.σ, σ) < 0.09
+    @test relerr(mean(data), μ) < 0.09
+    @test relerr(std(data),  σ) < 0.09
 end

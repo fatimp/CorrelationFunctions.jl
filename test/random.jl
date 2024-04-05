@@ -80,13 +80,6 @@ end
     end
 end
 
-@testset "Check pore size and chord length sum" begin
-    for phase in 0:1
-        @test sum(D.pore_size(rand_array, phase).weights) ≈ 1
-        @test sum(D.chord_length(rand_array, phase).hist.weights) ≈ 1
-    end
-end
-
 @testset "Check some properties of s3" begin
     for periodic in (false, true)
         s2 = D.s2(rand_array, true; periodic)

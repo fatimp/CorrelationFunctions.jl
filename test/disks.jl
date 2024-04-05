@@ -99,7 +99,7 @@ end
     S = 7000; R = 50; λ = 5e-5
     disks = gendisks(S, R, λ)
 
-    calc = D.pore_size(disks; nbins = 20)
+    calc = normalize(fit(Histogram, D.pore_size(disks); nbins = 10); mode = :probability)
     edges = calc.edges[1]
     s = step(edges)
     theory = [integrate(x -> pore_size_theory(x, R, λ), n:0.05:n+s)
@@ -122,6 +122,6 @@ end
     μ    = π/2 * R
     σ    = sqrt((32 - 3π^2)/12) * R
 
-    @test relerr(data.μ, μ) < 0.02
-    @test relerr(data.σ, σ) < 0.02
+    @test relerr(mean(data), μ) < 0.02
+    @test relerr(std(data),  σ) < 0.02
 end

@@ -1,36 +1,22 @@
 """
-Structure returned by `chord_length` function. To access chord length
-histogram use `hist` field.
-"""
-struct ChordLengthInfo
-    μ :: Float64
-    σ :: Float64
-    hist
-end
+    chord_length(array, phase[; directions])
 
-function Base.show(io :: IO, ::MIME"text/plain", x :: ChordLengthInfo)
-    print(io, "Chord length info (mean = $(x.μ), std = $(x.σ))")
-end
+Calculate the chord length correlation function for one-, two- or
+three-dimensional multiphase systems.
 
-"""
-    chord_length(array, phase[; directions,] nbins = 10)
-
-Calculate chord length correlation function for one-, two- or
-three-dimensional multiphase system.
-
-Cord length function `p(x)` equals to probability of finding a chord
-whose length is in the range `[x, x+δx]` and which lies entirely in the
-phase `phase`. A chord is a line segment which touches the boundary of
+A chord is a line segment which touches the boundary of
 a same-phase cluster with its ends.
 
-This implementation bins chord lengths into `nbins` bins and returns
-normalized histogram on collected data along with mean chord length
-and standard deviation.
+This implementation returns an array of chord lengths where each
+length is equal to a number of voxels in the phase `phase` belonging
+to a chord.
 
 # Examples
 ```jldoctest
 julia> chord_length([1, 0, 0, 0, 0, 1, 0, 1], 0)
-Chord length info (mean = 2.5, std = 2.1213203435596424)
+2-element Vector{Int64}:
+ 4
+ 1
 ```
 
 For a list of possible dimensions, see also:
@@ -38,8 +24,7 @@ For a list of possible dimensions, see also:
 """
 function chord_length(array      :: AbstractArray,
                       phase;
-                      directions :: Vector{AbstractDirection} = array |> default_directions,
-                      nbins      :: Integer                   = 10)
+                      directions :: Vector{AbstractDirection} = array |> default_directions)
     # Select needed phase by applying indicator function to array.
     ph = array .== phase
 
@@ -85,8 +70,5 @@ function chord_length(array      :: AbstractArray,
         end
     end
 
-    hist = fit(Histogram, lengths; nbins = nbins)
-    return ChordLengthInfo(mean(lengths),
-                           std(lengths),
-                           normalize(hist; mode = :probability))
+    return lengths
 end
