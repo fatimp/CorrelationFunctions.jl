@@ -9,8 +9,8 @@ using LinearAlgebra: norm, eigvecs, det, Symmetric
 using FFTW: fft, plan_rfft, irfft
 using Statistics: mean
 using CUDA: CuArray
+using ImageFiltering: centered, Pad, imfilter
 import CUDA.CUFFT
-import Images
 
 include("utility/misc.jl")
 include("utility/rawreader.jl")
@@ -22,23 +22,19 @@ include("utility/rotation.jl")
 include("utility/anisotropy.jl")
 
 export read_cuboid, lowfreq_energy_ratio,
-    label_components, extract_edges, choose_filter,
+    distance_transform, label_components, extract_edges,
     AbstractKernel, ConvKernel, ErosionKernel,
-    AbstractTopology, Torus, Plane,
-    AbstractDirection, DirX, DirY, DirZ,
-    DirXY, DirYX, DirXZ, DirZX, DirYZ, DirZY,
-    DirXYZ, DirXZY, DirYXZ, DirZYX,
-    default_directions, check_directions,
-    maybe_upload_to_gpu,
-    AbstractRotation, VectorRotation, MatRotation,
-    make_rotation, rotate_array, detect_anisotropy
+    AbstractTopology, Torus, Plane, AbstractDirection, DirX, DirY,
+    DirZ, DirXY, DirYX, DirXZ, DirZX, DirYZ, DirZY, DirXYZ, DirXZY,
+    DirYXZ, DirZYX, default_directions, check_directions,
+    maybe_upload_to_gpu, AbstractRotation, VectorRotation,
+    MatRotation, make_rotation, rotate_array, detect_anisotropy
 end
 
 module Directional
 using ..Utilities
 using Statistics: mean, std
 using LinearAlgebra: normalize
-using Images: feature_transform, distance_transform
 using Base.Iterators
 using FFTW: plan_rfft, plan_irfft
 using CircularArrays: CircularArray

@@ -1,6 +1,6 @@
 @doc raw"""
-    surf3(array, phase[; planes :: Vector{AbstractPlane},
-                         len, periodic = false, filter :: AbstractKernel])
+    surf3(array[; planes :: Vector{AbstractPlane},
+                  len, periodic = false, filter :: AbstractKernel])
 
 Calculate surface-surface-surface ($F_{sss}$) correlation function.
 
@@ -13,17 +13,31 @@ You can chose how an edge between phases is selected by passing
 See also: [`s3`](@ref), [`AbstractPlane`](@ref),
 [`ErosionKernel`](@ref).
 """
-function surf3(array        :: AbstractArray, phase;
+function surf3(array        :: AbstractArray;
                planes       :: Vector{AbstractPlane} = default_planes(array),
                periodic     :: Bool                  = false,
                filter       :: AbstractKernel        = ConvKernel(7),
                len = (array |> size |> minimum) ÷ 2)
     topology = periodic ? Torus() : Plane()
-    edges = extract_edges(array .== phase, filter, topology)
+    edges = extract_edges(array, filter, topology)
 
     op(x, y, z) = x .* y .* z
     mapping(plane) = plane => autocorr3_plane(edges, op, plane, topology, len)
     return Dict{AbstractPlane, Matrix{Float64}}(map(mapping, planes))
+end
+
+"""
+    surf3(array, phase[; planes, len, periodic = false, filter = ConvKernel(7)])
+
+The same as `surf3(array .== phase; ...)`. Kept for consistency with other
+parts of the API.
+"""
+function surf3(array        :: AbstractArray, phase;
+               planes       :: Vector{AbstractPlane} = default_planes(array),
+               periodic     :: Bool                  = false,
+               filter       :: AbstractKernel        = ConvKernel(7),
+               len = (array |> size |> minimum) ÷ 2)
+    return surf3(array .== phase; planes, periodic, filter, len)
 end
 
 @doc raw"""

@@ -130,9 +130,6 @@ function label_components(input    :: AbstractArray{Bool, N},
     return output
 end
 
-# Image.jl's label_components is broken as of Images 0.26
-#label_components(input :: AbstractArray, :: Plane) = Images.label_components(input)
-
 ## FIXME: Maybe really parallel algorithm is needed here
 label_components(input :: CuArray, topology :: AbstractTopology) =
     CuArray(label_components(Array(input), topology))
@@ -243,12 +240,7 @@ function edt!(array    :: AbstractArray{Float64, 3},
     return array
 end
 
-# Use faster implementation from ImageMorphology with Plane topology.
-Images.distance_transform(array :: AbstractArray{Bool}, :: Plane) =
-    array |> Images.feature_transform |> Images.distance_transform
-
-Images.distance_transform(array :: AbstractArray{Bool}, :: Torus) =
-    edt(array, Torus())
+distance_transform(array, topology = Plane()) = edt(array, topology)
 
 ##################
 # Edge detection #
@@ -310,7 +302,7 @@ function edge_filter(:: AbstractArray{<:Any, N}, kernel :: ConvKernel) where N
         1/sqrt(sum(Tuple(idx) .^ 2))
     end
 
-    cres = Images.centered(res)
+    cres = centered(res)
     cres[0*indices[1]] = 0
     cres[0*indices[1]] = -sum(cres)
     return cres / conv_factors[width][N-1]
@@ -329,7 +321,7 @@ function edge_filter(:: AbstractArray{<:Any, N}, kernel :: ErosionKernel) where 
         dist <= sqradius
     end
 
-    return Images.centered(result)
+    return centered(result)
 end
 
 """
@@ -362,8 +354,8 @@ function filter_periodic(array, kernel)
     return irfft(ftres, size(array, 1))
 end
 
-edge2pad(:: Torus) = Images.Pad(:circular)
-edge2pad(:: Plane) = Images.Pad(:reflect)
+edge2pad(:: Torus) = Pad(:circular)
+edge2pad(:: Plane) = Pad(:reflect)
 
 # Fuck Julia for being unable to vectorize isapprox!
 # Julia is a piece of shit, why don't we use python (which is the same
@@ -371,13 +363,13 @@ edge2pad(:: Plane) = Images.Pad(:reflect)
 myapproxp(x, y, atol) = abs(x - y) < atol
 
 extract_edges(array :: AbstractArray, filter :: ConvKernel, topology :: AbstractTopology) =
-    abs.(Images.imfilter(array, edge_filter(array, filter), edge2pad(topology)))
+    abs.(imfilter(array, edge_filter(array, filter), edge2pad(topology)))
 
 # erode from ImageMorphology.jl does not allow to use a custom kernel
 extract_edges(array :: AbstractArray, filter :: ErosionKernel, topology :: AbstractTopology) =
     let kernel = edge_filter(array, filter)
         scale  = filter.width ÷ 2
-        eroded = myapproxp.(Images.imfilter(Float64, array, kernel, edge2pad(topology)),
+        eroded = myapproxp.(imfilter(Float64, array, kernel, edge2pad(topology)),
                            sum(kernel), 0.1)
         (array .- eroded) / scale
     end

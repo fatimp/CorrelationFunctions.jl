@@ -31,7 +31,7 @@ function chord_length(array      :: AbstractArray,
     # Extract the interface.
     # Unlike surface correlation functions, distance transform works
     # just fine here.
-    dist = ph |> feature_transform |> distance_transform
+    dist = distance_transform(ph)
     edge = dist .== 1
 
     # Arary of chord lengths

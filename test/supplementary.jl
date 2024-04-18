@@ -1,17 +1,43 @@
-@testset "Check distance transform (2D)" begin
+testdist(x, y, :: U.Plane) = norm(x - y)
+
+function testdist(x, y, :: U.Torus)
+    c = map(x, y) do i, j
+        d1 = abs(i - j)
+        d2 = 100 - d1
+        d = min(d1, d2)
+    end
+
+    return norm(c)
+end
+
+function check_edt(dim, topology)
+    toarray(x) = Int[Tuple(x)...]
     foreach(1:5) do _
-        a = BitArray(rand(0:1, (100, 100)))
-        @test U.edt(a, U.Plane()) ==
-            a |> feature_transform |> distance_transform
+        dims = (100 for _ in 1:dim)
+        a = falses(dims...)
+        idx1 = CartesianIndex((rand(1:100) for _ in 1:dim)...)
+        idx2 = CartesianIndex((rand(1:100) for _ in 1:dim)...)
+        a[idx1] = 1
+        a[idx2] = 1
+
+        edt = map(CartesianIndices(a)) do idx
+            d1 = testdist(toarray(idx), toarray(idx1), topology)
+            d2 = testdist(toarray(idx), toarray(idx2), topology)
+            min(d1, d2)
+        end
+
+        @test U.edt(a, topology) ≈ edt
     end
 end
 
+@testset "Check distance transform (2D)" begin
+    check_edt(2, U.Plane())
+    check_edt(2, U.Torus())
+end
+
 @testset "Check distance transform (3D)" begin
-    foreach(1:5) do _
-        a = BitArray(rand(0:1, (100, 100, 100)))
-        @test U.edt(a, U.Plane()) ==
-            a |> feature_transform |> distance_transform
-    end
+    check_edt(3, U.Plane())
+    check_edt(3, U.Torus())
 end
 
 @testset "Check lowfreq_energy_ratio" begin

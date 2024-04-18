@@ -5,7 +5,7 @@ using XUnit
 using Distributions: Poisson
 using Base.Iterators: zip, drop, countfrom
 using StatsBase: mean, std, fit, Histogram
-using Images: feature_transform, distance_transform, centered
+using ImageFiltering: centered
 using LinearAlgebra: norm, normalize
 using StaticArrays: SVector
 using CUDA: CuArray
