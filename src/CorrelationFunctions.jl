@@ -26,7 +26,7 @@ export read_cuboid, lowfreq_energy_ratio,
     AbstractKernel, ConvKernel, ErosionKernel,
     AbstractTopology, Torus, Plane, AbstractDirection, DirX, DirY,
     DirZ, DirXY, DirYX, DirXZ, DirZX, DirYZ, DirZY, DirXYZ, DirXZY,
-    DirYXZ, DirZYX, default_directions, check_directions,
+    DirYXZ, DirZYX, default_directions, check_directions, check_rank,
     maybe_upload_to_gpu, AbstractRotation, VectorRotation,
     MatRotation, make_rotation, rotate_array, detect_anisotropy
 end

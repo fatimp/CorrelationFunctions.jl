@@ -35,6 +35,8 @@ function surf2(array      :: AbstractArray,
                periodic   :: Bool                      = false,
                plans      :: S2FTPlans                 = S2FTPlans(array, periodic),
                filter     :: AbstractKernel            = ConvKernel(7))
+    check_rank(array, 2)
+
     χ = phase2ind(phase)
     ph = map(χ, array)
     edge = extract_edges(ph, filter, periodic ? Torus() : Plane())
@@ -83,6 +85,8 @@ function surfvoid(array      :: AbstractArray,
                   plans      :: S2FTPlans                 = S2FTPlans(array, periodic),
                   filter     :: AbstractKernel            = ConvKernel(7),
                   void_phase                              = 0)
+    check_rank(array, 1)
+
     χ = phase2ind(phase)
     χ_void = phase2ind(void_phase)
     ph = map(χ, array)

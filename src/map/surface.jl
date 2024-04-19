@@ -17,6 +17,8 @@ See also: [`Utilities.AbstractKernel`](@ref)
 function surf2(image, phase;
                periodic :: Bool           = false,
                filter   :: AbstractKernel = ConvKernel(7))
+    check_rank(image, 2)
+
     M = extract_edges(image .== phase, filter, periodic ? Torus() : Plane())
     return s2(M; periodic)
 end
@@ -40,8 +42,9 @@ See also: [`Utilities.AbstractKernel`](@ref)
 function surfvoid(image, phase;
                   periodic :: Bool           = false,
                   filter   :: AbstractKernel = ConvKernel(7))
+    check_rank(image, 1)
+
     M = extract_edges(image .== phase, filter, periodic ? Torus() : Plane())
     V = image .== 0
-
     return cross_correlation(V, M; periodic)
 end

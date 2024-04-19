@@ -18,6 +18,8 @@ function surf3(array        :: AbstractArray;
                periodic     :: Bool                  = false,
                filter       :: AbstractKernel        = ConvKernel(7),
                len = (array |> size |> minimum) ÷ 2)
+    check_rank(array, 3)
+
     topology = periodic ? Torus() : Plane()
     edges = extract_edges(array, filter, topology)
 
@@ -62,6 +64,8 @@ function surf2void(array        :: T, phase, void_phase  = 0;
                    periodic     :: Bool                  = false,
                    filter       :: AbstractKernel        = ConvKernel(7),
                    len = (array |> size |> minimum) ÷ 2) where T <: AbstractArray
+    check_rank(array, 2)
+
     topology = periodic ? Torus() : Plane()
     # Prevent implicit conversion to BitArray, they are slow
     edges = extract_edges(array .== phase, filter, topology)
@@ -92,6 +96,8 @@ function surfvoid2(array        :: T, phase, void_phase  = 0;
                    periodic     :: Bool                  = false,
                    filter       :: AbstractKernel        = ConvKernel(7),
                    len = (array |> size |> minimum) ÷ 2) where T <: AbstractArray
+    check_rank(array, 1)
+
     topology = periodic ? Torus() : Plane()
     # Prevent implicit conversion to BitArray, they are slow
     edges = extract_edges(array .== phase, filter, topology)
