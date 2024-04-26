@@ -11,8 +11,8 @@ function padshift!(result :: AbstractArray{<:Any, N},
     return result
 end
 
-arrayshift!(result, array, shift, topology :: Plane) = padshift!(result, array, shift)
-arrayshift!(result, array, shift, topology :: Torus) = circshift!(result, array, shift)
+arrayshift!(result, array, shift, :: Plane) = padshift!(result, array, shift)
+arrayshift!(result, array, shift, :: Torus) = circshift!(result, array, shift)
 
 autocorr3_norm(array :: AbstractArray, :: Any, :: Any, :: Torus) = length(array)
 autocorr3_norm(array :: AbstractArray, s1, s2, :: Plane) =
