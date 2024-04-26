@@ -58,10 +58,10 @@ include("directional/cc.jl")
 
 export l2, s2, c2,
     surf2, surfvoid, chord_length, pore_size, cross_correlation,
-    ChordLengthInfo, CorrelationData,
+    s3, c3, surf3, surf2void, surfvoid2,
     AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans,
-    correlation_length,
-    AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ, s3, c3, surf3, surf2void, surfvoid2
+    correlation_length, CorrelationData,
+    AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ
 
 end # Directional
 
