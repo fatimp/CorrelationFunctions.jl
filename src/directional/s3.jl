@@ -1,6 +1,6 @@
 function padshift!(result :: AbstractArray{<:Any, N},
-                   array :: AbstractArray{<:Any, N},
-                   shift :: NTuple{N, Int}) where N
+                   array  :: AbstractArray{<:Any, N},
+                   shift  :: NTuple{N, Int}) where N
     result .= 0
     indices = CartesianIndices(array)
     fidx, lidx = first(indices), last(indices)
@@ -20,37 +20,33 @@ autocorr3_norm(array :: AbstractArray, s1, s2, :: Plane) =
 
 # This works just like autocorrelation, but replaces (*) with generic
 # ternary operation.
-function crosscorr3_plane(array1    :: AbstractArray,
-                          array2    :: AbstractArray,
-                          array3    :: AbstractArray,
-                          op        :: Function,
-                          plane     :: AbstractPlane,
-                          topology  :: AbstractTopology,
-                          len)
+function crosscorr3_plane(array1   :: AbstractArray{<: Any, N},
+                          array2   :: AbstractArray{<: Any, N},
+                          array3   :: AbstractArray{<: Any, N},
+                          op       :: Function,
+                          topology :: AbstractTopology,
+                          ps1      :: AbstractArray{NTuple{N, Int}, M},
+                          ps2      :: AbstractArray{NTuple{N, Int}, M}) where {N, M}
     @assert size(array1) == size(array2) == size(array3)
 
     rot1 = array1
     rot2 = similar(array2)
     rot3 = similar(array3)
-    shift3, shift2 = unit_shifts(array1, plane)
-    result = zeros(Float64, (len, len))
+    result = zeros(Float64, size(ps1))
 
-    for i in 1:len
-        s2 = (i - 1) .* shift2
-        rot2 = arrayshift!(rot2, array2, s2, topology)
-        for j in 1:len
-            s3 = (j - 1) .* shift3
-            rot3 = arrayshift!(rot3, array3, s3, topology)
-            result[j, i] = sum(op(rot1, rot2, rot3)) /
-                autocorr3_norm(array1, s2, s3, topology)
-        end
+    function cc(shift2, shift3)
+        arrayshift!(rot2, array2, shift2, topology)
+        arrayshift!(rot3, array3, shift3, topology)
+        sum(op(rot1, rot2, rot3)) /
+            autocorr3_norm(array1, shift2, shift3, topology)
     end
 
-    return result
+    # Julia cannot infer types here
+    return cc.(ps1, ps2) :: Array{Float64, M}
 end
 
-autocorr3_plane(array :: AbstractArray, op, plane, topology, len) =
-    crosscorr3_plane(array, array, array, op, plane, topology, len)
+autocorr3_plane(array :: AbstractArray, op, topology, ps1, ps2) =
+    crosscorr3_plane(array, array, array, op, topology, ps1, ps2)
 
 """
     s3(array[; planes :: Vector{AbstractPlane}, len, periodic = false])
@@ -81,14 +77,10 @@ The same is true for other planes.
 
 See also: [`AbstractPlane`](@ref), [`s2`](@ref).
 """
-function s3(array    :: AbstractArray;
-            periodic :: Bool                  = false,
-            planes   :: Vector{AbstractPlane} = default_planes(array),
-            len                               = (array |> size |> minimum) ÷ 2)
-    op(x, y, z) = x .* y .* z
+function s3(array :: AbstractArray, ps1, ps2; periodic :: Bool = false)
+    op(x, y, z) = @. x * y * z
     topology = periodic ? Torus() : Plane()
-    calc_s3(plane) = plane => autocorr3_plane(array, op, plane, topology, len)
-    return Dict{AbstractPlane, Matrix{Float64}}(map(calc_s3, planes))
+    return autocorr3_plane(array, op, topology, ps1, ps2)
 end
 
 """
@@ -97,10 +89,7 @@ end
 The same as `s3(array .== phase; ...)`. Kept for consistency with other
 parts of the API.
 """
-function s3(array        :: T, phase;
-            periodic     :: Bool                  = false,
-            planes       :: Vector{AbstractPlane} = default_planes(array),
-            len          = (array |> size |> minimum) ÷ 2) where T <: AbstractArray
+function s3(array :: T, phase, ps1, ps2; periodic :: Bool = false) where T <: AbstractArray
     # Prevent implicit conversion to BitArray, they are slow
-    return s3(T(array .== phase); periodic, planes, len)
+    return s3(T(array .== phase), ps1, ps2; periodic)
 end

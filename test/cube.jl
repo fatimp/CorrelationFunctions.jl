@@ -1,23 +1,9 @@
-# Make a rotated cube
-function make_cube(side, len)
-    array = centered(falses(side, side, side))
-    for idx in CartesianIndices(array)
-        coord = 2 .* Tuple(idx) ./ side
-        dist = coord .|> abs |> sum
-        if dist < len
-            array[idx] = true
-        end
-    end
-
-    return array.parent
-end
-
 @testset "Check F_{sss} function for a cube" begin
-    cube = make_cube(300, 0.45)
-    @test_broken U.lowfreq_energy_ratio(square) > 0.97
+    cube = zeros(Bool, (300, 300, 300))
+    cube[100:200, 100:200, 100:200] .= 1
+    @test U.lowfreq_energy_ratio(cube) > 0.97
 
-    # F_{sss} for a cube is either undefined, zero or 2
-    sss = D.surf3(cube, true; periodic = true, len = 20)
-    slice = sss[D.PlaneXY()][15:end, 15:end] * 300^3
-    @test maximum(relerr.(slice, 2)) < 0.2
+    sss = D.surf3(cube, true, [(10, 10, 20)], [(20, 20, n) for n in 0:14]; periodic = true)
+    sss = sss * 300^3
+    @test all(sss .≈ 2)
 end

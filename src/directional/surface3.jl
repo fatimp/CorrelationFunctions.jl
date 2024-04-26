@@ -13,19 +13,16 @@ You can chose how an edge between phases is selected by passing
 See also: [`s3`](@ref), [`AbstractPlane`](@ref),
 [`ErosionKernel`](@ref).
 """
-function surf3(array        :: AbstractArray;
-               planes       :: Vector{AbstractPlane} = default_planes(array),
-               periodic     :: Bool                  = false,
-               filter       :: AbstractKernel        = ConvKernel(7),
-               len = (array |> size |> minimum) ÷ 2)
+function surf3(array    :: AbstractArray, ps1, ps2;
+               periodic :: Bool           = false,
+               filter   :: AbstractKernel = ConvKernel(7))
     check_rank(array, 3)
 
     topology = periodic ? Torus() : Plane()
     edges = extract_edges(array, filter, topology)
 
-    op(x, y, z) = x .* y .* z
-    mapping(plane) = plane => autocorr3_plane(edges, op, plane, topology, len)
-    return Dict{AbstractPlane, Matrix{Float64}}(map(mapping, planes))
+    op(x, y, z) = @. x * y * z
+    return autocorr3_plane(edges, op, topology, ps1, ps2)
 end
 
 """
@@ -34,12 +31,11 @@ end
 The same as `surf3(array .== phase; ...)`. Kept for consistency with other
 parts of the API.
 """
-function surf3(array        :: AbstractArray, phase;
-               planes       :: Vector{AbstractPlane} = default_planes(array),
-               periodic     :: Bool                  = false,
-               filter       :: AbstractKernel        = ConvKernel(7),
-               len = (array |> size |> minimum) ÷ 2)
-    return surf3(array .== phase; planes, periodic, filter, len)
+function surf3(array    :: AbstractArray, phase, ps1, ps2;
+               periodic :: Bool           = false,
+               filter   :: AbstractKernel = ConvKernel(7))
+    # Conversion to BitArray is OK here
+    return surf3(array .== phase, ps1, ps2; periodic, filter)
 end
 
 @doc raw"""
@@ -59,21 +55,18 @@ You can chose how an edge between phases is selected by passing
 See also: [`s3`](@ref), [`AbstractPlane`](@ref),
 [`ErosionKernel`](@ref).
 """
-function surf2void(array        :: T, phase, void_phase  = 0;
-                   planes       :: Vector{AbstractPlane} = default_planes(array),
-                   periodic     :: Bool                  = false,
-                   filter       :: AbstractKernel        = ConvKernel(7),
-                   len = (array |> size |> minimum) ÷ 2) where T <: AbstractArray
+function surf2void(array    :: T, phase, ps1, ps2, void_phase  = 0;
+                   periodic :: Bool           = false,
+                   filter   :: AbstractKernel = ConvKernel(7)) where T <: AbstractArray
     check_rank(array, 2)
 
     topology = periodic ? Torus() : Plane()
     # Prevent implicit conversion to BitArray, they are slow
     edges = extract_edges(array .== phase, filter, topology)
     void  = T(array .== void_phase)
-    op(x, y, z) = x .* y .* z
+    op(x, y, z) = @. x * y * z
 
-    mapping(plane) = plane => crosscorr3_plane(edges, edges, void, op, plane, topology, len)
-    return Dict{AbstractPlane, Matrix{Float64}}(map(mapping, planes))
+    return crosscorr3_plane(edges, edges, void, op, topology, ps1, ps2)
 end
 
 @doc raw"""
@@ -91,19 +84,16 @@ You can chose how an edge between phases is selected by passing
 See also: [`s3`](@ref), [`AbstractPlane`](@ref),
 [`ErosionKernel`](@ref).
 """
-function surfvoid2(array        :: T, phase, void_phase  = 0;
-                   planes       :: Vector{AbstractPlane} = default_planes(array),
-                   periodic     :: Bool                  = false,
-                   filter       :: AbstractKernel        = ConvKernel(7),
-                   len = (array |> size |> minimum) ÷ 2) where T <: AbstractArray
+function surfvoid2(array    :: T, phase, ps1, ps2, void_phase  = 0;
+                   periodic :: Bool           = false,
+                   filter   :: AbstractKernel = ConvKernel(7)) where T <: AbstractArray
     check_rank(array, 1)
 
     topology = periodic ? Torus() : Plane()
     # Prevent implicit conversion to BitArray, they are slow
     edges = extract_edges(array .== phase, filter, topology)
     void  = T(array .== void_phase)
-    op(x, y, z) = x .* y .* z
+    op(x, y, z) = @. x * y * z
 
-    mapping(plane) = plane => crosscorr3_plane(edges, void, void, op, plane, topology, len)
-    return Dict{AbstractPlane, Matrix{Float64}}(map(mapping, planes))
+    return crosscorr3_plane(edges, void, void, op, topology, ps1, ps2)
 end

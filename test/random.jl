@@ -1,6 +1,5 @@
 # Random array with two phases
-rand_array = rand(Float32, (100, 100, 100))
-rand_array = map(x -> x < 0.3, rand_array)
+rand_array = rand(Float32, (100, 100, 100)) .< 0.3
 
 @testset "Check s²(a, x) = l²(a, x) = 0 for all x where a is an array without phase 2." begin
     for p in (false, true)
@@ -81,20 +80,22 @@ end
 end
 
 @testset "Check some properties of s3" begin
+    ss1, ss2 = U.make_pattern(rand_array, U.PlaneXY())
     for periodic in (false, true)
         s2 = D.s2(rand_array, true; periodic)
-        s3 = D.s3(rand_array, true; periodic)
-        @test all(isapprox.(s3[D.PlaneXY()][2:end, 2:end], prob[2]^3; rtol = 0.05))
-        @test s3[D.PlaneXY()][:,1] ≈ s2[D.DirX()]
-        @test s3[D.PlaneXY()][1,:] ≈ s2[D.DirY()]
+        s3 = D.s3(rand_array, true, ss1, ss2; periodic)
+        @test all(isapprox.(s3[2:end, 2:end], prob[2]^3; rtol = 0.05))
+        @test s3[:,1] ≈ s2[D.DirX()]
+        @test s3[1,:] ≈ s2[D.DirY()]
     end
 end
 
 @testset "Check some properties of c3" begin
+    ss1, ss2 = U.make_pattern(rand_array, U.PlaneXY())
     for periodic in (false, true)
         c2 = D.c2(rand_array, true; periodic)
-        c3 = D.c3(rand_array, true; periodic)
-        @test c3[D.PlaneXY()][:,1] ≈ c2[D.DirX()]
-        @test c3[D.PlaneXY()][1,:] ≈ c2[D.DirY()]
+        c3 = D.c3(rand_array, true, ss1, ss2; periodic)
+        @test c3[:,1] ≈ c2[D.DirX()]
+        @test c3[1,:] ≈ c2[D.DirY()]
     end
 end

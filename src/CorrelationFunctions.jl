@@ -20,6 +20,7 @@ include("utility/directions.jl")
 include("utility/infinite_padded_views.jl")
 include("utility/rotation.jl")
 include("utility/anisotropy.jl")
+include("utility/pattern.jl")
 
 export read_cuboid, lowfreq_energy_ratio,
     distance_transform, label_components, extract_edges,
@@ -28,7 +29,9 @@ export read_cuboid, lowfreq_energy_ratio,
     DirZ, DirXY, DirYX, DirXZ, DirZX, DirYZ, DirZY, DirXYZ, DirXZY,
     DirYXZ, DirZYX, default_directions, check_directions, check_rank,
     maybe_upload_to_gpu, AbstractRotation, VectorRotation,
-    MatRotation, make_rotation, rotate_array, detect_anisotropy
+    MatRotation, make_rotation, rotate_array, detect_anisotropy,
+    RightTrianglePattern, AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ,
+    make_pattern
 end
 
 module Directional
@@ -50,7 +53,6 @@ include("directional/surface.jl")
 include("directional/chord-length.jl")
 # FIXME: not actually directional, but uses the same set of functions
 include("directional/pore-size.jl")
-include("directional/planes.jl")
 include("directional/s3.jl")
 include("directional/c3.jl")
 include("directional/surface3.jl")
@@ -60,9 +62,7 @@ export l2, s2, c2,
     surf2, surfvoid, chord_length, pore_size, cross_correlation,
     s3, c3, surf3, surf2void, surfvoid2,
     AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans,
-    correlation_length, CorrelationData,
-    AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ
-
+    correlation_length, CorrelationData
 end # Directional
 
 module Map
