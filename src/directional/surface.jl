@@ -28,24 +28,19 @@ size. Plans can be computed with `S2FTPlans` constructor.
 See also: [`Utilities.AbstractDirection`](@ref), [`S2FTPlans`](@ref),
 [`Utilities.AbstractKernel`](@ref).
 """
-function surf2(array      :: AbstractArray,
-               phase;
-               len        :: Integer                   = (array |> size  |> minimum) ÷ 2,
-               directions :: Vector{AbstractDirection} = array |> default_directions,
-               periodic   :: Bool                      = false,
-               plans      :: S2FTPlans                 = S2FTPlans(array, periodic),
-               filter     :: AbstractKernel            = ConvKernel(7))
+function surf2(array     :: AbstractArray, phase,
+               direction :: AbstractDirection;
+               len       :: Integer        = (array |> size  |> minimum) ÷ 2,
+               periodic  :: Bool           = false,
+               plans     :: S2FTPlans      = S2FTPlans(array, periodic),
+               filter    :: AbstractKernel = ConvKernel(7))
     check_rank(array, 2)
 
     χ = phase2ind(phase)
     ph = map(χ, array)
     edge = extract_edges(ph, filter, periodic ? Torus() : Plane())
 
-    return s2(edge, SeparableIndicator(identity);
-              len        = len,
-              directions = directions,
-              periodic   = periodic,
-              plans      = plans)
+    return s2(edge, SeparableIndicator(identity), direction; len, periodic, plans)
 end
 
 """
@@ -77,14 +72,13 @@ size. Plans can be computed with `S2FTPlans` constructor.
 See also: [`Utilities.AbstractDirection`](@ref), [`S2FTPlans`](@ref),
 [`Utilities.AbstractKernel`](@ref).
 """
-function surfvoid(array      :: AbstractArray,
-                  phase;
-                  len        :: Integer                   = (array |> size  |> minimum) ÷ 2,
-                  directions :: Vector{AbstractDirection} = array |> default_directions,
-                  periodic   :: Bool                      = false,
-                  plans      :: S2FTPlans                 = S2FTPlans(array, periodic),
-                  filter     :: AbstractKernel            = ConvKernel(7),
-                  void_phase                              = 0)
+function surfvoid(array     :: AbstractArray, phase,
+                  direction :: AbstractDirection;
+                  len       :: Integer        = (array |> size  |> minimum) ÷ 2,
+                  periodic  :: Bool           = false,
+                  plans     :: S2FTPlans      = S2FTPlans(array, periodic),
+                  filter    :: AbstractKernel = ConvKernel(7),
+                  void_phase                  = 0)
     check_rank(array, 1)
 
     χ = phase2ind(phase)
@@ -94,9 +88,6 @@ function surfvoid(array      :: AbstractArray,
 
     χ1(x) = χ_void(array[x])
     χ2(x) = edge[x]
-    return s2(CartesianIndices(array), SeparableIndicator(χ1, χ2);
-              len        = len,
-              directions = directions,
-              periodic   = periodic,
-              plans      = plans)
+    return s2(CartesianIndices(array), SeparableIndicator(χ1, χ2), direction;
+              len, periodic, plans)
 end

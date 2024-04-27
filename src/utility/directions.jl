@@ -145,24 +145,6 @@ isDirection2D(direction :: AbstractDirection) =
 isDirection3D(:: AbstractDirection) = true
 
 """
-    default_directions(array)
-
-Get default direction in which correlation functions are calculated
-for the given array.
-"""
-function default_directions(:: AbstractArray{<:Any, N}) where N
-    if N == 1
-        return AbstractDirection[DirX()]
-    elseif N == 2
-        return [DirX(), DirY()]
-    elseif N == 3
-        return [DirX(), DirY(), DirZ()]
-    else
-        error("You have to specify directions manually")
-    end
-end
-
-"""
     direction_predicate(array)
 
 Get direction predicate for specified array.
@@ -179,22 +161,21 @@ function direction_predicate(:: AbstractArray{<:Any, N}) where N
     end
 end
 
-function check_directions(directions :: Vector{AbstractDirection},
-                          array      :: AbstractArray,
-                          periodic   :: Bool)
+function check_direction(direction :: AbstractDirection,
+                         array     :: AbstractArray,
+                         periodic  :: Bool)
     predicate = direction_predicate(array)
-    directions = unique(directions)
 
-    if !all(predicate, directions)
+    if !predicate(direction)
         error("Unknown directions found.")
     end
 
     shape = size(array)
     cubic = all(x -> x == shape[1], shape)
-    axial = all(x -> x ∈ [DirX(), DirY(), DirZ()], directions)
+    axial = direction ∈ [DirX(), DirY(), DirZ()]
     if periodic && !axial && !cubic
         error("Periodic diagonals for non-cubic arrays are not supported")
     end
 
-    return directions
+    return direction
 end

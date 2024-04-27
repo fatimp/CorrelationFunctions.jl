@@ -70,47 +70,42 @@ julia> l2([1,1,1,0,1,1], 1; len = 6)[DirX()]
 For a list of possible dimensions, see also:
 [`Utilities.AbstractDirection`](@ref).
 """
-function l2(array      :: AbstractArray,
-            phase;
-            len        :: Integer                   = (array |> size |> minimum) ÷ 2,
-            directions :: Vector{AbstractDirection} = array |> default_directions,
-            periodic   :: Bool                      = false,
-            plans      :: Any                       = nothing)
-    cd = CorrelationData(len, check_directions(directions, array, periodic))
+function l2(array     :: AbstractArray, phase,
+            direction :: AbstractDirection;
+            len       :: Integer = (array |> size |> minimum) ÷ 2,
+            periodic  :: Bool    = false)
+    check_direction(direction, array, periodic)
+    success = zeros(Int, len)
+    total   = zeros(Int, len)
 
-    for direction in directions
-        slicer = slice_generators(array, periodic, direction)
+    slicer = slice_generators(array, periodic, direction)
+    for slice in slicer
+        slen = length(slice)
+        firstrun = 0
+        lastrun = 0
 
-        for slice in slicer
-            slen = length(slice)
-            firstrun = 0
-            lastrun = 0
+        # Update count of slices which satisfy "all elements
+        # belong to phase" condition
+        for run in CountRuns(slice, phase)
+            firstrun = (firstrun == 0) ? run : firstrun
+            lastrun = run
+            update_runs!(success, run, min(run, len))
+        end
 
-            # Update count of slices which satisfy "all elements
-            # belong to phase" condition
-            for run in CountRuns(slice, phase)
-                firstrun = (firstrun == 0) ? run : firstrun
-                lastrun = run
-                update_runs!(cd.success[direction], run, min(run, len))
+        total_updates = min(slen, len)
+        if periodic
+            if (slice[begin] == slice[end] == phase)
+                update_runs_periodic!(success, firstrun, lastrun, total_updates)
             end
 
-            total_updates = min(slen, len)
-            if periodic
-                if (slice[begin] == slice[end] == phase)
-                    update_runs_periodic!(cd.success[direction],
-                                          firstrun, lastrun,
-                                          total_updates)
-                end
-
-                # Update total number of slices
-                cd.total[direction][1:total_updates] .+= slen
-            else
-                # Calculate total number of slices with lengths from 1
-                # to len
-                update_runs!(cd.total[direction], slen, total_updates)
-            end
+            # Update total number of slices
+            total[1:total_updates] .+= slen
+        else
+            # Calculate total number of slices with lengths from 1
+            # to len
+            update_runs!(total, slen, total_updates)
         end
     end
 
-    return cd
+    return success ./ total
 end

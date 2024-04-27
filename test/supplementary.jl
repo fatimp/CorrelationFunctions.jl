@@ -53,7 +53,8 @@ end
 
 @testset "Check average_directions" begin
     data = two_phase_noise_3d()
-    s2avg  = D.s2(data, false; periodic = true) |> mean
+    s2avg  = mean_corrfn(D.s2, data, false;
+                         periodic = true, directions = known_directions)
     s2avg2 = M.s2(data, false; periodic = true) |> M.average_directions
     @test relerr_norm(s2avg, s2avg2) < 0.05
 end

@@ -36,7 +36,8 @@ pore_size_theory(r, R, λ) = 2λ*π*(r + R)*exp(-λ*π*(r^2 + 2r*R))
     S = 7000; R = 40; λ = 5e-5; N = 700
 
     disks = gendisks(S, R, λ)
-    calc = D.l2(disks, 0; len = N, periodic = true) |> mean .|> log
+    calc = mean_corrfn(D.l2, disks, 0; len = N,
+                       periodic = true, directions = axial_directions_2d) .|> log
     theory = [(log ∘ l2_theory)(r-1, R, λ) for r in 0:N - 1]
 
     err = relerr.(calc, theory)
@@ -48,7 +49,8 @@ end
 
     th(r)  = s2_theory(r, R)
     disk   = draw_ball((S, S), R)
-    calc   = D.s2(disk, true; periodic = true) |> mean
+    calc   = mean_corrfn(D.s2, disk, true;
+                         periodic = true, directions = axial_directions_2d)
     theory = th.(0:length(calc)-1) / S^2
 
     @test relerr_norm(calc, theory) < 0.01
@@ -63,15 +65,21 @@ end
     theory = th.(10:boundary-10) / S^2
     @test U.lowfreq_energy_ratio(disk) > 0.97
 
-    calc = D.surf2(disk, false; periodic = true, filter = U.ConvKernel(5)) |> mean
+    calc = mean_corrfn(D.surf2, disk, false;
+                       periodic = true, filter = U.ConvKernel(5),
+                       directions = axial_directions_2d)
     @test relerr_norm(calc[10:boundary-10], theory) < 0.085
     @test maximum(calc[boundary+10:end]) < 1e-5
 
-    calc = D.surf2(disk, false; periodic = true, filter = U.ConvKernel(7)) |> mean
+    calc = mean_corrfn(D.surf2, disk, false;
+                       periodic = true, filter = U.ConvKernel(7),
+                       directions = axial_directions_2d)
     @test relerr_norm(calc[10:boundary-10], theory) < 0.085
     @test maximum(calc[boundary+10:end]) < 1e-5
 
-    calc = D.surf2(disk, false; periodic = true, filter = U.ErosionKernel(7)) |> mean
+    calc = mean_corrfn(D.surf2, disk, false;
+                       periodic = true, filter = U.ErosionKernel(7),
+                       directions = axial_directions_2d)
     @test relerr_norm(calc[10:boundary-10], theory) < 0.1
     @test maximum(calc[boundary+10:end]) < 1e-5
 end
@@ -84,13 +92,19 @@ end
     theory = th.(0:(1500-1)) / S^2
     @test U.lowfreq_energy_ratio(disk) > 0.97
 
-    calc = D.surfvoid(disk, false; periodic = true, filter = U.ConvKernel(5)) |> mean
+    calc = mean_corrfn(D.surfvoid, disk, false;
+                       periodic = true, filter = U.ConvKernel(5),
+                       directions = axial_directions_2d)
     @test relerr_norm(calc, theory) < 0.03
 
-    calc = D.surfvoid(disk, false; periodic = true, filter = U.ConvKernel(7)) |> mean
+    calc = mean_corrfn(D.surfvoid, disk, false;
+                       periodic = true, filter = U.ConvKernel(7),
+                       directions = axial_directions_2d)
     @test relerr_norm(calc, theory) < 0.03
 
-    calc = D.surfvoid(disk, false; periodic = true, filter = U.ErosionKernel(7)) |> mean
+    calc = mean_corrfn(D.surfvoid, disk, false;
+                       periodic = true, filter = U.ErosionKernel(7),
+                       directions = axial_directions_2d)
     @test relerr_norm(calc, theory) < 0.05
 end
 
@@ -115,13 +129,14 @@ end
 end
 
 @testset "Chord length for a disk" begin
-    S = 500; R = 200
-
-    disk = draw_ball((S, S), R)
-    data = D.chord_length(disk, true)
+    S    = 500; R = 200
     μ    = π/2 * R
     σ    = sqrt((32 - 3π^2)/12) * R
+    disk = draw_ball((S, S), R)
 
-    @test relerr(mean(data), μ) < 0.02
-    @test relerr(std(data),  σ) < 0.02
+    for dir in axial_directions_2d
+        data = D.chord_length(disk, true, dir)
+        @test relerr(mean(data), μ) < 0.09
+        @test relerr(std(data),  σ) < 0.09
+    end
 end

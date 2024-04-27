@@ -85,97 +85,91 @@ are used.
 S2FTPlans(array :: AbstractArray, periodic :: Bool) =
     S2FTPlans(array, periodic ? Torus() : Plane())
 
-function s2(array      :: AbstractArray,
-            indicator  :: SeparableIndicator;
-            len        :: Integer                   = (array |> size |> minimum) ÷ 2,
-            directions :: Vector{AbstractDirection} = array |> default_directions,
-            periodic   :: Bool                      = false,
-            plans      :: S2FTPlans                 = S2FTPlans(array, periodic))
-    cd = CorrelationData(len, check_directions(directions, array, periodic))
+function s2(array     :: AbstractArray,
+            indicator :: SeparableIndicator,
+            direction :: AbstractDirection;
+            len       :: Integer   = (array |> size |> minimum) ÷ 2,
+            periodic  :: Bool      = false,
+            plans     :: S2FTPlans = S2FTPlans(array, periodic))
+    check_direction(direction, array, periodic)
+    success = zeros(Float64, len)
+    total   = zeros(Int, len)
     topology = periodic ? Torus() : Plane()
     χ1, χ2 = indicator_function(indicator)
+    slicer = slice_generators(array, periodic, direction)
 
-    for direction in directions
-        success = cd.success[direction]
-        total = cd.total[direction]
-        slicer = slice_generators(array, periodic, direction)
+    for slice in slicer
+        # Get plans for FFT and inverse FFT
+        slen = length(slice)
+        local fft, ifft
 
-        for slice in slicer
-            # Get plans for FFT and inverse FFT
-            slen = length(slice)
-            local fft, ifft
+        ind1 = maybe_pad_with_zeros(map(χ1, slice), topology)
 
-            ind1 = maybe_pad_with_zeros(map(χ1, slice), topology)
+        if slen ∈ plans
+            fft  = plans.forward[slen]
+            ifft = plans.inverse[slen]
+        else
+            l = length(ind1)
+            fft  = plan_rfft(ind1)
+            ifft = plan_irfft(zeros(ComplexF64, l >> 1 + 1), l)
+        end
 
-            if slen ∈ plans
-                fft  = plans.forward[slen]
-                ifft = plans.inverse[slen]
-            else
-                l = length(ind1)
-                fft  = plan_rfft(ind1)
-                ifft = plan_irfft(zeros(ComplexF64, l >> 1 + 1), l)
-            end
+        fft1 = fft * ind1
+        fft2 = (χ1 === χ2) ? fft1 : fft * maybe_pad_with_zeros(map(χ2, slice), topology)
+        s2 = ifft * (fft1 .* conj.(fft2))
 
-            fft1 = fft * ind1
-            fft2 = (χ1 === χ2) ? fft1 : fft * maybe_pad_with_zeros(map(χ2, slice), topology)
-            s2 = ifft * (fft1 .* conj.(fft2))
+        # Number of correlation lengths
+        shifts = min(len, slen)
 
-            # Number of correlation lengths
-            shifts = min(len, slen)
-
-            # Update success and total
-            success[1:shifts] .+= s2[1:shifts]
-            if periodic
-                total[1:shifts] .+= slen
-            else
-                update_runs!(total, slen, shifts)
-            end
+        # Update success and total
+        success[1:shifts] .+= s2[1:shifts]
+        if periodic
+            total[1:shifts] .+= slen
+        else
+            update_runs!(total, slen, shifts)
         end
     end
 
-    return cd
+    return success ./ total
 end
 
-function s2(array      :: AbstractArray,
-            indicator  :: InseparableIndicator;
-            len        :: Integer                   = (array |> size |> minimum) ÷ 2,
-            directions :: Vector{AbstractDirection} = array |> default_directions,
-            periodic   :: Bool                      = false)
-    cd = CorrelationData(len, check_directions(directions, array, periodic))
+function s2(array     :: AbstractArray,
+            indicator :: InseparableIndicator,
+            direction :: AbstractDirection;
+            len       :: Integer = (array |> size |> minimum) ÷ 2,
+            periodic  :: Bool    = false)
+    check_direction(direction, array, periodic)
     χ = indicator_function(indicator)
+    slicer = slice_generators(array, periodic, direction)
+    success = zeros(Int, len)
+    total   = zeros(Int, len)
 
-    for direction in directions
-        slicer = slice_generators(array, periodic, direction)
+    for slice in slicer
+        slen = length(slice)
+        # Number of shifts (distances between two points for this slice)
+        shifts = min(len, slen)
 
-        for slice in slicer
-            slen = length(slice)
-            # Number of shifts (distances between two points for this slice)
-            shifts = min(len, slen)
+        # For all y's from 1 to shifts, calculate number of x'es
+        # for which χ(slice[x], slice[x+y]) == 1
+        success[1:shifts] .+= Iterators.map(1:shifts) do shift
+            mapreduce(χ, +, slice,
+                      periodic ? circshift(slice, 1 - shift) : view(slice, shift:slen))
+        end
 
-            # For all y's from 1 to shifts, calculate number of x'es
-            # for which χ(slice[x], slice[x+y]) == 1
-            cd.success[direction][1:shifts] .+= Iterators.map(1:shifts) do shift
-                mapreduce(χ, +, slice,
-                          periodic ? circshift(slice, 1 - shift) : view(slice, shift:slen))
-            end
-
-            # Calculate total number of slices with lengths from 1 to len
-            if periodic
-                cd.total[direction][1:shifts] .+= slen
-            else
-                update_runs!(cd.total[direction], slen, shifts)
-            end
+        # Calculate total number of slices with lengths from 1 to len
+        if periodic
+            total[1:shifts] .+= slen
+        else
+            update_runs!(total, slen, shifts)
         end
     end
 
-    return cd
+    return success ./ total
 end
 
-s2(array      :: AbstractArray,
-   phase;
-   len        :: Integer                   = (array |> size |> minimum) ÷ 2,
-   directions :: Vector{AbstractDirection} = array |> default_directions,
-   periodic   :: Bool                      = false,
-   plans      :: S2FTPlans                 = S2FTPlans(array, periodic)) =
-       s2(array, SeparableIndicator(x -> x == phase);
-          len, directions, periodic, plans)
+s2(array     :: AbstractArray, phase,
+   direction :: AbstractDirection;
+   len       :: Integer   = (array |> size |> minimum) ÷ 2,
+   periodic  :: Bool      = false,
+   plans     :: S2FTPlans = S2FTPlans(array, periodic)) =
+       s2(array, SeparableIndicator(x -> x == phase), direction; len, periodic, plans)

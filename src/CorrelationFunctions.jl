@@ -27,7 +27,7 @@ export read_cuboid, lowfreq_energy_ratio,
     AbstractKernel, ConvKernel, ErosionKernel,
     AbstractTopology, Torus, Plane, AbstractDirection, DirX, DirY,
     DirZ, DirXY, DirYX, DirXZ, DirZX, DirYZ, DirZY, DirXYZ, DirXZY,
-    DirYXZ, DirZYX, default_directions, check_directions, check_rank,
+    DirYXZ, DirZYX, check_direction, check_rank,
     maybe_upload_to_gpu, AbstractRotation, VectorRotation,
     MatRotation, make_rotation, rotate_array, detect_anisotropy,
     RightTrianglePattern, AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ,
@@ -43,7 +43,6 @@ using FFTW: plan_rfft, plan_irfft
 using CircularArrays: CircularArray
 using CUDA: CuArray
 
-include("directional/corrdata.jl")
 include("directional/slicer.jl")
 include("directional/indicator.jl")
 include("directional/l2.jl")
@@ -61,8 +60,7 @@ include("directional/cc.jl")
 export l2, s2, c2,
     surf2, surfvoid, chord_length, pore_size, cross_correlation,
     s3, c3, surf3, surf2void, surfvoid2,
-    AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans,
-    correlation_length, CorrelationData
+    AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans
 end # Directional
 
 module Map

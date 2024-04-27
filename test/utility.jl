@@ -2,6 +2,13 @@ const known_directions = [U.DirX(),   U.DirY(),   U.DirZ(),
                           U.DirYZ(),  U.DirXZ(),  U.DirXY(),
                           U.DirZY(),  U.DirZX(),  U.DirYX(),
                           U.DirXYZ(), U.DirYXZ(), U.DirZYX()]
+const axial_directions = [U.DirX(),   U.DirY(),   U.DirZ()]
+const axial_directions_2d = [U.DirX(),   U.DirY()]
+
+function mean_corrfn(fn, array, phase; directions = known_directions, kwargs...)
+    cfs = map(dir -> fn(array, phase, dir; kwargs...), directions)
+    return sum(cfs) / length(cfs)
+end
 
 """
     draw_ball(s, r)

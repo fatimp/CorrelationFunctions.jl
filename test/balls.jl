@@ -40,7 +40,7 @@ pore_size_theory(r, R, λ) = 4π*λ*(r + R)^2 * exp(-4/3*π*λ * (r^3 + 3r^2*R +
     shs1, shs2 = U.make_pattern(ball, U.PlaneXY())
     for periodic in (false, true)
         ssv = D.surf2void(ball, true, shs1, shs2; periodic)
-        ss = D.surf2(ball, true; periodic) |> mean
+        ss = mean_corrfn(D.surf2, ball, true; periodic, directions = axial_directions)
         @test relerr_norm(ssv[:, end], ss) < 0.08
     end
 end
@@ -50,7 +50,7 @@ end
     shs1, shs2 = U.make_pattern(ball, U.PlaneXY())
     for periodic in (false, true)
         svv = D.surfvoid2(ball, true, shs1, shs2; periodic)
-        sv = D.surfvoid(ball, true; periodic) |> mean
+        sv = mean_corrfn(D.surfvoid, ball, true; periodic, directions = axial_directions)
         @test relerr_norm(svv[:, end], sv) < 0.08
         @test svv[:, end] ≈ svv[end, :]
     end
@@ -61,7 +61,7 @@ end
 
     th(r)  = s2_theory(r, R)
     disk   = draw_ball((S, S, S), R)
-    calc   = D.s2(disk, true; periodic = true) |> mean
+    calc   = mean_corrfn(D.s2, disk, true; periodic = true, directions = axial_directions)
     theory = th.(0:length(calc)-1) / S^3
 
     @test relerr_norm(calc, theory) < 0.01
@@ -76,15 +76,21 @@ end
     theory = th.(5:boundary-5) / S^3
     @test U.lowfreq_energy_ratio(ball) > 0.97
 
-    calc = D.surf2(ball, false; periodic = true, filter = U.ConvKernel(5)) |> mean
+    calc = mean_corrfn(D.surf2, ball, false;
+                       periodic = true, filter = U.ConvKernel(5),
+                       directions = axial_directions)
     @test relerr_norm(calc[5:boundary-5], theory) < 0.2
     @test maximum(calc[boundary+5:end]) < 1e-5
 
-    calc = D.surf2(ball, false; periodic = true, filter = U.ConvKernel(7)) |> mean
+    calc = mean_corrfn(D.surf2, ball, false;
+                       periodic = true, filter = U.ConvKernel(7),
+                       directions = axial_directions)
     @test relerr_norm(calc[5:boundary-5], theory) < 0.15
     @test maximum(calc[boundary+5:end]) < 1e-5
 
-    calc = D.surf2(ball, false; periodic = true, filter = U.ErosionKernel(7)) |> mean
+    calc = mean_corrfn(D.surf2, ball, false;
+                       periodic = true, filter = U.ErosionKernel(7),
+                       directions = axial_directions)
     @test relerr_norm(calc[5:boundary-5], theory) < 0.15
     @test maximum(calc[boundary+5:end]) < 1e-5
 end
@@ -97,13 +103,19 @@ end
     theory = th.(0:(150-1)) / S^3
     @test U.lowfreq_energy_ratio(ball) > 0.97
 
-    calc = D.surfvoid(ball, false; periodic = true, filter = U.ConvKernel(5)) |> mean
+    calc = mean_corrfn(D.surfvoid, ball, false;
+                       periodic = true, filter = U.ConvKernel(5),
+                       directions = axial_directions)
     @test relerr_norm(calc, theory) < 0.03
 
-    calc = D.surfvoid(ball, false; periodic = true, filter = U.ConvKernel(7)) |> mean
+    calc = mean_corrfn(D.surfvoid, ball, false;
+                       periodic = true, filter = U.ConvKernel(7),
+                       directions = axial_directions)
     @test relerr_norm(calc, theory) < 0.03
 
-    calc = D.surfvoid(ball, false; periodic = true, filter = U.ErosionKernel(7)) |> mean
+    calc = mean_corrfn(D.surfvoid, ball, false;
+                       periodic = true, filter = U.ErosionKernel(7),
+                       directions = axial_directions)
     @test relerr_norm(calc, theory) < 0.09
 end
 
@@ -114,7 +126,8 @@ end
     S = 500; R = 20; λ = 3e-5; N = 100
     balls = genballs(S, R, λ)
 
-    calc = D.l2(balls, 0; len = N, periodic = true) |> mean .|> log
+    calc = mean_corrfn(D.l2, balls, 0; len = N,
+                       periodic = true, directions = axial_directions) .|> log
     theory = [log(l2_theory(r - 1, R, λ)) for r in 0:N - 1]
     err = relerr.(calc, theory)
 
@@ -143,13 +156,14 @@ end
 end
 
 @testset "Chord length for a ball" begin
-    S = 300; R = 100
-
-    disk = draw_ball((S, S, S), R)
-    data = D.chord_length(disk, true)
+    S    = 300; R = 100
     μ    = π^2/8 * R
     σ    = sqrt((1024 - 9π^4)/576) * R
+    disk = draw_ball((S, S, S), R)
 
-    @test relerr(mean(data), μ) < 0.09
-    @test relerr(std(data),  σ) < 0.09
+    for dir in axial_directions
+        data = D.chord_length(disk, true, dir)
+        @test relerr(mean(data), μ) < 0.09
+        @test relerr(std(data),  σ) < 0.09
+    end
 end

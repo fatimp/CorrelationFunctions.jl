@@ -5,7 +5,7 @@ const cfs  = Dict(
 )
 
 const dirs = Dict(
-    1 => D.AbstractDirection[D.DirX()],
+    1 => [D.DirX()],
     2 => [D.DirX(), D.DirY(), D.DirXY(), D.DirYX()],
     3 => [D.DirX(), D.DirY(), D.DirZ()]
 )
@@ -14,8 +14,9 @@ function test_cf_on_img(img, cf_map, cf_dir)
     directions = dirs[ndims(img)]
 
     for periodic in [true, false]
+        cf(dir) = dir => cf_dir(img, true, dir; len=size(img, 1), periodic)
         cmap = cf_map(img, true; periodic)
-        cdir = cf_dir(img, true; len=size(img, 1), periodic, directions)
+        cdir = cf.(directions)
 
         for (direction, data) in cdir
             @test M.dir_from_map(cmap, direction; periodic) ≈ data
