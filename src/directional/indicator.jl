@@ -36,8 +36,7 @@ SeparableIndicator(χ :: Function) = SeparableIndicator(χ, χ)
     InseparableIndicator(χ)
 
 Type for inseparable indicator function, that is for such an indicator
-function which cannot be written as $\chi(x,y) = \max(\Chi(x, y), \Chi(y,
-x))$, where $\Chi(x, y) = \chi_1(x)\chi_2(y)$.
+function which cannot be written as $\chi(x,y) = \chi_1(x)\chi_2(y)$.
 
 `χ` must be a function of two arguments which returns a value of `Bool`
 type.

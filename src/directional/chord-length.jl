@@ -1,5 +1,5 @@
 """
-    chord_length(array, phase[; directions])
+    chord_length(array, phase, direction)
 
 Calculate the chord length correlation function for one-, two- or
 three-dimensional multiphase systems.
@@ -13,7 +13,7 @@ to a chord.
 
 # Examples
 ```jldoctest
-julia> chord_length([1, 0, 0, 0, 0, 1, 0, 1], 0)
+julia> chord_length([1, 0, 0, 0, 0, 1, 0, 1], 0, DirX())
 2-element Vector{Int64}:
  4
  1

@@ -1,7 +1,7 @@
 const max_labels_for_ft = 50
 
 """
-    c2(array, phase[; len,][directions,] periodic = false)
+    c2(array, phase, direction[; len,] [periodic = false])
 
 Calculate `C₂` (cluster) correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -14,17 +14,17 @@ minimal dimension of the array.
 
 # Examples
 ```jldoctest
-julia> c2([1,1,1,0,1,1], 1; len = 6)[DirX()]
+julia> c2([1,1,1,0,1,1], 1, DirX(); len = 6)
 6-element Array{Float64,1}:
- 0.8333333333333334
- 0.6
- 0.25
- 0.0
- 0.0
- 0.0
+ 0.8333333333333333
+ 0.5999999999999999
+ 0.24999999999999994
+ 2.4671622769447922e-17
+ 9.25185853854297e-17
+ 5.181040781584064e-16
 ```
 
-For a list of possible dimensions, see also:
+For a list of possible directions, see also:
 [`Utilities.AbstractDirection`](@ref).
 """
 function c2(array     :: AbstractArray, phase,

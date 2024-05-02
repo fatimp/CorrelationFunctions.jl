@@ -2,17 +2,12 @@ phase2ind(phase :: Function) = phase
 phase2ind(phase :: Any) = x -> x == phase
 
 """
-    surf2(array, phase[; len][, directions][, plans,] periodic = false, filter)
+    surf2(array, phase, direction[; len] [,periodic = false][, filter])
 
 Calculate surface-surface correlation function for one-, two- or
-three-dimensional multiphase system.
-
-Surface-surface CF equals to probability that corner elements of a
-line segment with the length `x` cut from the array belong to the
-boundary of a cluster with the phase `phase`. This implementation
-calculates surface-surface function for all `x`s in the range from `1`
-to `len` which defaults to half of the minimal dimension of the
-array.
+three-dimensional multiphase system. This implementation calculates
+surface-surface function for all `x`s in the range from `1` to `len`
+which defaults to half of the minimal dimension of the array.
 
 You can chose how an edge between phases is selected by passing
 `filter` argument of type `Utilities.AbstractKernel`.
@@ -21,12 +16,7 @@ If `phase` is a function it is applied to array to select the phase of
 interest, otherwise the phase of interest is selected by testing
 elements of `array` for equality with `phase`.
 
-An argument `plans` can be used to support precomputed FFT plans which
-can be helpful if you call `surf2` often with the array of the same
-size. Plans can be computed with `S2FTPlans` constructor.
-
-See also: [`Utilities.AbstractDirection`](@ref), [`S2FTPlans`](@ref),
-[`Utilities.AbstractKernel`](@ref).
+See also: [`Utilities.AbstractDirection`](@ref), [`Utilities.AbstractKernel`](@ref).
 """
 function surf2(array     :: AbstractArray, phase,
                direction :: AbstractDirection;
@@ -43,17 +33,12 @@ function surf2(array     :: AbstractArray, phase,
 end
 
 """
-    surfvoid(array, phase[; len][, directions][, plans,] void_phase = 0, periodic = false, filter)
+    surfvoid(array, phase, direction[; len] [,void_phase = 0][, periodic = false][, filter])
 
 Calculate surface-void correlation function for one-, two- or
-three-dimensional multiphase system.
-
-Surface-void CF equals to probability that one corner of a line
-segment with the length `x` cut from the array belongs to the boundary
-of a cluster with the phase `phase` and the other belongs to the void
-phase `0`. This implementation calculates surface-void function for
-all `x`s in the range from `1` to `len` which defaults to half of the
-minimal dimension of the array.
+three-dimensional multiphase system. This implementation calculates
+surface-void function for all `x`s in the range from `1` to `len`
+which defaults to half of the minimal dimension of the array.
 
 You can chose how an edge between phases is selected by passing
 `filter` argument of type `Utilities.AbstractKernel`.
@@ -64,12 +49,7 @@ elements of `array` for equality with `phase`. `void_phase` can also
 be either a function or some other object and is used as an indicator
 for the void phase.
 
-An argument `plans` can be used to support precomputed FFT plans which
-can be helpful if you call `surfvoid` often with the array of the same
-size. Plans can be computed with `S2FTPlans` constructor.
-
-See also: [`Utilities.AbstractDirection`](@ref), [`S2FTPlans`](@ref),
-[`Utilities.AbstractKernel`](@ref).
+See also: [`Utilities.AbstractDirection`](@ref), [`Utilities.AbstractKernel`](@ref).
 """
 function surfvoid(array     :: AbstractArray, phase,
                   direction :: AbstractDirection;

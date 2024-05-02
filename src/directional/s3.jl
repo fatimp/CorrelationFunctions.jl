@@ -49,33 +49,39 @@ autocorr3_plane(array :: AbstractArray, op, topology, ps1, ps2) =
     crosscorr3_plane(array, array, array, op, topology, ps1, ps2)
 
 """
-    s3(array[; planes :: Vector{AbstractPlane}, len, periodic = false])
+    s3(array, ps1, ps2[, periodic = false])
 
-Calculate the three-point correlation function using a right triangle
-pattern.
+Calculate the three-point correlation function in an array of points.
 
-This function takes an array and a vector of planes parallel to axes
-of the array. For each plane all possible right triangles with length
-of a side ≤ `len` and parallel to that plane are generated and tested
-against the array. A dictionary of type `Dict{AbstractPlane,
-Matrix{Float64}}` is returned as a result. Indices of arrays equal to
-lengths of catheti of a right triangle. Periodic or zero-padding
-boundary conditions are selected with the choose of `periodic`
-argument.
+Two arguments `ps1` and `ps2` must be arrays of N-tuples of integers
+(where N is a dimensionality of the input array) broadcastable to the
+same size. Periodic or zero-padding boundary conditions are selected
+with the choose of `periodic` argument.
 
 The following invariants hold:
 ```jldoctest
-julia> array = rand(Bool, (100, 100));
-julia> vals2 = s2(array, 1);
-julia> vals3 = s3(array);
-julia> vals2[DirX()] == vals3[PlaneXY][:, 1]
+julia> data = rand(Bool, (100, 100, 100));
+julia> shiftsx = [(i, 0, 0) for i in 0:49];
+julia> shiftsy = [(0, i, 0) for i in 0:49];
+julia> shiftsz = [(0, 0, i) for i in 0:49];
+julia> s2x = D.s2(data, 1, U.DirX());
+julia> s2y = D.s2(data, 1, U.DirY());
+julia> s2z = D.s2(data, 1, U.DirZ());
+julia> s2x_ = D.s3(data, [(0,0,0)], shiftsx);
+julia> s2y_ = D.s3(data, [(0,0,0)], shiftsy);
+julia> s2z_ = D.s3(data, [(0,0,0)], shiftsz);
+
+julia> s2x == s2x_
 true
-julia> vals2[DirY()] == vals3[PlaneXY][1, :]
+
+julia> s2y == s2y_
+true
+
+julia> s2z == s2z_
 true
 ```
-The same is true for other planes.
 
-See also: [`AbstractPlane`](@ref), [`s2`](@ref).
+See also: [`make_pattern`](@ref), [`s2`](@ref).
 """
 function s3(array :: AbstractArray, ps1, ps2; periodic :: Bool = false)
     op(x, y, z) = @. x * y * z
@@ -84,10 +90,10 @@ function s3(array :: AbstractArray, ps1, ps2; periodic :: Bool = false)
 end
 
 """
-    s3(array, phase[; planes :: Vector{AbstractPlane}, len, periodic = false])
+    s3(array, phase, ps1, ps2[; periodic = false])
 
-The same as `s3(array .== phase; ...)`. Kept for consistency with other
-parts of the API.
+The same as `s3(array .== phase; ...)`. Kept for consistency with
+other parts of the API.
 """
 function s3(array :: T, phase, ps1, ps2; periodic :: Bool = false) where T <: AbstractArray
     # Prevent implicit conversion to BitArray, they are slow

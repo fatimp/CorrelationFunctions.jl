@@ -45,7 +45,7 @@ end
 Base.IteratorSize(:: CountRuns) = Base.SizeUnknown()
 
 """
-    l2(array, phase; [len][, directions,] periodic = false)
+    l2(array, phase, direction[; len][, periodic = false])
 
 Calculate `L₂` (lineal path) correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -57,7 +57,7 @@ to `len` which defaults to half of the minimal dimension of the array.
 
 # Examples
 ```jldoctest
-julia> l2([1,1,1,0,1,1], 1; len = 6)[DirX()]
+julia> l2([1,1,1,0,1,1], 1, DirX(); len = 6)
 6-element Array{Float64,1}:
  0.8333333333333334
  0.6

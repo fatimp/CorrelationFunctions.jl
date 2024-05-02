@@ -1,6 +1,5 @@
 @doc raw"""
-    surf3(array[; planes :: Vector{AbstractPlane},
-                  len, periodic = false, filter :: AbstractKernel])
+    surf3(array, ps1, ps2[; periodic = false][, filter :: AbstractKernel])
 
 Calculate surface-surface-surface ($F_{sss}$) correlation function.
 
@@ -8,10 +7,9 @@ This function is is internally calculated using `s3` and hence uses
 the same sampling pattern and returns a result in the same format.
 
 You can chose how an edge between phases is selected by passing
-`filter` argument of type `Utilities.ErosionKernel`.
+`filter` argument of type `Utilities.AbstractKernel`.
 
-See also: [`s3`](@ref), [`AbstractPlane`](@ref),
-[`ErosionKernel`](@ref).
+See also: [`s3`](@ref), [`make_pattern`](@ref), [`AbstractKernel`](@ref).
 """
 function surf3(array    :: AbstractArray, ps1, ps2;
                periodic :: Bool           = false,
@@ -26,10 +24,10 @@ function surf3(array    :: AbstractArray, ps1, ps2;
 end
 
 """
-    surf3(array, phase[; planes, len, periodic = false, filter = ConvKernel(7)])
+    surf3(array, phase[; periodic = false][, filter = ConvKernel(7)])
 
-The same as `surf3(array .== phase; ...)`. Kept for consistency with other
-parts of the API.
+The same as `surf3(array .== phase; ...)`. Kept for consistency with
+other parts of the API.
 """
 function surf3(array    :: AbstractArray, phase, ps1, ps2;
                periodic :: Bool           = false,
@@ -39,21 +37,17 @@ function surf3(array    :: AbstractArray, phase, ps1, ps2;
 end
 
 @doc raw"""
-    surf2void(array, phase[; void_phase = 0,
-            planes :: Vector{AbstractPlane}, len, periodic = false, filter :: AbstractKernel])
+    surf2void(array, phase, ps1, ps2[, void_phase = 0][; periodic = false][, filter :: AbstractKernel])
 
 Calculate surface-surface-void ($F_{ssv}$) correlation function.
 
 This function is is internally calculated using `s3` and hence uses
-the same sampling pattern and returns a result in the same format. The
-first index in the resulting arrays is responsible for the "void part"
-of the functions and the second is responsible for the "surface part".
+the same sampling pattern and returns a result in the same format.
 
 You can chose how an edge between phases is selected by passing
-`filter` argument of type `Utilities.ErosionKernel`.
+`filter` argument of type `Utilities.AbstractKernel`.
 
-See also: [`s3`](@ref), [`AbstractPlane`](@ref),
-[`ErosionKernel`](@ref).
+See also: [`s3`](@ref), [`make_pattern`](@ref), [`AbstractKernel`](@ref).
 """
 function surf2void(array    :: T, phase, ps1, ps2, void_phase  = 0;
                    periodic :: Bool           = false,
@@ -70,8 +64,7 @@ function surf2void(array    :: T, phase, ps1, ps2, void_phase  = 0;
 end
 
 @doc raw"""
-    surfvoid2(array, phase[; void_phase = 0,
-            planes :: Vector{AbstractPlane}, len, periodic = false, filter :: AbstractKernel])
+    surfvoid2(array, phase, ps1, ps2[, void_phase = 0][; periodic = false][, filter :: AbstractKernel])
 
 Calculate surface-void-void ($F_{svv}$) correlation function.
 
@@ -79,10 +72,9 @@ This function is is internally calculated using `s3` and hence uses
 the same sampling pattern and returns a result in the same format.
 
 You can chose how an edge between phases is selected by passing
-`filter` argument of type `Utilities.ErosionKernel`.
+`filter` argument of type `Utilities.AbstractKernel`.
 
-See also: [`s3`](@ref), [`AbstractPlane`](@ref),
-[`ErosionKernel`](@ref).
+See also: [`s3`](@ref), [`AbstractPlane`](@ref), [`AbstractKernel`](@ref).
 """
 function surfvoid2(array    :: T, phase, ps1, ps2, void_phase  = 0;
                    periodic :: Bool           = false,

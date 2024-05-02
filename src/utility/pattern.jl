@@ -20,8 +20,7 @@ end
 Subtypes of `AbstractPlane` serve as a plane designators for
 three-point correlation functions.
 
-See also: [`PlaneXY`](@ref), [`PlaneXZ`](@ref), [`PlaneYZ`](@ref),
-[`s3`](@ref).
+See also: [`PlaneXY`](@ref), [`PlaneXZ`](@ref), [`PlaneYZ`](@ref).
 """
 abstract type AbstractPlane end
 
@@ -52,6 +51,19 @@ A designator for a plane defined by vectors `[0, 1, 0]` and `[0, 0, 1]`.
 See also: [`AbstractPlane`](@ref).
 """
 struct PlaneYZ <: AbstractPlane end
+
+"""
+    make_pattern(array, plane)
+
+Make a set of points for calculation of correlation functions based on
+three-point statistics. The created set is based of a right triangle
+with varying lengths of catheti. The second argument defines alignment
+of the pattern with one of the planes.
+
+See also: [`AbstractPlane`](@ref), [`PlaneXY`](@ref),
+[`PlaneXZ`](@ref), [`PlaneYZ`](@ref).
+"""
+function make_pattern end
 
 make_pattern(array, m :: Pair{Int, Int}) =
     let s = (array |> size |> minimum) ÷ 2;

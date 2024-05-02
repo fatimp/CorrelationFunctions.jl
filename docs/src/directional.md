@@ -3,92 +3,23 @@
 This is a documentation for `CorrelationFunctions.Directional` module. The
 documentation is divided into the following topics:
 
-* **[Correlation Functions](@ref)** page contains the exhaustive list of
-  correlation functions supported by this package.
-* **[Accessing Data](@ref)** page describes how to access data returned by
-  correlation functions.
 * **[Boundary Conditions](@ref)** page describes boundary conditions when
   calculations cross the boundary of a system.
 * **[Directions](@ref)** page describes directions along which the correlation
   functions are computed.
 * **[Indicator Functions](@ref)** page describes how to construct customary
   indicator functions.
+* **[Correlation Functions](@ref)** page contains the exhaustive list of
+  correlation functions supported by this package.
 * **[Results](@ref)** page contains comparison of correlation functions from
   this package with some known theoretical results.
-
-## Correlation Functions
-
-The following correlation functions are supported:
-
-* Lineal-path $L_2$ function.
-* Two point $S_2$ function.
-* Cluster $C_2$ function.
-* Surface-surface $F_{ss}$ function.
-* Surface-void $F_{sv}$ function.
-* Pore size $P$ function.
-* Chord length $p$ function.
-
-```@docs
-Directional.l2
-Directional.s2
-Directional.c2
-Directional.cross_correlation
-Directional.surf2
-Directional.surfvoid
-Directional.pore_size
-Directional.chord_length
-```
-
-The `pore_size` function is also reexported from `CorrelationFunctions`
-directly, not being actually a "directional" function.
-
-## Accessing Data
-
-The most functions in this package (with exception to `pore_size` and
-`chord_length`) return a value of type `CorrelationData`:
-
-```@example
-using CorrelationFunctions.Directional
-using Random
-
-a = l2(rand(MersenneTwister(1453), 0:1, (100, 100, 100)), 1)
-```
-
-`CorrelationData` implements `AbstractDict` interface. For example, you can
-extract the values along any computed direction using indexing operator:
-```@example
-import CorrelationFunctions.Directional as D
-import CorrelationFunctions.Utilities as U
-using Random
-
-a = D.l2(rand(MersenneTwister(1453), 0:1, (100, 100, 100)), 1)
-a[U.DirY()]
-```
-
-Also you can average results along multiple directions using `Statistics.mean`
-function:
-```@example
-import CorrelationFunctions.Directional as D
-import CorrelationFunctions.Utilities as U
-using Random
-using Statistics
-
-a = D.l2(rand(MersenneTwister(1453), 0:1, (100, 100, 100)), 1)
-mean(a, [U.DirX(), U.DirY()])
-```
-
-Calling `Statistics.mean` without the second argument averages along all computed
-directions.
-
-```@docs
-Directional.correlation_length
-```
 
 ## Boundary Conditions
 
 When calculating the value of correlation functions like $S_2$ or $L_2$ it may
-be necessary to cross a boundary of the input array. There two options how
-`CorrelationFunctions.jl` handles this situation:
+be necessary to cross a boundary of the input array (i.e. access array using an
+arbitrary index). There two options how `CorrelationFunctions.jl` handles this
+situation:
 
 * Impose "closed walls" (CW) boundary conditions on the input data. This means
   that the boundary is not crossed and correlation functions gather less
@@ -100,14 +31,50 @@ be necessary to cross a boundary of the input array. There two options how
 PBC is used when you specify `periodic = true` when call a correlation function,
 otherwise CW is used.
 
-```@docs
-Directional.S2FTPlans
-```
-
 ## Directions
 
-Version 0.9 and newer: Now there are special types serving as direction
-designators in the module `Utilities`: [Available directions](@ref).
+Functions based on two-point statistics from `Directional` module will require a
+direction along which the function is calculated (usually as their third
+argument). You can specify these directions:
+
+```@docs
+Utilities.DirX
+Utilities.DirY
+Utilities.DirZ
+Utilities.DirXY
+Utilities.DirYX
+Utilities.DirXZ
+Utilities.DirZX
+Utilities.DirYZ
+Utilities.DirZY
+Utilities.DirXYZ
+Utilities.DirXZY
+Utilities.DirYXZ
+Utilities.DirZYX
+Utilities.AbstractDirection
+```
+
+The module `Map` can use these directions to extract directional information from
+correlation maps.
+
+These rules can help you to memoize the correspondence between symbolic
+designations and vectors:
+
+* `DirFoo` types can contain from one to three characters `X`, `Y` and `Z`. Each
+  character can occur only once (there is a type `DirXYZ`, but no type
+  `DirXXY`).
+* When a character does not occur is a designation (e.g, there is no `Z` in
+  `DirXY`) that coordinate remains constant in a slice (in the example above
+  $z = \text{const}$).
+* The names of the axes have a "natural order" which is `X`, `Y`, `Z`. In a
+  designation, the first axis which breaks that order get the minus sign in the
+  direction vector (e.g. `DirXZY` equals to `(1, -1, 1)` because `Y` is in the
+  third position, not in the second, `DirZX` equals to `(-1, 0, 1)` because `X`
+  is in the second position, not in the first, etc.)
+
+Functions based on three-point statistics require a set of points in which they
+are calculated (usually as the third and the fourth arguments). This set can be
+generated by `Utilities.make_pattern` function.
 
 ## Indicator Functions
 
@@ -124,6 +91,37 @@ Directional.AbstractIndicator
 Directional.SeparableIndicator
 Directional.InseparableIndicator
 ```
+
+## Correlation Functions
+
+### Two-point statistics
+
+```@docs
+Directional.s2
+Directional.c2
+Directional.cross_correlation
+Directional.surf2
+Directional.surfvoid
+```
+
+### Three-point statistics
+```@docs
+Directional.s3
+Directional.c3
+Directional.surf3
+Directional.surf2void
+Directional.surfvoid2
+```
+
+### Other correlation functions
+```@docs
+Directional.pore_size
+Directional.chord_length
+Directional.l2
+```
+
+The `pore_size` function is also reexported from `CorrelationFunctions`
+directly, not being actually a "directional" function.
 
 ## Results
 

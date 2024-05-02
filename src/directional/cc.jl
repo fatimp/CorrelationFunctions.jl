@@ -1,5 +1,5 @@
 """
-    cross_correlation(array, phase1, phase2[; len][, plans][, directions,] periodic = false)
+    cross_correlation(array, phase1, phase2, direction[; len] [,periodic = false])
 
 Calculate cross-correlation between `phase1` and `phase2` in
 `array`. The meaning of optional arguments is the same as for `s2`

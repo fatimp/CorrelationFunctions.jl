@@ -1,7 +1,7 @@
 """
-    s2(array, phase[; len][, plans][, directions,] periodic = false)
-    s2(array, SeparableIndicator(χ₁, χ₂)[; len][, plans][,directions,] periodic = false)
-    s2(array, InseparableIndicator(χ)[; len][,directions,] periodic = false)
+    s2(array, phase, direction[; len] [,periodic = false])
+    s2(array, SeparableIndicator(χ₁, χ₂), direction[; len] [,periodic = false])
+    s2(array, InseparableIndicator(χ), direction[; len] [,periodic = false])
 
 Calculate `S₂` (two point) correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -19,14 +19,10 @@ segment. Indicator functions must be wrapped in either
 `SeparableIndicator` or `InseparableIndicator`. Some computations for
 separable indicator functions are optimized.
 
-An argument `plans` can be used to support precomputed FFT plans which
-can be helpful if you call `s2` often with the array of the same
-size. Plans can be computed with `S2FTPlans` constructor.
-
 # Examples
 ```jldoctest
-julia> s2([1,1,1,0,1,1], 1; len = 6)[DirX()]
-6-element Array{Float64,1}:
+julia> s2([1,1,1,0,1,1], 1, DirX(); len = 6)
+6-element Vector{Float64}:
  0.8333333333333334
  0.6
  0.5
@@ -36,8 +32,7 @@ julia> s2([1,1,1,0,1,1], 1; len = 6)[DirX()]
 ```
 
 See also: [`Utilities.AbstractDirection`](@ref),
-[`SeparableIndicator`](@ref), [`InseparableIndicator`](@ref),
-[`S2FTPlans`](@ref).
+[`SeparableIndicator`](@ref), [`InseparableIndicator`](@ref).
 """
 function s2 end
 
