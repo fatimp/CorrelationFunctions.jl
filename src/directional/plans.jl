@@ -7,19 +7,14 @@ struct FFTWPlan{F, I} <: AbstractDFTPlan
     inverse :: I
 end
 
-# XXX: Remove this function after refactoring of slicer.jl
-topology_to_periodic(:: Torus) = true
-topology_to_periodic(:: Plane) = false
-
 function make_dft_plan(array     :: AbstractArray,
                        topology  :: AbstractTopology,
                        direction :: AbstractDirection)
-    periodic = topology_to_periodic(topology)
-    check_direction(direction, array, periodic)
+    check_direction(direction, array, topology)
 
     same_length = slices_have_same_length(topology, direction)
     if same_length
-        slice = similar(first(slice_generators(array, periodic, direction)), Int)
+        slice = similar(first(slices(array, topology, direction)), Int)
         padded = maybe_pad_with_zeros(slice, topology)
         len = length(padded)
         fwd = plan_rfft(padded)

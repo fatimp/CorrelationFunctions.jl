@@ -163,7 +163,7 @@ end
 
 function check_direction(direction :: AbstractDirection,
                          array     :: AbstractArray,
-                         periodic  :: Bool)
+                         topology  :: AbstractTopology)
     predicate = direction_predicate(array)
 
     if !predicate(direction)
@@ -173,7 +173,7 @@ function check_direction(direction :: AbstractDirection,
     shape = size(array)
     cubic = all(x -> x == shape[1], shape)
     axial = direction ∈ [DirX(), DirY(), DirZ()]
-    if periodic && !axial && !cubic
+    if topology == Torus() && !axial && !cubic
         error("Periodic diagonals for non-cubic arrays are not supported")
     end
 

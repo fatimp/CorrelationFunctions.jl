@@ -50,15 +50,14 @@ function s2(array     :: AbstractArray,
             direction :: AbstractDirection;
             len       :: Integer = (array |> size |> minimum) ÷ 2,
             periodic  :: Bool    = false)
-    check_direction(direction, array, periodic)
+    topology = periodic ? Torus() : Plane()
+    check_direction(direction, array, topology)
     success = zeros(Float64, len)
     total   = zeros(Int, len)
-    topology = periodic ? Torus() : Plane()
     χ1, χ2 = indicator_function(indicator)
-    slicer = slice_generators(array, periodic, direction)
     plan = make_dft_plan(array, topology, direction)
 
-    for slice in slicer
+    for slice in slices(array, topology, direction)
         # Apply indicator function
         ind1 =                      maybe_pad_with_zeros(χ1.(slice), topology)
         ind2 = (χ1 === χ2) ? ind1 : maybe_pad_with_zeros(χ2.(slice), topology)
@@ -89,13 +88,13 @@ function s2(array     :: AbstractArray,
             direction :: AbstractDirection;
             len       :: Integer = (array |> size |> minimum) ÷ 2,
             periodic  :: Bool    = false)
-    check_direction(direction, array, periodic)
+    topology = periodic ? Torus() : Plane()
+    check_direction(direction, array, topology)
     χ = indicator_function(indicator)
-    slicer = slice_generators(array, periodic, direction)
     success = zeros(Int, len)
     total   = zeros(Int, len)
 
-    for slice in slicer
+    for slice in slices(array, topology, direction)
         slen = length(slice)
         # Number of shifts (distances between two points for this slice)
         shifts = min(len, slen)

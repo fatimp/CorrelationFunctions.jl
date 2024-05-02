@@ -74,12 +74,12 @@ function l2(array     :: AbstractArray, phase,
             direction :: AbstractDirection;
             len       :: Integer = (array |> size |> minimum) ÷ 2,
             periodic  :: Bool    = false)
-    check_direction(direction, array, periodic)
+    topology = periodic ? Torus() : Plane()
+    check_direction(direction, array, topology)
     success = zeros(Int, len)
     total   = zeros(Int, len)
 
-    slicer = slice_generators(array, periodic, direction)
-    for slice in slicer
+    for slice in slices(array, topology, direction)
         slen = length(slice)
         firstrun = 0
         lastrun = 0
