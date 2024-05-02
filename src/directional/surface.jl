@@ -32,7 +32,6 @@ function surf2(array     :: AbstractArray, phase,
                direction :: AbstractDirection;
                len       :: Integer        = (array |> size  |> minimum) ÷ 2,
                periodic  :: Bool           = false,
-               plans     :: S2FTPlans      = S2FTPlans(array, periodic),
                filter    :: AbstractKernel = ConvKernel(7))
     check_rank(array, 2)
 
@@ -40,7 +39,7 @@ function surf2(array     :: AbstractArray, phase,
     ph = map(χ, array)
     edge = extract_edges(ph, filter, periodic ? Torus() : Plane())
 
-    return s2(edge, SeparableIndicator(identity), direction; len, periodic, plans)
+    return s2(edge, SeparableIndicator(identity), direction; len, periodic)
 end
 
 """
@@ -76,7 +75,6 @@ function surfvoid(array     :: AbstractArray, phase,
                   direction :: AbstractDirection;
                   len       :: Integer        = (array |> size  |> minimum) ÷ 2,
                   periodic  :: Bool           = false,
-                  plans     :: S2FTPlans      = S2FTPlans(array, periodic),
                   filter    :: AbstractKernel = ConvKernel(7),
                   void_phase                  = 0)
     check_rank(array, 1)
@@ -89,5 +87,5 @@ function surfvoid(array     :: AbstractArray, phase,
     χ1(x) = χ_void(array[x])
     χ2(x) = edge[x]
     return s2(CartesianIndices(array), SeparableIndicator(χ1, χ2), direction;
-              len, periodic, plans)
+              len, periodic)
 end

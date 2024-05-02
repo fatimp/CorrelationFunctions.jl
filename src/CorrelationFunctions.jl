@@ -39,12 +39,13 @@ using ..Utilities
 using Statistics: mean, std
 using LinearAlgebra: normalize
 using Base.Iterators
-using FFTW: plan_rfft, plan_irfft
+using FFTW: plan_rfft, plan_irfft, rfft, irfft
 using CircularArrays: CircularArray
 using CUDA: CuArray
 
 include("directional/slicer.jl")
 include("directional/indicator.jl")
+include("directional/plans.jl")
 include("directional/l2.jl")
 include("directional/s2.jl")
 include("directional/c2.jl")
@@ -60,7 +61,7 @@ include("directional/cc.jl")
 export l2, s2, c2,
     surf2, surfvoid, chord_length, pore_size, cross_correlation,
     s3, c3, surf3, surf2void, surfvoid2,
-    AbstractIndicator, SeparableIndicator, InseparableIndicator, S2FTPlans
+    AbstractIndicator, SeparableIndicator, InseparableIndicator
 end # Directional
 
 module Map

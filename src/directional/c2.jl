@@ -1,51 +1,5 @@
 const max_labels_for_ft = 50
 
-function c2fft(labels    :: AbstractArray;
-               direction :: AbstractDirection,
-               len       :: Integer,
-               periodic  :: Bool,
-               plans     :: S2FTPlans = S2FTPlans(labels, periodic))
-    check_direction(direction, labels, periodic)
-    topology = periodic ? Utilities.Torus() : Utilities.Plane()
-    maxlabel = maximum(labels)
-    success = zeros(Float64, len)
-    total   = zeros(Int, len)
-
-    slicer  = slice_generators(labels, periodic, direction)
-
-    for slice in slicer
-        slen = length(slice)
-        local fft, ifft
-
-        if slen ∈ plans
-            fft  = plans.forward[slen]
-            ifft = plans.inverse[slen]
-        else
-            l = slen * expand_coefficient(topology)
-            fft  = plan_rfft(zeros(Float64, l))
-            ifft = plan_irfft(zeros(ComplexF64, l >> 1 + 1), l)
-        end
-
-        slice_contrib_ft = mapreduce(+, 1:maxlabel) do label
-            ind  = maybe_pad_with_zeros(slice .== label, topology)
-            ft   = fft * ind
-            s2ft = abs2.(ft)
-        end
-
-        slice_contrib = ifft * slice_contrib_ft
-        shifts = min(len, slen)
-
-        success[1:shifts] .+= slice_contrib[1:shifts]
-        if periodic
-            total[1:shifts] .+= slen
-        else
-            update_runs!(total, slen, shifts)
-        end
-    end
-
-    return success ./ total
-end
-
 """
     c2(array, phase[; len,][directions,] periodic = false)
 
@@ -79,8 +33,12 @@ function c2(array     :: AbstractArray, phase,
             periodic  :: Bool    = false)
     field = map(x -> x == phase, array)
     labels = label_components(field, periodic ? Utilities.Torus() : Utilities.Plane())
-    if maximum(labels) < max_labels_for_ft
-        return c2fft(labels; direction, len, periodic)
+    nlabels = maximum(labels)
+    if nlabels < max_labels_for_ft
+        return mapreduce(+, 1:nlabels) do label
+            s2(labels, SeparableIndicator(x -> x == label), direction;
+               len, periodic)
+        end
     else
         return s2(labels, InseparableIndicator((x, y) -> x == y != 0), direction;
                   len, periodic)

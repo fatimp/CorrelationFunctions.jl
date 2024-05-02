@@ -45,80 +45,31 @@ maybe_pad_with_zeros(slice :: AbstractVector   , :: Torus) = slice
 maybe_pad_with_zeros(slice :: AbstractVector{T}, :: Plane) where T =
     vcat(zeros(T, length(slice)), slice)
 
-expand_coefficient(:: Plane) = 2
-expand_coefficient(:: Torus) = 1
-
-struct S2FTPlans{F, I}
-    forward :: Dict{Int, F}
-    inverse :: Dict{Int, I}
-end
-
-Base.in(key :: Int, plans :: S2FTPlans) = key ∈ keys(plans.forward)
-
-"""
-    S2FTPlans(array, Plane())
-    S2FTPlans(array, Torus())
-
-Create FFT plans for faster calculation of two-point, surface-surface
-and surface-void  correlation functions. `Plane()` corresponds to CW
-boundary conditions and `Torus()` corresponds to periodic boundary
-conditions.
-
-See also: [`s2`](@ref), [`surf2`](@ref), [`surfvoid`](@ref).
-"""
-function S2FTPlans(array    :: AbstractArray,
-                   topology :: AbstractTopology)
-    m = expand_coefficient(topology)
-    fft_plans  = Dict(s => zeros(Float64, m*s) |> plan_rfft for s in size(array))
-    ifft_plans = Dict(s => plan_irfft(fft_plans[s] * zeros(Float64, m*s), m*s) for s in size(array))
-    return S2FTPlans(fft_plans, ifft_plans)
-end
-
-"""
-    S2FTPlans(array, periodic)
-
-Create FFT plans for faster calculation of two-point, surface-surface
-and surface-void  correlation functions. Periodic boundary conditions
-are used when `periodic` is `true`, otherwise CW boundary conditions
-are used.
-"""
-S2FTPlans(array :: AbstractArray, periodic :: Bool) =
-    S2FTPlans(array, periodic ? Torus() : Plane())
-
 function s2(array     :: AbstractArray,
             indicator :: SeparableIndicator,
             direction :: AbstractDirection;
-            len       :: Integer   = (array |> size |> minimum) ÷ 2,
-            periodic  :: Bool      = false,
-            plans     :: S2FTPlans = S2FTPlans(array, periodic))
+            len       :: Integer = (array |> size |> minimum) ÷ 2,
+            periodic  :: Bool    = false)
     check_direction(direction, array, periodic)
     success = zeros(Float64, len)
     total   = zeros(Int, len)
     topology = periodic ? Torus() : Plane()
     χ1, χ2 = indicator_function(indicator)
     slicer = slice_generators(array, periodic, direction)
+    plan = make_dft_plan(array, topology, direction)
 
     for slice in slicer
-        # Get plans for FFT and inverse FFT
-        slen = length(slice)
-        local fft, ifft
+        # Apply indicator function
+        ind1 =                      maybe_pad_with_zeros(χ1.(slice), topology)
+        ind2 = (χ1 === χ2) ? ind1 : maybe_pad_with_zeros(χ2.(slice), topology)
 
-        ind1 = maybe_pad_with_zeros(map(χ1, slice), topology)
-
-        if slen ∈ plans
-            fft  = plans.forward[slen]
-            ifft = plans.inverse[slen]
-        else
-            l = length(ind1)
-            fft  = plan_rfft(ind1)
-            ifft = plan_irfft(zeros(ComplexF64, l >> 1 + 1), l)
-        end
-
-        fft1 = fft * ind1
-        fft2 = (χ1 === χ2) ? fft1 : fft * maybe_pad_with_zeros(map(χ2, slice), topology)
-        s2 = ifft * (fft1 .* conj.(fft2))
+        # Calculate autocorrelation
+        fft1 = rfft_with_plan(ind1, plan)
+        fft2 = (χ1 === χ2) ? fft1 : rfft_with_plan(ind2, plan)
+        s2 = irfft_with_plan(fft1 .* conj.(fft2), length(ind1), plan)
 
         # Number of correlation lengths
+        slen = length(slice)
         shifts = min(len, slen)
 
         # Update success and total
@@ -169,7 +120,6 @@ end
 
 s2(array     :: AbstractArray, phase,
    direction :: AbstractDirection;
-   len       :: Integer   = (array |> size |> minimum) ÷ 2,
-   periodic  :: Bool      = false,
-   plans     :: S2FTPlans = S2FTPlans(array, periodic)) =
-       s2(array, SeparableIndicator(x -> x == phase), direction; len, periodic, plans)
+   len       :: Integer = (array |> size |> minimum) ÷ 2,
+   periodic  :: Bool    = false) =
+       s2(array, SeparableIndicator(x -> x == phase), direction; len, periodic)

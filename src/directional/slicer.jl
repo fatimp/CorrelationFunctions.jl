@@ -134,3 +134,11 @@ slice_generators(array :: AbstractArray{T,2}, periodic :: Bool, :: DirYX) where 
 slice_generators(array :: AbstractArray{T,1}, :: Bool, :: DirX) where T =
     # Ugly
     (array for x in 0:0)
+
+
+# Some "traits"
+slices_have_same_length(:: Torus, :: AbstractDirection) = true
+slices_have_same_length(:: Plane, :: DirX) = true
+slices_have_same_length(:: Plane, :: DirY) = true
+slices_have_same_length(:: Plane, :: DirZ) = true
+slices_have_same_length(:: AbstractTopology, :: AbstractDirection) = false

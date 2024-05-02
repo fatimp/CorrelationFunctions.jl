@@ -9,8 +9,7 @@ See also: [`s2`](@ref).
 """
 cross_correlation(array      :: AbstractArray, phase1, phase2,
                   direction  :: AbstractDirection;
-                  len        :: Integer   = (array |> size |> minimum) ÷ 2,
-                  periodic   :: Bool      = false,
-                  plans      :: S2FTPlans = S2FTPlans(array, periodic)) =
+                  len        :: Integer = (array |> size |> minimum) ÷ 2,
+                  periodic   :: Bool    = false) =
                       s2(array, SeparableIndicator(x -> x == phase1, x -> x == phase2),
-                         direction; len, periodic, plans)
+                         direction; len, periodic)
