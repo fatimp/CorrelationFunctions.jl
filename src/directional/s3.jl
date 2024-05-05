@@ -32,7 +32,6 @@ function crosscorr3_plane(array1   :: AbstractArray{<: Any, N},
     rot1 = array1
     rot2 = similar(array2)
     rot3 = similar(array3)
-    result = zeros(Float64, size(ps1))
 
     function cc(shift2, shift3)
         arrayshift!(rot2, array2, shift2, topology)
