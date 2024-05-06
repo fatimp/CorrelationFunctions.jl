@@ -43,14 +43,9 @@ Alternatively, to build a documentation locally do the following:
 2. From shell, this directory being the working directory: `cd docs && julia make.jl`
 
 ## Tutorials
-Numerous Jupiter notebooks with examples of how to apply the package to compute
-various correlation functions are available in our FaT iMP research group's
-repository, e.g.:
-1. [Example1](https://github.com/fatimp/correlation-function-paper/tree/master/notebook)
-2. [Example2](https://github.com/fatimp/surfsurf-paper-2/tree/master/notebooks)
-3. [Example3](https://github.com/fatimp/surfsurf-paper/tree/master/scripts%26data)
-
-Video tutorial is currently in production...
+This [Jupyter notebook](examples/notebook.ipynb) demonstrates how
+`CorrelationFunctions.jl` can be used. Video tutorial is currently in
+production...
 
 ## Describing scientific papers
 The functionality of the package is described in following scientific papers,
