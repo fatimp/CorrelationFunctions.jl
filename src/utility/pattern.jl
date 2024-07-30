@@ -1,19 +1,3 @@
-struct RightTrianglePattern{T} <: AbstractMatrix{T}
-    len :: Int
-    m   :: Pair{Int, Int}
-end
-
-RightTrianglePattern(len, dims, m) = RightTrianglePattern{NTuple{dims, Int}}(len, m)
-
-Base.size(p :: RightTrianglePattern) = (p.len, p.len)
-
-function Base.getindex(p   :: RightTrianglePattern{NTuple{D, Int}},
-                       idx :: Vararg{Int, 2}) where D
-    val = idx[p.m.first] - 1
-    elts = (i == p.m.second ? val : 0 for i in 1:D)
-    return Tuple(elts)
-end
-
 """
     AbstractPlane
 
@@ -52,24 +36,48 @@ See also: [`AbstractPlane`](@ref).
 """
 struct PlaneYZ <: AbstractPlane end
 
-"""
-    make_pattern(array, plane)
+abstract type AbstractPattern end
 
-Make a set of points for calculation of correlation functions based on
-three-point statistics. The created set is based of a right triangle
-with varying lengths of catheti. The second argument defines alignment
-of the pattern with one of the planes.
+struct RTPoints{T} <: AbstractMatrix{T}
+    len :: Int
+    m   :: Pair{Int, Int}
+end
 
-See also: [`AbstractPlane`](@ref), [`PlaneXY`](@ref),
-[`PlaneXZ`](@ref), [`PlaneYZ`](@ref).
-"""
-function make_pattern end
-
-make_pattern(array, m :: Pair{Int, Int}) =
+RTPoints(len, dims, m) = RTPoints{NTuple{dims, Int}}(len, m)
+RTPoints(array, m :: Pair{Int, Int}) =
     let s = (array |> size |> minimum) ÷ 2;
-        RightTrianglePattern(s, ndims(array), m)
+        RTPoints(s, ndims(array), m)
     end
 
-make_pattern(array, :: PlaneXY) = (make_pattern(array, 1 => 1), make_pattern(array, 2 => 2))
-make_pattern(array, :: PlaneXZ) = (make_pattern(array, 1 => 1), make_pattern(array, 2 => 3))
-make_pattern(array, :: PlaneYZ) = (make_pattern(array, 1 => 2), make_pattern(array, 2 => 3))
+Base.size(p :: RTPoints) = (p.len, p.len)
+
+function Base.getindex(p   :: RTPoints{NTuple{D, Int}},
+                       idx :: Vararg{Int, 2}) where D
+    val = idx[p.m.first] - 1
+    elts = (i == p.m.second ? val : 0 for i in 1:D)
+    return Tuple(elts)
+end
+
+struct RightTrianglePattern{D} <: AbstractPattern
+    ps1 :: RTPoints{NTuple{D, Int}}
+    ps2 :: RTPoints{NTuple{D, Int}}
+end
+
+RightTrianglePattern(array, :: PlaneXY) =
+    RightTrianglePattern(RTPoints(array, 1 => 1), RTPoints(array, 2 => 2))
+RightTrianglePattern(array, :: PlaneXZ) =
+    RightTrianglePattern(RTPoints(array, 1 => 1), RTPoints(array, 2 => 3))
+RightTrianglePattern(array, :: PlaneYZ) =
+    RightTrianglePattern(RTPoints(array, 1 => 2), RTPoints(array, 2 => 3))
+
+pattern_points(pattern :: RightTrianglePattern) = (pattern.ps1, pattern.ps2)
+
+pattern_normalize(array, input_shape, :: AbstractPattern, :: Torus) =
+    array ./ prod(input_shape)
+function pattern_normalize(array, input_shape, p :: RightTrianglePattern, :: Plane)
+    ps1, ps2 = pattern_points(p)
+    map(array, ps1, ps2) do x, s1, s2
+        # Julia cannot infer types here
+        x / prod(input_shape .- s1 .- s2) :: Int64
+    end
+end

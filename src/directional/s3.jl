@@ -14,10 +14,6 @@ end
 arrayshift!(result, array, shift, :: Plane) = padshift!(result, array, shift)
 arrayshift!(result, array, shift, :: Torus) = circshift!(result, array, shift)
 
-autocorr3_norm(array :: AbstractArray, :: Any, :: Any, :: Torus) = length(array)
-autocorr3_norm(array :: AbstractArray, s1, s2, :: Plane) =
-    prod(size(array) .- s1 .- s2)
-
 # This works just like autocorrelation, but replaces (*) with generic
 # ternary operation.
 function crosscorr3_plane(array1   :: AbstractArray{<: Any, N},
@@ -28,20 +24,17 @@ function crosscorr3_plane(array1   :: AbstractArray{<: Any, N},
                           ps1      :: AbstractArray{NTuple{N, Int}, M},
                           ps2      :: AbstractArray{NTuple{N, Int}, M}) where {N, M}
     @assert size(array1) == size(array2) == size(array3)
+    @assert size(ps1) == size(ps2)
 
     rot1 = array1
     rot2 = similar(array2)
     rot3 = similar(array3)
 
-    function cc(shift2, shift3)
+    return map(ps1, ps2) do shift2, shift3
         arrayshift!(rot2, array2, shift2, topology)
         arrayshift!(rot3, array3, shift3, topology)
-        sum(op(rot1, rot2, rot3)) /
-            autocorr3_norm(array1, shift2, shift3, topology)
+        sum(op(rot1, rot2, rot3))
     end
-
-    # Julia cannot infer types here
-    return cc.(ps1, ps2) :: Array{Float64, M}
 end
 
 autocorr3_plane(array :: AbstractArray, op, topology, ps1, ps2) =
@@ -82,10 +75,12 @@ true
 
 See also: [`make_pattern`](@ref), [`s2`](@ref).
 """
-function s3(array :: AbstractArray, ps1, ps2; periodic :: Bool = false)
+function s3(array :: AbstractArray, pattern; periodic :: Bool = false)
     op(x, y, z) = @. x * y * z
     topology = periodic ? Torus() : Plane()
-    return autocorr3_plane(array, op, topology, ps1, ps2)
+    ps1, ps2 = pattern_points(pattern)
+    s3 = autocorr3_plane(array, op, topology, ps1, ps2)
+    return pattern_normalize(s3, size(array), pattern, topology)
 end
 
 """
@@ -94,7 +89,7 @@ end
 The same as `s3(array .== phase; ...)`. Kept for consistency with
 other parts of the API.
 """
-function s3(array :: T, phase, ps1, ps2; periodic :: Bool = false) where T <: AbstractArray
+function s3(array :: T, phase, pattern; periodic :: Bool = false) where T <: AbstractArray
     # Prevent implicit conversion to BitArray, they are slow
-    return s3(T(array .== phase), ps1, ps2; periodic)
+    return s3(T(array .== phase), pattern; periodic)
 end

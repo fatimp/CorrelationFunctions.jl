@@ -30,11 +30,12 @@ export read_cuboid, lowfreq_energy_ratio,
     DirYXZ, DirZYX, check_direction, check_rank,
     maybe_upload_to_gpu, AbstractRotation, VectorRotation,
     MatRotation, make_rotation, rotate_array, detect_anisotropy,
-    RightTrianglePattern, AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ,
-    make_pattern
+    AbstractPattern, RightTrianglePattern, pattern_points, pattern_normalize,
+    AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ
 end
 
 module Directional
+import ..Utilities as U
 using ..Utilities
 using Statistics: mean, std
 using LinearAlgebra: normalize
