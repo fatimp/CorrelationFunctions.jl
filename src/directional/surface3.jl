@@ -11,16 +11,18 @@ You can chose how an edge between phases is selected by passing
 
 See also: [`s3`](@ref), [`make_pattern`](@ref), [`AbstractKernel`](@ref).
 """
-function surf3(array    :: AbstractArray, ps1, ps2;
+function surf3(array    :: AbstractArray, pattern;
                periodic :: Bool           = false,
                filter   :: AbstractKernel = ConvKernel(7))
     check_rank(array, 3)
 
     topology = periodic ? Torus() : Plane()
     edges = extract_edges(array, filter, topology)
+    ps1, ps2 = pattern_points(pattern)
 
     op(x, y, z) = @. x * y * z
-    return autocorr3_plane(edges, op, topology, ps1, ps2)
+    surf3 = autocorr3_plane(edges, op, topology, ps1, ps2)
+    return pattern_normalize(surf3, size(array), pattern, topology)
 end
 
 """
@@ -29,11 +31,11 @@ end
 The same as `surf3(array .== phase; ...)`. Kept for consistency with
 other parts of the API.
 """
-function surf3(array    :: AbstractArray, phase, ps1, ps2;
+function surf3(array    :: AbstractArray, phase, pattern;
                periodic :: Bool           = false,
                filter   :: AbstractKernel = ConvKernel(7))
     # Conversion to BitArray is OK here
-    return surf3(array .== phase, ps1, ps2; periodic, filter)
+    return surf3(array .== phase, pattern; periodic, filter)
 end
 
 @doc raw"""
@@ -49,18 +51,20 @@ You can chose how an edge between phases is selected by passing
 
 See also: [`s3`](@ref), [`make_pattern`](@ref), [`AbstractKernel`](@ref).
 """
-function surf2void(array    :: T, phase, ps1, ps2, void_phase  = 0;
+function surf2void(array    :: T, phase, pattern, void_phase  = 0;
                    periodic :: Bool           = false,
                    filter   :: AbstractKernel = ConvKernel(7)) where T <: AbstractArray
     check_rank(array, 2)
 
     topology = periodic ? Torus() : Plane()
+    ps1, ps2 = pattern_points(pattern)
     # Prevent implicit conversion to BitArray, they are slow
     edges = extract_edges(array .== phase, filter, topology)
     void  = T(array .== void_phase)
     op(x, y, z) = @. x * y * z
 
-    return crosscorr3_plane(edges, edges, void, op, topology, ps1, ps2)
+    s2v = crosscorr3_plane(edges, edges, void, op, topology, ps1, ps2)
+    return pattern_normalize(s2v, size(array), pattern, topology)
 end
 
 @doc raw"""
@@ -76,16 +80,18 @@ You can chose how an edge between phases is selected by passing
 
 See also: [`s3`](@ref), [`AbstractPlane`](@ref), [`AbstractKernel`](@ref).
 """
-function surfvoid2(array    :: T, phase, ps1, ps2, void_phase  = 0;
+function surfvoid2(array    :: T, phase, pattern, void_phase  = 0;
                    periodic :: Bool           = false,
                    filter   :: AbstractKernel = ConvKernel(7)) where T <: AbstractArray
     check_rank(array, 1)
 
     topology = periodic ? Torus() : Plane()
+    ps1, ps2 = pattern_points(pattern)
     # Prevent implicit conversion to BitArray, they are slow
     edges = extract_edges(array .== phase, filter, topology)
     void  = T(array .== void_phase)
     op(x, y, z) = @. x * y * z
 
-    return crosscorr3_plane(edges, void, void, op, topology, ps1, ps2)
+    sv2 = crosscorr3_plane(edges, void, void, op, topology, ps1, ps2)
+    return pattern_normalize(sv2, size(array), pattern, topology)
 end
