@@ -79,11 +79,11 @@ end
 end
 
 @testset "Check some properties of s3" begin
-    ss1, ss2 = U.make_pattern(rand_array, U.PlaneXY())
+    pattern = U.RightTrianglePattern(rand_array, U.PlaneXY())
     for periodic in (false, true)
         s2x = D.s2(rand_array, true, U.DirX(); periodic)
         s2y = D.s2(rand_array, true, U.DirY(); periodic)
-        s3 = D.s3(rand_array, true, ss1, ss2; periodic)
+        s3 = D.s3(rand_array, true, pattern; periodic)
         @test all(isapprox.(s3[2:end, 2:end], prob[2]^3; rtol = 0.05))
         @test s3[:,1] ≈ s2x
         @test s3[1,:] ≈ s2y
@@ -91,11 +91,11 @@ end
 end
 
 @testset "Check some properties of c3" begin
-    ss1, ss2 = U.make_pattern(rand_array, U.PlaneXY())
+    pattern = U.RightTrianglePattern(rand_array, U.PlaneXY())
     for periodic in (false, true)
         c2x = D.c2(rand_array, true, U.DirX(); periodic)
         c2y = D.c2(rand_array, true, U.DirY(); periodic)
-        c3 = D.c3(rand_array, true, ss1, ss2; periodic)
+        c3 = D.c3(rand_array, true, pattern; periodic)
         @test c3[:,1] ≈ c2x
         @test c3[1,:] ≈ c2y
     end

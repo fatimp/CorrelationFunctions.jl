@@ -37,9 +37,9 @@ pore_size_theory(r, R, λ) = 4π*λ*(r + R)^2 * exp(-4/3*π*λ * (r^3 + 3r^2*R +
 
 @testset "Check some properties of surf2void" begin
     ball = draw_ball((100, 100, 100), 0.2*100)
-    shs1, shs2 = U.make_pattern(ball, U.PlaneXY())
+    pattern = U.RightTrianglePattern(ball, U.PlaneXY())
     for periodic in (false, true)
-        ssv = D.surf2void(ball, true, shs1, shs2; periodic)
+        ssv = D.surf2void(ball, true, pattern; periodic)
         ss = mean_corrfn(D.surf2, ball, true; periodic, directions = axial_directions)
         @test relerr_norm(ssv[:, end], ss) < 0.08
     end
@@ -47,9 +47,9 @@ end
 
 @testset "Check some properties of surfvoid2" begin
     ball = draw_ball((100, 100, 100), 0.2*100)
-    shs1, shs2 = U.make_pattern(ball, U.PlaneXY())
+    pattern = U.RightTrianglePattern(ball, U.PlaneXY())
     for periodic in (false, true)
-        svv = D.surfvoid2(ball, true, shs1, shs2; periodic)
+        svv = D.surfvoid2(ball, true, pattern; periodic)
         sv = mean_corrfn(D.surfvoid, ball, true; periodic, directions = axial_directions)
         @test relerr_norm(svv[:, end], sv) < 0.08
         @test svv[:, end] ≈ svv[end, :]
