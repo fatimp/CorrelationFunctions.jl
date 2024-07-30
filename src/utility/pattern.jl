@@ -36,7 +36,11 @@ See also: [`AbstractPlane`](@ref).
 """
 struct PlaneYZ <: AbstractPlane end
 
+
+
 abstract type AbstractPattern end
+
+pattern_points(pattern :: AbstractPattern) = (pattern.ps1, pattern.ps2)
 
 struct RTPoints{T} <: AbstractMatrix{T}
     len :: Int
@@ -70,8 +74,6 @@ RightTrianglePattern(array, :: PlaneXZ) =
 RightTrianglePattern(array, :: PlaneYZ) =
     RightTrianglePattern(RTPoints(array, 1 => 2), RTPoints(array, 2 => 3))
 
-pattern_points(pattern :: RightTrianglePattern) = (pattern.ps1, pattern.ps2)
-
 pattern_normalize(array, input_shape, :: AbstractPattern, :: Torus) =
     array ./ prod(input_shape)
 function pattern_normalize(array, input_shape, p :: RightTrianglePattern, :: Plane)
@@ -80,4 +82,9 @@ function pattern_normalize(array, input_shape, p :: RightTrianglePattern, :: Pla
         # Julia cannot infer types here
         x / prod(input_shape .- s1 .- s2) :: Int64
     end
+end
+
+struct ArbitraryPattern{Din, Dout} <: AbstractPattern
+    ps1 :: Array{NTuple{Din, Int}, Dout}
+    ps2 :: Array{NTuple{Din, Int}, Dout}
 end

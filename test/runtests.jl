@@ -21,8 +21,7 @@ include("utility.jl")
 @testset "Overlapping disks"   begin include("disks.jl") end
 @testset "Overlapping balls"   begin include("balls.jl") end
 @testset "Square"              begin include("square.jl") end
-#TODO: Requires arbitrary pattern
-#@testset "Cube"                begin include("cube.jl") end
+@testset "Cube"                begin include("cube.jl") end
 @testset "Correlation maps"    begin include("maps.jl") end
 @testset "Supplementary stuff" begin include("supplementary.jl") end
 

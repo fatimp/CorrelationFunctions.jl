@@ -30,7 +30,8 @@ export read_cuboid, lowfreq_energy_ratio,
     DirYXZ, DirZYX, check_direction, check_rank,
     maybe_upload_to_gpu, AbstractRotation, VectorRotation,
     MatRotation, make_rotation, rotate_array, detect_anisotropy,
-    AbstractPattern, RightTrianglePattern, pattern_points, pattern_normalize,
+    AbstractPattern, RightTrianglePattern, ArbitraryPattern,
+    pattern_points, pattern_normalize,
     AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ
 end
 

@@ -40,6 +40,12 @@ end
 autocorr3_plane(array :: AbstractArray, op, topology, ps1, ps2) =
     crosscorr3_plane(array, array, array, op, topology, ps1, ps2)
 
+function s3_unnormalized(array, pattern, topology)
+    op(x, y, z) = @. x * y * z
+    ps1, ps2 = pattern_points(pattern)
+    return autocorr3_plane(array, op, topology, ps1, ps2)
+end
+
 """
     s3(array, ps1, ps2[, periodic = false])
 
@@ -76,10 +82,8 @@ true
 See also: [`make_pattern`](@ref), [`s2`](@ref).
 """
 function s3(array :: AbstractArray, pattern; periodic :: Bool = false)
-    op(x, y, z) = @. x * y * z
     topology = periodic ? Torus() : Plane()
-    ps1, ps2 = pattern_points(pattern)
-    s3 = autocorr3_plane(array, op, topology, ps1, ps2)
+    s3 = s3_unnormalized(array, pattern, topology)
     return pattern_normalize(s3, size(array), pattern, topology)
 end
 
@@ -92,4 +96,12 @@ other parts of the API.
 function s3(array :: T, phase, pattern; periodic :: Bool = false) where T <: AbstractArray
     # Prevent implicit conversion to BitArray, they are slow
     return s3(T(array .== phase), pattern; periodic)
+end
+
+# Normalization for arbitrary pattern
+
+function U.pattern_normalize(result, input_shape, pattern :: ArbitraryPattern, :: Plane)
+    array2 = ones(Bool, input_shape)
+    s3ones = s3_unnormalized(array2, pattern, Plane())
+    return result ./ s3ones
 end
