@@ -100,3 +100,18 @@ end
         @test c3[1,:] ≈ c2y
     end
 end
+
+@testset "Negative shifts" begin
+    for _ in 1:100
+        p = (rand(0:99), rand(0:99), rand(0:99))
+        z = (0, 0, 0)
+
+        ps1 = [z,   z]
+        ps2 = [p, .-p]
+
+        for periodic in (false, true)
+            s3 = D.s3(rand_array, ps1, ps2; periodic)
+            @test s3[1] == s3[2]
+        end
+    end
+end

@@ -1,13 +1,17 @@
 function padshift!(result :: AbstractArray{<:Any, N},
                    array  :: AbstractArray{<:Any, N},
                    shift  :: NTuple{N, Int}) where N
-    result .= 0
-    indices = CartesianIndices(array)
-    fidx, lidx = first(indices), last(indices)
-    src = (fidx + CartesianIndex(shift)):lidx
-    dst = fidx:(lidx-CartesianIndex(shift))
-    result[dst] = array[src]
+    fill!(result, 0)
+    shape = size(array)
 
+    absshift = abs.(shift)
+    r1 = ((1 + sh):s for (sh, s) in zip(absshift, shape))
+    r2 = (1:(s - sh) for (sh, s) in zip(absshift, shape))
+
+    src = ((s > 0) ? p : m for (s, p, m) in zip(shift, r1, r2))
+    dst = ((s > 0) ? m : p for (s, p, m) in zip(shift, r1, r2))
+
+    result[dst...] = array[src...]
     return result
 end
 
