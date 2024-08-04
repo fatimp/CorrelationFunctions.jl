@@ -43,9 +43,15 @@ Alternatively, to build a documentation locally do the following:
 2. From shell, this directory being the working directory: `cd docs && julia make.jl`
 
 ## Tutorials
-This [Jupyter notebook](examples/notebook.ipynb) demonstrates how
-`CorrelationFunctions.jl` can be used. Video tutorial is currently in
-production...
+Numerous Jupiter notebooks with examples of how to apply the package to compute
+various correlation functions are available in our FaT iMP research group's
+repository, e.g.:
+1. [Example1: general](https://github.com/fatimp/correlation-function-paper/tree/master/notebook)
+2. [Example2: surface functions](https://github.com/fatimp/surfsurf-paper-2/tree/master/notebooks)
+3. [Example3: additional surface functions](https://github.com/fatimp/surfsurf-paper/tree/master/scripts%26data)
+4. [Example4: 3-point correlation functions](https://gist.github.com/shamazmazum/426769209d2a52a40a972bf0b984e50e)
+
+Video lecture is available [here](https://cassyni.com/events/EfWMjgEEUFBeRoSN8o7NiH)
 
 ## Describing scientific papers
 The functionality of the package is described in following scientific papers,
@@ -55,7 +61,8 @@ please, support us by citations if you find our code useful:
 all classical CFs [Postnicov, V., Samarin, A., Karsanina, M. V., Gravey M.,
 Khlyupin, A. & Gerke, K. M. (2023). Evaluation of classical correlation
 functions from 2/3D images on CPU and GPU architectures: introducing
-CorrelationFunctions.jl (submitted to Computer Physics Communications)]
+CorrelationFunctions.jl. Computer Physics Communications, 299,
+109134.](https://www.sciencedirect.com/science/article/abs/pii/S0010465524000572)
 2. The digital approach to compute 2-point surface functions; also this paper
 introduces the C0.5 criterion (the package contains the function to evaluate it
 for input images) to judge the quality of the image to access such CFs
@@ -72,3 +79,6 @@ functions for digital images
 approach to improving methodology for discrete images. Physica A: Statistical
 Mechanics and its Applications, 628,
 129137.](https://www.sciencedirect.com/science/article/abs/pii/S0378437123006921)
+4. Evaluation of 3-point correlation functions from structural images on CPU and GPU
+architectures: accounting for anisotropy effects [Postnicov, V., Karsanina, M.V.,
+Khlyupin, A., Gerke, K.M. (2024) in revision with Physical Review E.]
