@@ -35,8 +35,8 @@ function chord_length(array :: AbstractArray, phase, direction :: AbstractDirect
     # Arary of chord lengths
     lengths = Int[]
 
-    ph_slices   = slices(ph,   Plane(), direction)
-    edge_slices = slices(edge, Plane(), direction)
+    ph_slices   = slices(ph,   NonPeriodic(), direction)
+    edge_slices = slices(edge, NonPeriodic(), direction)
 
     for (ph_slice, edge_slice) in Iterators.zip(ph_slices, edge_slices)
         len = 0

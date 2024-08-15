@@ -2,7 +2,7 @@ phase2ind(phase :: Function) = phase
 phase2ind(phase :: Any) = x -> x == phase
 
 """
-    surf2(array, phase, direction[; len] [,periodic = false][, filter])
+    surf2(array, phase, direction[; len] [,mode = NonPeriodic()][, filter])
 
 Calculate surface-surface correlation function for one-, two- or
 three-dimensional multiphase system. This implementation calculates
@@ -21,19 +21,19 @@ See also: [`Utilities.AbstractDirection`](@ref), [`Utilities.AbstractKernel`](@r
 function surf2(array     :: AbstractArray, phase,
                direction :: AbstractDirection;
                len       :: Integer        = (array |> size  |> minimum) ÷ 2,
-               periodic  :: Bool           = false,
+               mode      :: AbstractMode   = NonPeriodic(),
                filter    :: AbstractKernel = ConvKernel(7))
     check_rank(array, 2)
 
     χ = phase2ind(phase)
     ph = map(χ, array)
-    edge = extract_edges(ph, filter, periodic ? Torus() : Plane())
+    edge = extract_edges(ph, filter, mode)
 
-    return s2(edge, SeparableIndicator(identity), direction; len, periodic)
+    return s2(edge, SeparableIndicator(identity), direction; len, mode)
 end
 
 """
-    surfvoid(array, phase, direction[; len] [,void_phase = 0][, periodic = false][, filter])
+    surfvoid(array, phase, direction[; len] [,void_phase = 0][, mode = NonPeriodic()][, filter])
 
 Calculate surface-void correlation function for one-, two- or
 three-dimensional multiphase system. This implementation calculates
@@ -54,7 +54,7 @@ See also: [`Utilities.AbstractDirection`](@ref), [`Utilities.AbstractKernel`](@r
 function surfvoid(array     :: AbstractArray, phase,
                   direction :: AbstractDirection;
                   len       :: Integer        = (array |> size  |> minimum) ÷ 2,
-                  periodic  :: Bool           = false,
+                  mode      :: AbstractMode   = NonPeriodic(),
                   filter    :: AbstractKernel = ConvKernel(7),
                   void_phase                  = 0)
     check_rank(array, 1)
@@ -62,10 +62,10 @@ function surfvoid(array     :: AbstractArray, phase,
     χ = phase2ind(phase)
     χ_void = phase2ind(void_phase)
     ph = map(χ, array)
-    edge = extract_edges(ph, filter, periodic ? Torus() : Plane())
+    edge = extract_edges(ph, filter, mode)
 
     χ1(x) = χ_void(array[x])
     χ2(x) = edge[x]
     return s2(CartesianIndices(array), SeparableIndicator(χ1, χ2), direction;
-              len, periodic)
+              len, mode)
 end

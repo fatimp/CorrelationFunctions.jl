@@ -24,7 +24,7 @@ cb = gen_checkboard(60)
 @testset "L2" begin
     for phase in 0:1
         l = mean_corrfn(D.l2, cb, phase;
-                        periodic = true, directions = axial_directions)
+                        mode = U.Periodic(), directions = axial_directions)
         @test l[1] ≈ 1/2
         @test l[2] ≈ 1/4
         @test all(l[3:end] .== 0)
@@ -36,7 +36,7 @@ end
 @testset "C2" begin
     for phase in 0:1
         c = mean_corrfn(D.c2, cb, phase;
-                        periodic = true, directions = axial_directions)
+                        mode = U.Periodic(), directions = axial_directions)
         @test c[1] ≈ 1/2
         @test c[2] ≈ 1/4
         @test all(c[3:end] .== 0)
@@ -46,7 +46,7 @@ end
 @testset "S2" begin
     for phase in 0:1
         s = mean_corrfn(D.s2, cb, phase;
-                        periodic = true, directions = axial_directions)
+                        mode = U.Periodic(), directions = axial_directions)
         @test all(s[2:2:end] .≈ 1/4)
         @test all(x -> isapprox(x, 0; atol = 1e-2), s[3:4:end])
         @test all(s[1:4:end] .≈ 1/2)

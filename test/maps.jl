@@ -13,13 +13,13 @@ const dirs = Dict(
 function test_cf_on_img(img, cf_map, cf_dir)
     directions = dirs[ndims(img)]
 
-    for periodic in [true, false]
-        cf(dir) = dir => cf_dir(img, true, dir; len=size(img, 1), periodic)
-        cmap = cf_map(img, true; periodic)
+    for mode in (U.Periodic(), U.NonPeriodic())
+        cf(dir) = dir => cf_dir(img, true, dir; len=size(img, 1), mode)
+        cmap = cf_map(img, true; mode)
         cdir = cf.(directions)
 
         for (direction, data) in cdir
-            @test M.dir_from_map(cmap, direction; periodic) ≈ data
+            @test M.dir_from_map(cmap, direction; mode) ≈ data
         end
     end
 end

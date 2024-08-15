@@ -1,7 +1,7 @@
 const max_labels_for_ft = 50
 
 """
-    c2(array, phase, direction[; len,] [periodic = false])
+    c2(array, phase, direction[; len,] [mode = NonPeriodic])
 
 Calculate `C₂` (cluster) correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -30,17 +30,17 @@ For a list of possible directions, see also:
 function c2(array     :: AbstractArray, phase,
             direction :: AbstractDirection;
             len       :: Integer = (array |> size |> minimum) ÷ 2,
-            periodic  :: Bool    = false)
+            mode      :: AbstractMode = NonPeriodic())
     field = map(x -> x == phase, array)
-    labels = label_components(field, periodic ? Utilities.Torus() : Utilities.Plane())
+    labels = label_components(field, mode)
     nlabels = maximum(labels)
     if nlabels < max_labels_for_ft
         return mapreduce(+, 1:nlabels) do label
             s2(labels, SeparableIndicator(x -> x == label), direction;
-               len, periodic)
+               len, mode)
         end
     else
         return s2(labels, InseparableIndicator((x, y) -> x == y != 0), direction;
-                  len, periodic)
+                  len, mode)
     end
 end

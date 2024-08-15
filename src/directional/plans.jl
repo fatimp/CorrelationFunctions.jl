@@ -8,14 +8,14 @@ struct FFTWPlan{F, I} <: AbstractDFTPlan
 end
 
 function make_dft_plan(array     :: AbstractArray,
-                       topology  :: AbstractTopology,
+                       mode      :: AbstractMode,
                        direction :: AbstractDirection)
-    check_direction(direction, array, topology)
+    check_direction(direction, array, mode)
 
-    same_length = slices_have_same_length(topology, direction)
+    same_length = slices_have_same_length(mode, direction)
     if same_length
-        slice = similar(first(slices(array, topology, direction)), Int)
-        padded = maybe_add_padding(slice, topology)
+        slice = similar(first(slices(array, mode, direction)), Int)
+        padded = maybe_add_padding(slice, mode)
         len = length(padded)
         fwd = plan_rfft(padded)
         ft  = fwd * padded

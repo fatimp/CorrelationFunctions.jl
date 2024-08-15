@@ -8,54 +8,6 @@ manhattan_dist(x :: NTuple{N, Int}, y :: NTuple{N, Int}) where N =
 manhattan_dist(x :: CartesianIndex{N}, y :: CartesianIndex{N}) where N =
     manhattan_dist(x |> Tuple, y |> Tuple)
 
-"""
-    AbstractTopology
-
-Abstract type for describing topology of an input array.
-
-See also: [`Plane`](@ref), [`Torus`](@ref).
-"""
-abstract type AbstractTopology end
-
-@doc raw"""
-    Plane()
-
-Topology for calculation of correlation functions in non-periodic
-mode. Usually this means zero-padding of an input for out-of-bounds
-array access.
-
-**NB**: When extracting edges with `Plane` topology, reflection from
-array borders is used for out-of-bounds access. Although, it's natural
-to assume zero padding must be used, we want an equality
-$F_{ss}^{(false)} = F_{ss}^{(true)}$ for two-phase system, hence we
-cannot pad the input with some constant value.
-
-See also: [`AbstractTopology`](@ref).
-"""
-struct Plane <: AbstractTopology end
-
-"""
-    Torus()
-
-Topology for calculation of correlation functions in periodic mode. An
-input is extended to the infinity periodically as if it was wrapped
-around a torus.
-
-See also: [`AbstractTopology`](@ref).
-"""
-struct Torus <: AbstractTopology end
-
-maybe_add_padding(array, :: Torus) = array
-function maybe_add_padding(array, :: Plane)
-    s = size(array)
-    s = (2 .* s) .- 1
-
-    padded = similar(array, s)
-    padded .= 0
-    padded[axes(array)...] .= array
-    return padded
-end
-
 function wrapidx(idx :: CartesianIndex{N}, array :: AbstractArray{<:Any, N}) where N
     tuple = mod.(Tuple(idx), axes(array))
     return CartesianIndex(tuple)
@@ -90,20 +42,20 @@ end
 # Iterate over adjacent element in a "wrapped" torus space
 function iterate_adjacent(index :: CartesianIndex{N},
                           array :: AbstractArray{<:Any, N},
-                          _     :: Torus) where N
+                          _     :: Periodic) where N
     return (wrapidx(index + adj, array) for adj in adjacent_elements(N))
 end
 
 # Iterate over adjacent element on a plane
 function iterate_adjacent(index :: CartesianIndex{N},
                           array :: AbstractArray{<:Any, N},
-                          _     :: Plane) where N
+                          _     :: NonPeriodic) where N
     return (index + adj for adj in adjacent_elements(N)
             if checkbounds(Bool, array, index + adj))
 end
 
-function label_components(input    :: AbstractArray{Bool, N},
-                          topology :: AbstractTopology) where N
+function label_components(input :: AbstractArray{Bool, N},
+                          mode  :: AbstractMode) where N
     # -1 means an absence of label
     output = fill(-1, size(input))
     # Current label
@@ -131,7 +83,7 @@ function label_components(input    :: AbstractArray{Bool, N},
         while length(queue) > 0
             idx = pop_from_queue!()
 
-            for aidx in iterate_adjacent(idx, input, topology)
+            for aidx in iterate_adjacent(idx, input, mode)
                 push_in_queue!(aidx)
             end
         end
@@ -142,8 +94,8 @@ function label_components(input    :: AbstractArray{Bool, N},
 end
 
 ## FIXME: Maybe really parallel algorithm is needed here
-label_components(input :: CuArray, topology :: AbstractTopology) =
-    CuArray(label_components(Array(input), topology))
+label_components(input :: CuArray, mode :: AbstractMode) =
+    CuArray(label_components(Array(input), mode))
 
 
 ################################
@@ -153,11 +105,10 @@ label_components(input :: CuArray, topology :: AbstractTopology) =
 # This code can be rewritten into more beautiful implementation.
 # The bad thing is that Julia is against any beauty.
 
-function edt(array    :: AbstractArray{Bool},
-             topology :: AbstractTopology)
+function edt(array :: AbstractArray{Bool}, mode :: AbstractMode)
     len = array |> length |> Float64
     binary = map(x -> len^2*(1-x), array)
-    return edt!(binary, topology) .|> sqrt
+    return edt!(binary, mode) .|> sqrt
 end
 
 function lower_envelope(array :: AbstractVector{Float64})
@@ -193,7 +144,7 @@ function lower_envelope(array :: AbstractVector{Float64})
     return v, z
 end
 
-function edt!(array :: AbstractVector{Float64}, :: Plane)
+function edt!(array :: AbstractVector{Float64}, :: NonPeriodic)
     v, z = lower_envelope(array)
     len = length(array)
     dist = similar(array)
@@ -213,20 +164,19 @@ function edt!(array :: AbstractVector{Float64}, :: Plane)
     return array
 end
 
-function edt!(array :: AbstractVector{Float64}, :: Torus)
-    # Just do three times more work than for ::Plane version.
+function edt!(array :: AbstractVector{Float64}, :: Periodic)
+    # Just do three times more work than for ::NonPeriodic version.
     # This can be optimized in the future.
     len = length(array)
     a2 = vcat(array, array, array)
-    edt!(a2, Plane())
+    edt!(a2, NonPeriodic())
     array .= a2[len+1:2len]
     return array
 end
 
-function edt!(array    :: AbstractMatrix{Float64},
-              topology :: AbstractTopology)
+function edt!(array :: AbstractMatrix{Float64}, mode :: AbstractMode)
     x, y = size(array)
-    local edtfn!(x) = edt!(x, topology)
+    local edtfn!(x) = edt!(x, mode)
 
     columns = (view(array, :, i) for i in 1:y)
     foreach(edtfn!, columns)
@@ -237,10 +187,9 @@ function edt!(array    :: AbstractMatrix{Float64},
     return array
 end
 
-function edt!(array    :: AbstractArray{Float64, 3},
-              topology :: AbstractTopology)
+function edt!(array :: AbstractArray{Float64, 3}, mode :: AbstractMode)
     x, y, z = size(array)
-    local edtfn!(x) = edt!(x, topology)
+    local edtfn!(x) = edt!(x, mode)
 
     planes = (view(array, :, :, i) for i in 1:z)
     foreach(edtfn!, planes)
@@ -251,7 +200,7 @@ function edt!(array    :: AbstractArray{Float64, 3},
     return array
 end
 
-distance_transform(array, topology = Plane()) = edt(array, topology)
+distance_transform(array, mode = NonPeriodic()) = edt(array, mode)
 
 ##################
 # Edge detection #
@@ -335,18 +284,21 @@ function edge_filter(:: AbstractArray{<:Any, N}, kernel :: ErosionKernel) where 
     return centered(result)
 end
 
-"""
-    extract_edges(array, filter, topology)
+@doc raw"""
+    extract_edges(array, filter, mode)
 
 Perform edge extraction in the same way as in `surfsurf` and
 `surfvoid` functions from `Map` and `Directional` modules. `array` may
 be a CUDA array or an ordinary array. `filter` is a value of
 `AbstractKernel` type which selects an edge extraction
-algorithm. Boundary conditions are affected by `topology`. Periodic
-boundary conditions are assumed if `topology` is `Torus()` and
-reflection from the boundaries is used if `topology` is `Plane()`.
+algorithm. Boundary conditions are affected by `mode`. Periodic
+boundary conditions are assumed if `mode` is `Periodic()` and
+reflection from the boundaries is used if `mode` is `NonPeriodic()`.
 
-See also: [`AbstractKernel`](@ref), [`AbstractTopology`](@ref).
+**NB:** We use reflection instead of zero-padding with `NonPeriodic()`
+to ensure that $F_{ss}^{(0)} == F_{ss}^{(1)}$ for two-phase media.
+
+See also: [`AbstractKernel`](@ref), [`AbstractMode`](@ref).
 """
 function extract_edges end
 
@@ -365,31 +317,31 @@ function filter_periodic(array, kernel)
     return irfft(ftres, size(array, 1))
 end
 
-edge2pad(:: Torus) = Pad(:circular)
-edge2pad(:: Plane) = Pad(:reflect)
+edge2pad(:: Periodic) = Pad(:circular)
+edge2pad(:: NonPeriodic) = Pad(:reflect)
 
 # Fuck Julia for being unable to vectorize isapprox!
 # Julia is a piece of shit, why don't we use python (which is the same
 # shit, but starts faster).
 myapproxp(x, y, atol) = abs(x - y) < atol
 
-extract_edges(array :: AbstractArray, filter :: ConvKernel, topology :: AbstractTopology) =
-    abs.(imfilter(array, edge_filter(array, filter), edge2pad(topology)))
+extract_edges(array :: AbstractArray, filter :: ConvKernel, mode :: AbstractMode) =
+    abs.(imfilter(array, edge_filter(array, filter), edge2pad(mode)))
 
 # erode from ImageMorphology.jl does not allow to use a custom kernel
-extract_edges(array :: AbstractArray, filter :: ErosionKernel, topology :: AbstractTopology) =
+extract_edges(array :: AbstractArray, filter :: ErosionKernel, mode :: AbstractMode) =
     let kernel = edge_filter(array, filter)
         scale  = filter.width ÷ 2
-        eroded = myapproxp.(imfilter(Float64, array, kernel, edge2pad(topology)),
+        eroded = myapproxp.(imfilter(Float64, array, kernel, edge2pad(mode)),
                            sum(kernel), 0.1)
         (array .- eroded) / scale
     end
 
 # CUDA methods
-extract_edges(array :: CuArray, filter :: ConvKernel, :: Torus) =
+extract_edges(array :: CuArray, filter :: ConvKernel, :: Periodic) =
     abs.(filter_periodic(array, edge_filter(array, filter)))
 
-extract_edges(array :: CuArray, filter :: ErosionKernel, :: Torus) =
+extract_edges(array :: CuArray, filter :: ErosionKernel, :: Periodic) =
     let kernel = edge_filter(array, filter)
         scale  = filter.width ÷ 2
         eroded = myapproxp.(filter_periodic(array, kernel), sum(kernel), 0.1)

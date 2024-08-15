@@ -45,7 +45,7 @@ end
 Base.IteratorSize(:: CountRuns) = Base.SizeUnknown()
 
 """
-    l2(array, phase, direction[; len][, periodic = false])
+    l2(array, phase, direction[; len][, mode = NonPeriodic()])
 
 Calculate `L₂` (lineal path) correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -73,13 +73,12 @@ For a list of possible dimensions, see also:
 function l2(array     :: AbstractArray, phase,
             direction :: AbstractDirection;
             len       :: Integer = (array |> size |> minimum) ÷ 2,
-            periodic  :: Bool    = false)
-    topology = periodic ? Torus() : Plane()
-    check_direction(direction, array, topology)
+            mode      :: AbstractMode = NonPeriodic())
+    check_direction(direction, array, mode)
     success = zeros(Int, len)
     total   = zeros(Int, len)
 
-    for slice in slices(array, topology, direction)
+    for slice in slices(array, mode, direction)
         slen = length(slice)
         firstrun = 0
         lastrun = 0
@@ -93,7 +92,7 @@ function l2(array     :: AbstractArray, phase,
         end
 
         total_updates = min(slen, len)
-        if periodic
+        if mode == Periodic()
             if (slice[begin] == slice[end] == phase)
                 update_runs_periodic!(success, firstrun, lastrun, total_updates)
             end

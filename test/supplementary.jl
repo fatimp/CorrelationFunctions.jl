@@ -1,6 +1,6 @@
-testdist(x, y, :: U.Plane) = norm(x - y)
+testdist(x, y, :: U.NonPeriodic) = norm(x - y)
 
-function testdist(x, y, :: U.Torus)
+function testdist(x, y, :: U.Periodic)
     c = map(x, y) do i, j
         d1 = abs(i - j)
         d2 = 100 - d1
@@ -31,13 +31,13 @@ function check_edt(dim, topology)
 end
 
 @testset "Check distance transform (2D)" begin
-    check_edt(2, U.Plane())
-    check_edt(2, U.Torus())
+    check_edt(2, U.Periodic())
+    check_edt(2, U.NonPeriodic())
 end
 
 @testset "Check distance transform (3D)" begin
-    check_edt(3, U.Plane())
-    check_edt(3, U.Torus())
+    check_edt(3, U.Periodic())
+    check_edt(3, U.NonPeriodic())
 end
 
 @testset "Check lowfreq_energy_ratio" begin
@@ -54,7 +54,7 @@ end
 @testset "Check average_directions" begin
     data = two_phase_noise_3d()
     s2avg  = mean_corrfn(D.s2, data, false;
-                         periodic = true, directions = known_directions)
-    s2avg2 = M.s2(data, false; periodic = true) |> M.average_directions
+                         mode = U.Periodic(), directions = known_directions)
+    s2avg2 = M.s2(data, false; mode = U.Periodic()) |> M.average_directions
     @test relerr_norm(s2avg, s2avg2) < 0.05
 end

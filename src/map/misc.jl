@@ -1,5 +1,5 @@
-map_slice_len(dim :: Int64, periodic :: Bool) =
-    periodic ? dim : dim ÷ 2 + 1
+map_slice_len(dim :: Int64, :: Periodic) = dim
+map_slice_len(dim :: Int64, :: NonPeriodic) = dim ÷ 2 + 1
 
 """
     dir_from_map(m, dir)
@@ -11,25 +11,34 @@ See also: [`Utilities.AbstractDirection`](@ref).
 """
 function dir_from_map end
 
-dir_from_map(x :: AbstractArray, :: DirX; periodic :: Bool = false) =
-    let q = map_slice_len(size(x, 1), periodic)
-        x[CartesianIndex.(1:q, 1, 1)]
-    end
-dir_from_map(x :: AbstractArray, :: DirY; periodic :: Bool = false) =
-    let q = map_slice_len(size(x, 2), periodic)
-        x[CartesianIndex.(1, 1:q, 1)]
-    end
-dir_from_map(x :: AbstractArray, :: DirZ; periodic :: Bool = false) =
-    let q = map_slice_len(size(x, 3), periodic)
-        x[CartesianIndex.(1, 1, 1:q)]
-    end
-dir_from_map(x :: AbstractArray, :: DirXY; periodic :: Bool = false) =
-    let q = map_slice_len(minimum(size(x)[1:2]), periodic)
-        x[CartesianIndex.(1:q, 1:q, 1)]
-    end
-function dir_from_map(x :: AbstractArray, :: DirYX; periodic :: Bool = false)
+function dir_from_map(x    :: AbstractArray, :: DirX;
+                      mode :: AbstractMode = NonPeriodic())
+    q = map_slice_len(size(x, 1), mode)
+    return x[CartesianIndex.(1:q, 1, 1)]
+end
+
+function dir_from_map(x    :: AbstractArray, :: DirY;
+                      mode :: AbstractMode = NonPeriodic())
+    q = map_slice_len(size(x, 2), mode)
+    return x[CartesianIndex.(1, 1:q, 1)]
+end
+
+function dir_from_map(x    :: AbstractArray, :: DirZ;
+                      mode :: AbstractMode = NonPeriodic())
+    q = map_slice_len(size(x, 3), mode)
+    return x[CartesianIndex.(1, 1, 1:q)]
+end
+
+function dir_from_map(x    :: AbstractArray, :: DirXY;
+                      mode :: AbstractMode = NonPeriodic())
+    q = map_slice_len(minimum(size(x)[1:2]), mode)
+    return x[CartesianIndex.(1:q, 1:q, 1)]
+end
+
+function dir_from_map(x    :: AbstractArray, :: DirYX;
+                      mode :: AbstractMode = NonPeriodic())
     a = minimum(size(x)[1:2])
-    q = map_slice_len(a, periodic)
+    q = map_slice_len(a, mode)
     b = 1:q
     c = @. mod(1 - b, a) + 1
     return x[CartesianIndex.(c, b, 1)]
@@ -77,7 +86,5 @@ function cnt_total(c :: AbstractArray{<:Any, N}) where N
     return maybe_upload_to_gpu(result, c)
 end
 
-function normalize_result(result   :: AbstractArray,
-                          periodic :: Bool)
-    return periodic ? result / length(result) : result ./ cnt_total(result)
-end
+normalize_result(result, :: Periodic)    = result  / length(result)
+normalize_result(result, :: NonPeriodic) = result ./ cnt_total(result)

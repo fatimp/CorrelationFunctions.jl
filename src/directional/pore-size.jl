@@ -1,5 +1,5 @@
 """
-    pore_size(array, phase = 0; periodic = false)
+    pore_size(array, phase = 0; mode = NonPeriodic())
 
 Calculate pore size correlation function for one-, two- or
 three-dimensional multiphase systems.
@@ -27,11 +27,10 @@ julia> D.pore_size(data, 0)
  1.0
 ```
 """
-function pore_size(array    :: AbstractArray,
-                   phase               = 0;
-                   periodic :: Bool    = false)
+function pore_size(array :: AbstractArray, phase = 0;
+                   mode  :: AbstractMode = NonPeriodic())
     indicator = map(x -> x ≠ phase, array)
-    distances = distance_transform(indicator, periodic ? Torus() : Plane())
+    distances = distance_transform(indicator, mode)
     distances = filter(x -> x != 0, distances)
     return distances
 end

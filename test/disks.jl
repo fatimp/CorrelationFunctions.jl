@@ -37,7 +37,7 @@ pore_size_theory(r, R, λ) = 2λ*π*(r + R)*exp(-λ*π*(r^2 + 2r*R))
 
     disks = gendisks(S, R, λ)
     calc = mean_corrfn(D.l2, disks, 0; len = N,
-                       periodic = true, directions = axial_directions_2d) .|> log
+                       mode = U.Periodic(), directions = axial_directions_2d) .|> log
     theory = [(log ∘ l2_theory)(r-1, R, λ) for r in 0:N - 1]
 
     err = relerr.(calc, theory)
@@ -50,7 +50,7 @@ end
     th(r)  = s2_theory(r, R)
     disk   = draw_ball((S, S), R)
     calc   = mean_corrfn(D.s2, disk, true;
-                         periodic = true, directions = axial_directions_2d)
+                         mode = U.Periodic(), directions = axial_directions_2d)
     theory = th.(0:length(calc)-1) / S^2
 
     @test relerr_norm(calc, theory) < 0.01
@@ -66,19 +66,19 @@ end
     @test U.lowfreq_energy_ratio(disk) > 0.97
 
     calc = mean_corrfn(D.surf2, disk, false;
-                       periodic = true, filter = U.ConvKernel(5),
+                       mode = U.Periodic(), filter = U.ConvKernel(5),
                        directions = axial_directions_2d)
     @test relerr_norm(calc[10:boundary-10], theory) < 0.085
     @test maximum(calc[boundary+10:end]) < 1e-5
 
     calc = mean_corrfn(D.surf2, disk, false;
-                       periodic = true, filter = U.ConvKernel(7),
+                       mode = U.Periodic(), filter = U.ConvKernel(7),
                        directions = axial_directions_2d)
     @test relerr_norm(calc[10:boundary-10], theory) < 0.085
     @test maximum(calc[boundary+10:end]) < 1e-5
 
     calc = mean_corrfn(D.surf2, disk, false;
-                       periodic = true, filter = U.ErosionKernel(7),
+                       mode = U.Periodic(), filter = U.ErosionKernel(7),
                        directions = axial_directions_2d)
     @test relerr_norm(calc[10:boundary-10], theory) < 0.1
     @test maximum(calc[boundary+10:end]) < 1e-5
@@ -93,17 +93,17 @@ end
     @test U.lowfreq_energy_ratio(disk) > 0.97
 
     calc = mean_corrfn(D.surfvoid, disk, false;
-                       periodic = true, filter = U.ConvKernel(5),
+                       mode = U.Periodic(), filter = U.ConvKernel(5),
                        directions = axial_directions_2d)
     @test relerr_norm(calc, theory) < 0.03
 
     calc = mean_corrfn(D.surfvoid, disk, false;
-                       periodic = true, filter = U.ConvKernel(7),
+                       mode = U.Periodic(), filter = U.ConvKernel(7),
                        directions = axial_directions_2d)
     @test relerr_norm(calc, theory) < 0.03
 
     calc = mean_corrfn(D.surfvoid, disk, false;
-                       periodic = true, filter = U.ErosionKernel(7),
+                       mode = U.Periodic(), filter = U.ErosionKernel(7),
                        directions = axial_directions_2d)
     @test relerr_norm(calc, theory) < 0.05
 end

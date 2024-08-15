@@ -1,7 +1,7 @@
 """
-    s2(array, phase, direction[; len] [,periodic = false])
-    s2(array, SeparableIndicator(χ₁, χ₂), direction[; len] [,periodic = false])
-    s2(array, InseparableIndicator(χ), direction[; len] [,periodic = false])
+    s2(array, phase, direction[; len] [,mode = NonPeriodic()])
+    s2(array, SeparableIndicator(χ₁, χ₂), direction[; len] [,mode = NonPeriodic()])
+    s2(array, InseparableIndicator(χ), direction[; len] [,mode = NonPeriodic()])
 
 Calculate `S₂` (two point) correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -40,18 +40,17 @@ function s2(array     :: AbstractArray,
             indicator :: SeparableIndicator,
             direction :: AbstractDirection;
             len       :: Integer = (array |> size |> minimum) ÷ 2,
-            periodic  :: Bool    = false)
-    topology = periodic ? Torus() : Plane()
-    check_direction(direction, array, topology)
+            mode      :: AbstractMode = NonPeriodic())
+    check_direction(direction, array, mode)
     success = zeros(Float64, len)
     total   = zeros(Int, len)
     χ1, χ2 = indicator_function(indicator)
-    plan = make_dft_plan(array, topology, direction)
+    plan = make_dft_plan(array, mode, direction)
 
-    for slice in slices(array, topology, direction)
+    for slice in slices(array, mode, direction)
         # Apply indicator function
-        ind1 =                      maybe_add_padding(χ1.(slice), topology)
-        ind2 = (χ1 === χ2) ? ind1 : maybe_add_padding(χ2.(slice), topology)
+        ind1 =                      maybe_add_padding(χ1.(slice), mode)
+        ind2 = (χ1 === χ2) ? ind1 : maybe_add_padding(χ2.(slice), mode)
 
         # Calculate autocorrelation
         fft1 = rfft_with_plan(ind1, plan)
@@ -64,7 +63,7 @@ function s2(array     :: AbstractArray,
 
         # Update success and total
         success[1:shifts] .+= s2[1:shifts]
-        if periodic
+        if mode == Periodic()
             total[1:shifts] .+= slen
         else
             update_runs!(total, slen, shifts)
@@ -78,14 +77,13 @@ function s2(array     :: AbstractArray,
             indicator :: InseparableIndicator,
             direction :: AbstractDirection;
             len       :: Integer = (array |> size |> minimum) ÷ 2,
-            periodic  :: Bool    = false)
-    topology = periodic ? Torus() : Plane()
-    check_direction(direction, array, topology)
+            mode      :: AbstractMode = NonPeriodic())
+    check_direction(direction, array, mode)
     χ = indicator_function(indicator)
     success = zeros(Int, len)
     total   = zeros(Int, len)
 
-    for slice in slices(array, topology, direction)
+    for slice in slices(array, mode, direction)
         slen = length(slice)
         # Number of shifts (distances between two points for this slice)
         shifts = min(len, slen)
@@ -94,11 +92,13 @@ function s2(array     :: AbstractArray,
         # for which χ(slice[x], slice[x+y]) == 1
         success[1:shifts] .+= Iterators.map(1:shifts) do shift
             mapreduce(χ, +, slice,
-                      periodic ? circshift(slice, 1 - shift) : view(slice, shift:slen))
+                      (mode == Periodic())
+                      ? circshift(slice, 1 - shift)
+                      : view(slice, shift:slen))
         end
 
         # Calculate total number of slices with lengths from 1 to len
-        if periodic
+        if mode == Periodic()
             total[1:shifts] .+= slen
         else
             update_runs!(total, slen, shifts)
@@ -111,5 +111,5 @@ end
 s2(array     :: AbstractArray, phase,
    direction :: AbstractDirection;
    len       :: Integer = (array |> size |> minimum) ÷ 2,
-   periodic  :: Bool    = false) =
-       s2(array, SeparableIndicator(x -> x == phase), direction; len, periodic)
+   mode      :: AbstractMode = NonPeriodic()) =
+       s2(array, SeparableIndicator(x -> x == phase), direction; len, mode)

@@ -38,9 +38,9 @@ pore_size_theory(r, R, λ) = 4π*λ*(r + R)^2 * exp(-4/3*π*λ * (r^3 + 3r^2*R +
 @testset "Check some properties of surf2void" begin
     ball = draw_ball((100, 100, 100), 0.2*100)
     shs1, shs2 = U.right_triangles(ball, U.PlaneXY())
-    for periodic in (false, true)
-        ssv = D.surf2void(ball, true, shs1, shs2; periodic)
-        ss = mean_corrfn(D.surf2, ball, true; periodic, directions = axial_directions)
+    for mode in (U.Periodic(), U.NonPeriodic())
+        ssv = D.surf2void(ball, true, shs1, shs2; mode)
+        ss = mean_corrfn(D.surf2, ball, true; mode, directions = axial_directions)
         @test relerr_norm(ssv[:, end], ss) < 0.08
     end
 end
@@ -48,9 +48,9 @@ end
 @testset "Check some properties of surfvoid2" begin
     ball = draw_ball((100, 100, 100), 0.2*100)
     shs1, shs2 = U.right_triangles(ball, U.PlaneXY())
-    for periodic in (false, true)
-        svv = D.surfvoid2(ball, true, shs1, shs2; periodic)
-        sv = mean_corrfn(D.surfvoid, ball, true; periodic, directions = axial_directions)
+    for mode in (U.Periodic(), U.NonPeriodic())
+        svv = D.surfvoid2(ball, true, shs1, shs2; mode)
+        sv = mean_corrfn(D.surfvoid, ball, true; mode, directions = axial_directions)
         @test relerr_norm(svv[:, end], sv) < 0.08
         @test svv[:, end] ≈ svv[end, :]
     end
@@ -61,7 +61,8 @@ end
 
     th(r)  = s2_theory(r, R)
     disk   = draw_ball((S, S, S), R)
-    calc   = mean_corrfn(D.s2, disk, true; periodic = true, directions = axial_directions)
+    calc   = mean_corrfn(D.s2, disk, true;
+                         mode = U.Periodic(), directions = axial_directions)
     theory = th.(0:length(calc)-1) / S^3
 
     @test relerr_norm(calc, theory) < 0.01
@@ -77,19 +78,19 @@ end
     @test U.lowfreq_energy_ratio(ball) > 0.97
 
     calc = mean_corrfn(D.surf2, ball, false;
-                       periodic = true, filter = U.ConvKernel(5),
+                       mode = U.Periodic(), filter = U.ConvKernel(5),
                        directions = axial_directions)
     @test relerr_norm(calc[5:boundary-5], theory) < 0.2
     @test maximum(calc[boundary+5:end]) < 1e-5
 
     calc = mean_corrfn(D.surf2, ball, false;
-                       periodic = true, filter = U.ConvKernel(7),
+                       mode = U.Periodic(), filter = U.ConvKernel(7),
                        directions = axial_directions)
     @test relerr_norm(calc[5:boundary-5], theory) < 0.15
     @test maximum(calc[boundary+5:end]) < 1e-5
 
     calc = mean_corrfn(D.surf2, ball, false;
-                       periodic = true, filter = U.ErosionKernel(7),
+                       mode = U.Periodic(), filter = U.ErosionKernel(7),
                        directions = axial_directions)
     @test relerr_norm(calc[5:boundary-5], theory) < 0.15
     @test maximum(calc[boundary+5:end]) < 1e-5
@@ -104,17 +105,17 @@ end
     @test U.lowfreq_energy_ratio(ball) > 0.97
 
     calc = mean_corrfn(D.surfvoid, ball, false;
-                       periodic = true, filter = U.ConvKernel(5),
+                       mode = U.Periodic(), filter = U.ConvKernel(5),
                        directions = axial_directions)
     @test relerr_norm(calc, theory) < 0.03
 
     calc = mean_corrfn(D.surfvoid, ball, false;
-                       periodic = true, filter = U.ConvKernel(7),
+                       mode = U.Periodic(), filter = U.ConvKernel(7),
                        directions = axial_directions)
     @test relerr_norm(calc, theory) < 0.03
 
     calc = mean_corrfn(D.surfvoid, ball, false;
-                       periodic = true, filter = U.ErosionKernel(7),
+                       mode = U.Periodic(), filter = U.ErosionKernel(7),
                        directions = axial_directions)
     @test relerr_norm(calc, theory) < 0.09
 end
@@ -127,7 +128,7 @@ end
     balls = genballs(S, R, λ)
 
     calc = mean_corrfn(D.l2, balls, 0; len = N,
-                       periodic = true, directions = axial_directions) .|> log
+                       mode = U.Periodic(), directions = axial_directions) .|> log
     theory = [log(l2_theory(r - 1, R, λ)) for r in 0:N - 1]
     err = relerr.(calc, theory)
 

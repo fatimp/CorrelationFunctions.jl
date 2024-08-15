@@ -26,7 +26,7 @@ the value of F_{ss} in this area must be equal to 2.
 @testset "Check rotation stability of edge detection filters" begin
     for ϕ in 0:0.05:(pi/4)
         square = make_square(3000, ϕ)
-        ss = M.surf2(square, true; periodic = true) * 3000^2
+        ss = M.surf2(square, true; mode = U.Periodic()) * 3000^2
         slice = ss[60:80, 120:140]
         # F_{ss} for a square is always 2 where defined and non-zero
         @test U.lowfreq_energy_ratio(square) > 0.97
