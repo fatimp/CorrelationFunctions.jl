@@ -79,7 +79,7 @@ end
 end
 
 @testset "Check some properties of s3" begin
-    ss1, ss2 = U.make_pattern(rand_array, U.PlaneXY())
+    ss1, ss2 = U.right_triangles(rand_array, U.PlaneXY())
     for periodic in (false, true)
         s2x = D.s2(rand_array, true, U.DirX(); periodic)
         s2y = D.s2(rand_array, true, U.DirY(); periodic)
@@ -91,7 +91,7 @@ end
 end
 
 @testset "Check some properties of c3" begin
-    ss1, ss2 = U.make_pattern(rand_array, U.PlaneXY())
+    ss1, ss2 = U.right_triangles(rand_array, U.PlaneXY())
     for periodic in (false, true)
         c2x = D.c2(rand_array, true, U.DirX(); periodic)
         c2y = D.c2(rand_array, true, U.DirY(); periodic)

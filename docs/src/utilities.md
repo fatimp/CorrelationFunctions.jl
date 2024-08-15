@@ -21,7 +21,7 @@ These patterns can be used to generate array-like objects which can be used as
 `ps1` and `ps2` arguments to the functions based on three-point statistics.
 
 ```@docs
-Utilities.make_pattern
+Utilities.right_triangles
 Utilities.PlaneXY
 Utilities.PlaneYZ
 Utilities.PlaneXZ

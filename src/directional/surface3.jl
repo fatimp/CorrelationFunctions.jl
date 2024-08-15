@@ -9,7 +9,7 @@ the same sampling pattern and returns a result in the same format.
 You can chose how an edge between phases is selected by passing
 `filter` argument of type `Utilities.AbstractKernel`.
 
-See also: [`s3`](@ref), [`make_pattern`](@ref), [`AbstractKernel`](@ref).
+See also: [`s3`](@ref), [`right_triangles`](@ref), [`AbstractKernel`](@ref).
 """
 function surf3(array    :: AbstractArray, ps1, ps2;
                periodic :: Bool           = false,
@@ -47,7 +47,7 @@ the same sampling pattern and returns a result in the same format.
 You can chose how an edge between phases is selected by passing
 `filter` argument of type `Utilities.AbstractKernel`.
 
-See also: [`s3`](@ref), [`make_pattern`](@ref), [`AbstractKernel`](@ref).
+See also: [`s3`](@ref), [`right_triangles`](@ref), [`AbstractKernel`](@ref).
 """
 function surf2void(array    :: T, phase, ps1, ps2, void_phase  = 0;
                    periodic :: Bool           = false,

@@ -53,7 +53,7 @@ See also: [`AbstractPlane`](@ref).
 struct PlaneYZ <: AbstractPlane end
 
 """
-    make_pattern(array, plane)
+    right_triangles(array, plane)
 
 Make a set of points for calculation of correlation functions based on
 three-point statistics. The created set is based of a right triangle
@@ -63,13 +63,13 @@ of the pattern with one of the planes.
 See also: [`AbstractPlane`](@ref), [`PlaneXY`](@ref),
 [`PlaneXZ`](@ref), [`PlaneYZ`](@ref).
 """
-function make_pattern end
+function right_triangles end
 
-make_pattern(array, m :: Pair{Int, Int}) =
+right_triangles(array, m :: Pair{Int, Int}) =
     let s = (array |> size |> minimum) ÷ 2;
         RightTrianglePattern(s, ndims(array), m)
     end
 
-make_pattern(array, :: PlaneXY) = (make_pattern(array, 1 => 1), make_pattern(array, 2 => 2))
-make_pattern(array, :: PlaneXZ) = (make_pattern(array, 1 => 1), make_pattern(array, 2 => 3))
-make_pattern(array, :: PlaneYZ) = (make_pattern(array, 1 => 2), make_pattern(array, 2 => 3))
+right_triangles(array, :: PlaneXY) = (right_triangles(array, 1 => 1), right_triangles(array, 2 => 2))
+right_triangles(array, :: PlaneXZ) = (right_triangles(array, 1 => 1), right_triangles(array, 2 => 3))
+right_triangles(array, :: PlaneYZ) = (right_triangles(array, 1 => 2), right_triangles(array, 2 => 3))

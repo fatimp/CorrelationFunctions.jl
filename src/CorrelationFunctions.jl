@@ -31,7 +31,7 @@ export read_cuboid, lowfreq_energy_ratio,
     maybe_upload_to_gpu, AbstractRotation, VectorRotation,
     MatRotation, make_rotation, rotate_array, detect_anisotropy,
     RightTrianglePattern, AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ,
-    make_pattern
+    right_triangles
 end
 
 module Directional

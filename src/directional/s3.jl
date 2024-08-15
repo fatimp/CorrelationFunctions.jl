@@ -86,7 +86,7 @@ julia> s2z == s2z_
 true
 ```
 
-See also: [`make_pattern`](@ref), [`s2`](@ref).
+See also: [`right_triangles`](@ref), [`s2`](@ref).
 """
 function s3(array :: AbstractArray, ps1, ps2; periodic :: Bool = false)
     op(x, y, z) = @. x * y * z
