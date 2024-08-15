@@ -19,8 +19,10 @@ arrayshift!(result, array, shift, :: Plane) = padshift!(result, array, shift)
 arrayshift!(result, array, shift, :: Torus) = circshift!(result, array, shift)
 
 autocorr3_norm(array :: AbstractArray, :: Any, :: Any, :: Torus) = length(array)
-autocorr3_norm(array :: AbstractArray, s1, s2, :: Plane) =
-    prod(size(array) .- s1 .- s2)
+function autocorr3_norm(array :: AbstractArray, s1, s2, :: Plane)
+    l = @. max(s1, s2, 0) - min(s1, s2, 0)
+    prod(size(array) .- l)
+end
 
 # This works just like autocorrelation, but replaces (*) with generic
 # ternary operation.
