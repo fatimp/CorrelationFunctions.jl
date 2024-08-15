@@ -18,14 +18,13 @@ include("utility/images.jl")
 include("utility/directions.jl")
 include("utility/pattern.jl")
 
-export read_cuboid, lowfreq_energy_ratio, distance_transform,
-    label_components, extract_edges, AbstractKernel, ConvKernel,
-    ErosionKernel, AbstractMode, Periodic, NonPeriodic,
-    AbstractDirection, DirX, DirY, DirZ, DirXY, DirYX, DirXZ, DirZX,
-    DirYZ, DirZY, DirXYZ, DirXZY, DirYXZ, DirZYX, check_direction,
-    check_rank, maybe_upload_to_gpu, maybe_add_padding,
-    RightTrianglePattern, AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ,
-    right_triangles
+export read_cuboid, lowfreq_energy_ratio, edt, label_components,
+    extract_edges, AbstractKernel, ConvKernel, ErosionKernel,
+    AbstractMode, Periodic, NonPeriodic, AbstractDirection, DirX,
+    DirY, DirZ, DirXY, DirYX, DirXZ, DirZX, DirYZ, DirZY, DirXYZ,
+    DirXZY, DirYXZ, DirZYX, check_direction, check_rank,
+    maybe_upload_to_gpu, maybe_add_padding, RightTrianglePattern,
+    AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ, right_triangles
 end
 
 module Directional

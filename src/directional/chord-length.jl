@@ -29,7 +29,7 @@ function chord_length(array :: AbstractArray, phase, direction :: AbstractDirect
     # Extract the interface.
     # Unlike surface correlation functions, distance transform works
     # just fine here.
-    dist = distance_transform(ph)
+    dist = edt(ph, NonPeriodic())
     edge = dist .== 1
 
     # Arary of chord lengths

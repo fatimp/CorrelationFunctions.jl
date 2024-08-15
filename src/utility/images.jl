@@ -200,8 +200,6 @@ function edt!(array :: AbstractArray{Float64, 3}, mode :: AbstractMode)
     return array
 end
 
-distance_transform(array, mode = NonPeriodic()) = edt(array, mode)
-
 ##################
 # Edge detection #
 ##################

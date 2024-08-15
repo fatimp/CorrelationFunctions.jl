@@ -30,7 +30,7 @@ julia> D.pore_size(data, 0)
 function pore_size(array :: AbstractArray, phase = 0;
                    mode  :: AbstractMode = NonPeriodic())
     indicator = map(x -> x ≠ phase, array)
-    distances = distance_transform(indicator, mode)
+    distances = edt(indicator, mode)
     distances = filter(x -> x != 0, distances)
     return distances
 end
