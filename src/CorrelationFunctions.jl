@@ -22,8 +22,9 @@ export read_cuboid, lowfreq_energy_ratio, distance_transform,
     ErosionKernel, AbstractTopology, Torus, Plane, AbstractDirection,
     DirX, DirY, DirZ, DirXY, DirYX, DirXZ, DirZX, DirYZ, DirZY,
     DirXYZ, DirXZY, DirYXZ, DirZYX, check_direction, check_rank,
-    maybe_upload_to_gpu, RightTrianglePattern, AbstractPlane, PlaneXY,
-    PlaneXZ, PlaneYZ, right_triangles
+    maybe_upload_to_gpu, maybe_add_padding,
+    RightTrianglePattern, AbstractPlane, PlaneXY, PlaneXZ, PlaneYZ,
+    right_triangles
 end
 
 module Directional

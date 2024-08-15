@@ -36,10 +36,6 @@ See also: [`Utilities.AbstractDirection`](@ref),
 """
 function s2 end
 
-maybe_pad_with_zeros(slice :: AbstractVector   , :: Torus) = slice
-maybe_pad_with_zeros(slice :: AbstractVector{T}, :: Plane) where T =
-    vcat(zeros(T, length(slice)), slice)
-
 function s2(array     :: AbstractArray,
             indicator :: SeparableIndicator,
             direction :: AbstractDirection;
@@ -54,8 +50,8 @@ function s2(array     :: AbstractArray,
 
     for slice in slices(array, topology, direction)
         # Apply indicator function
-        ind1 =                      maybe_pad_with_zeros(χ1.(slice), topology)
-        ind2 = (χ1 === χ2) ? ind1 : maybe_pad_with_zeros(χ2.(slice), topology)
+        ind1 =                      maybe_add_padding(χ1.(slice), topology)
+        ind2 = (χ1 === χ2) ? ind1 : maybe_add_padding(χ2.(slice), topology)
 
         # Calculate autocorrelation
         fft1 = rfft_with_plan(ind1, plan)

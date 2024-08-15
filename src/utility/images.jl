@@ -45,6 +45,17 @@ See also: [`AbstractTopology`](@ref).
 """
 struct Torus <: AbstractTopology end
 
+maybe_add_padding(array, :: Torus) = array
+function maybe_add_padding(array, :: Plane)
+    s = size(array)
+    s = (2 .* s) .- 1
+
+    padded = similar(array, s)
+    padded .= 0
+    padded[axes(array)...] .= array
+    return padded
+end
+
 function wrapidx(idx :: CartesianIndex{N}, array :: AbstractArray{<:Any, N}) where N
     tuple = mod.(Tuple(idx), axes(array))
     return CartesianIndex(tuple)

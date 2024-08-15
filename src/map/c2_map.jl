@@ -16,13 +16,12 @@ function c2(image, phase; periodic :: Bool = false)
     topology = periodic ? Torus() : Plane()
     labeled_img = label_components(image .== phase, topology)
     labels = maximum(labeled_img)
-    sim = periodic ? labeled_img : zeropad(labeled_img)
+    sim = maybe_add_padding(labeled_img, topology)
     plan = plan_rfft(sim)
     s    = size(sim, 1)
 
     c2ft = mapreduce(+, 1:labels) do label
-        img = labeled_img .== label
-        img = periodic ? img : zeropad(img)
+        img = maybe_add_padding(labeled_img .== label, topology)
         imgft = plan * img
         imgft .* conj.(imgft)
     end

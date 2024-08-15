@@ -8,15 +8,14 @@ function cross_correlation(image1 :: AbstractArray,
                            image2 :: AbstractArray;
                            periodic = false)
     @assert size(image1) == size(image2)
-    maybepad(img) = periodic ? img : zeropad(img)
-    image1 = maybepad(image1)
-    image2 = maybepad(image2)
+    p1 = maybe_add_padding(image1, periodic ? Torus() : Plane())
+    p2 = maybe_add_padding(image2, periodic ? Torus() : Plane())
 
-    s = size(image1, 1)
-    plan = plan_rfft(image1)
+    s = size(p1, 1)
+    plan = plan_rfft(p1)
 
-    ft1 = plan * image1
-    ft2 = plan * image2
+    ft1 = plan * p1
+    ft2 = plan * p2
     ccf = @. ft1 * conj(ft2)
     cf  = irfft(ccf, s)
     return normalize_result(cf, periodic)

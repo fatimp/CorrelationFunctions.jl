@@ -15,7 +15,7 @@ function make_dft_plan(array     :: AbstractArray,
     same_length = slices_have_same_length(topology, direction)
     if same_length
         slice = similar(first(slices(array, topology, direction)), Int)
-        padded = maybe_pad_with_zeros(slice, topology)
+        padded = maybe_add_padding(slice, topology)
         len = length(padded)
         fwd = plan_rfft(padded)
         ft  = fwd * padded

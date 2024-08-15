@@ -81,13 +81,3 @@ function normalize_result(result   :: AbstractArray,
                           periodic :: Bool)
     return periodic ? result / length(result) : result ./ cnt_total(result)
 end
-
-function zeropad(image)
-    s = size(image)
-    s = (2 .* s) .- 1
-
-    padded = similar(image, s)
-    padded .= 0
-    padded[axes(image)...] .= image
-    return padded
-end
