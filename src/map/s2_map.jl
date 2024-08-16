@@ -4,7 +4,7 @@
 Calculate $S_2$ (two point) correlation function for the binary image
 `image`.
 """
-function s2(image; mode :: AbstractMode = NonPeriodic())
+function s2(image :: AbstractArray{Bool}; mode :: AbstractMode = NonPeriodic())
     padded = maybe_add_padding(image, mode)
     ft = rfft(padded)
     # There is no method irfft(:: CuArray{Float64}, :: T)!
@@ -27,4 +27,4 @@ julia> s2([1 0; 0 1], 1; mode = Periodic())
  0.0  0.5
 ```
 """
-s2(image, phase; mode = NonPeriodic) = s2(image .== phase; mode)
+s2(image, phase; mode :: AbstractMode = NonPeriodic()) = s2(image .== phase; mode)
