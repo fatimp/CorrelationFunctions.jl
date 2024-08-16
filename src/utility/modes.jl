@@ -31,8 +31,21 @@ See also: [`AbstractMode`](@ref).
 struct Periodic <: AbstractMode end
 
 
+"""
+    Mask(mask)
+
+Non-periodic boundary conditions for image filtering and calculation
+of correlation functions. Also, data in the input array is only
+contained where elements of the same-shaped boolean mask are true.
+
+See also: [`AbstractMode`](@ref).
+"""
+struct Mask{T <: AbstractArray{Bool}} <: AbstractMode
+    mask :: T
+end
+
 maybe_add_padding(array, :: Periodic) = array
-function maybe_add_padding(array, :: NonPeriodic)
+function maybe_add_padding(array, :: AbstractMode)
     s = size(array)
     s = (2 .* s) .- 1
 

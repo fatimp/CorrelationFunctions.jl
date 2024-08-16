@@ -88,3 +88,17 @@ end
 
 normalize_result(result, :: Periodic)    = result  / length(result)
 normalize_result(result, :: NonPeriodic) = result ./ cnt_total(result)
+
+function normalize_result(result, mode :: Mask)
+    mask = mode.mask
+    n = autocorr(mask, NonPeriodic())
+
+    return result ./ n
+end
+
+maybe_apply_mask(array, :: AbstractMode) = array
+function maybe_apply_mask(array, mode :: Mask)
+    mask = mode.mask
+    @assert size(array) == size(mask)
+    return array .* mask
+end

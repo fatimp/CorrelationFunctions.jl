@@ -1,17 +1,20 @@
+function autocorr(image, mode :: AbstractMode)
+    masked = maybe_apply_mask(image, mode)
+    padded = maybe_add_padding(masked, mode)
+    ft = rfft(padded)
+    # There is no method irfft(:: CuArray{Float64}, :: T)!
+    # Do not use abs2 here or in Map.c2!
+    return irfft(ft .* conj.(ft), size(padded, 1))
+end
+
 @doc raw"""
     s2(image; mode = NonPeriodic())
 
 Calculate $S_2$ (two point) correlation function for the binary image
 `image`.
 """
-function s2(image :: AbstractArray{Bool}; mode :: AbstractMode = NonPeriodic())
-    padded = maybe_add_padding(image, mode)
-    ft = rfft(padded)
-    # There is no method irfft(:: CuArray{Float64}, :: T)!
-    # Do not use abs2 here or in Map.c2!
-    s2 = irfft(ft .* conj.(ft), size(padded, 1))
-    return normalize_result(s2, mode)
-end
+s2(image; mode :: AbstractMode = NonPeriodic()) =
+    normalize_result(autocorr(image, mode), mode)
 
 @doc raw"""
     s2(image, phase; mode = NonPeriodic())

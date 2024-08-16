@@ -38,3 +38,9 @@ end
 
 testsurface(D.surfvoid)
 testsurface(D.surf2)
+
+@testset "Check S₂ calculation with trivial mask" begin
+    noise = two_phase_noise_3d()
+    mask = ones(Bool, size(noise))
+    @test M.s2(noise, true; mode = U.Mask(mask)) ≈ M.s2(noise, true; mode = U.NonPeriodic())
+end

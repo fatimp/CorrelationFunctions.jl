@@ -140,3 +140,13 @@ end
         @test relerr(std(data),  σ) < 0.09
     end
 end
+
+@testset "Check S₂ computation with mask" begin
+    disks = gendisks(4000, 15, 3e-3)
+    mask  = draw_ball((4000, 4000), 2000)
+
+    s2np = M.s2(disks, false; mode = U.NonPeriodic())
+    s2m  = M.s2(disks, false; mode = U.Mask(mask))
+    err = relerr.(s2m, s2np)
+    @test maximum(err[1:30, 1:30]) < 0.05
+end
