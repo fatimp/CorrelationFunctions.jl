@@ -49,7 +49,7 @@ end
 # Iterate over adjacent element on a plane
 function iterate_adjacent(index :: CartesianIndex{N},
                           array :: AbstractArray{<:Any, N},
-                          _     :: NonPeriodic) where N
+                          _     :: AbstractMode) where N
     return (index + adj for adj in adjacent_elements(N)
             if checkbounds(Bool, array, index + adj))
 end

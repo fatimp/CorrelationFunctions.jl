@@ -13,14 +13,17 @@ julia> c2([1 0; 0 1], 1; mode = Periodic())
 ```
 """
 function c2(image, phase; mode :: AbstractMode)
-    labeled_img = label_components(image .== phase, mode)
-    labels = maximum(labeled_img)
-    sim = maybe_add_padding(labeled_img, mode)
-    plan = plan_rfft(sim)
-    s    = size(sim, 1)
+    filtered = image .== phase
+    masked = maybe_apply_mask(filtered, mode)
+    labels = label_components(masked, mode)
+    nlabels = maximum(labels)
 
-    c2ft = mapreduce(+, 1:labels) do label
-        img = maybe_add_padding(labeled_img .== label, mode)
+    similar = maybe_add_padding(labels, mode)
+    plan = plan_rfft(similar)
+    s    = size(similar, 1)
+
+    c2ft = mapreduce(+, 1:nlabels) do label
+        img = maybe_add_padding(labels .== label, mode)
         imgft = plan * img
         imgft .* conj.(imgft)
     end

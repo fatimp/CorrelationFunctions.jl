@@ -8,8 +8,11 @@ function cross_correlation(image1 :: AbstractArray,
                            image2 :: AbstractArray;
                            mode   :: AbstractMode = NonPeriodic())
     @assert size(image1) == size(image2)
-    p1 = maybe_add_padding(image1, mode)
-    p2 = maybe_add_padding(image2, mode)
+    m1 = maybe_apply_mask(image1, mode)
+    m2 = maybe_apply_mask(image2, mode)
+
+    p1 = maybe_add_padding(m1, mode)
+    p2 = maybe_add_padding(m2, mode)
 
     s = size(p1, 1)
     plan = plan_rfft(p1)
@@ -36,6 +39,4 @@ julia> cross_correlation([1 0; 0 1], 1, 0; mode = Periodic())
 ```
 """
 cross_correlation(image, p1, p2; mode = NonPeriodic()) =
-    cross_correlation(image .== p1,
-                      image .== p2;
-                      mode = mode)
+    cross_correlation(image .== p1, image .== p2; mode)

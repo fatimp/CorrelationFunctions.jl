@@ -42,5 +42,29 @@ testsurface(D.surf2)
 @testset "Check S₂ calculation with trivial mask" begin
     noise = two_phase_noise_3d()
     mask = ones(Bool, size(noise))
-    @test M.s2(noise, true; mode = U.Mask(mask)) ≈ M.s2(noise, true; mode = U.NonPeriodic())
+
+    for phase in [false, true]
+        @test M.s2(noise, phase; mode = U.Mask(mask)) ≈
+            M.s2(noise, phase; mode = U.NonPeriodic())
+    end
+end
+
+@testset "Check CC calculation with trivial mask" begin
+    noise = two_phase_noise_3d()
+    mask = ones(Bool, size(noise))
+
+    @test M.cross_correlation(noise, true, false; mode = U.Mask(mask)) ≈
+        M.cross_correlation(noise, true, false; mode = U.NonPeriodic())
+    @test M.cross_correlation(noise, false, true; mode = U.Mask(mask)) ≈
+        M.cross_correlation(noise, false, true; mode = U.NonPeriodic())
+end
+
+@testset "Check C₂ calculation with trivial mask" begin
+    noise = two_phase_noise_3d()
+    mask = ones(Bool, size(noise))
+
+    for phase in [true, false]
+        @test M.c2(noise, phase; mode = U.Mask(mask)) ≈
+            M.c2(noise, phase; mode = U.NonPeriodic())
+    end
 end
