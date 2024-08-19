@@ -19,7 +19,8 @@ function surf2(image, phase;
                filter :: AbstractKernel = ConvKernel(7))
     check_rank(image, 2)
 
-    M = extract_edges(image .== phase, filter, mode)
+    masked = maybe_apply_mask(image, mode)
+    M = extract_edges(masked .== phase, filter, mode)
     return s2(M; mode)
 end
 
@@ -44,7 +45,8 @@ function surfvoid(image, phase;
                   filter :: AbstractKernel = ConvKernel(7))
     check_rank(image, 1)
 
-    M = extract_edges(image .== phase, filter, mode)
-    V = image .== 0
+    masked = maybe_apply_mask(image, mode)
+    M = extract_edges(masked .== phase, filter, mode)
+    V = masked .== 0
     return cross_correlation(V, M; mode)
 end

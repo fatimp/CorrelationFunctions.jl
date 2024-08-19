@@ -316,7 +316,7 @@ function filter_periodic(array, kernel)
 end
 
 edge2pad(:: Periodic) = Pad(:circular)
-edge2pad(:: NonPeriodic) = Pad(:reflect)
+edge2pad(:: AbstractMode) = Pad(:reflect)
 
 # Fuck Julia for being unable to vectorize isapprox!
 # Julia is a piece of shit, why don't we use python (which is the same
