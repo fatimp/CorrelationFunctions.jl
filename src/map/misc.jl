@@ -86,13 +86,30 @@ function cnt_total(c :: AbstractArray{<:Any, N}) where N
     return maybe_upload_to_gpu(result, c)
 end
 
+function autocorr(array)
+    ft = rfft(array)
+    # There is no method irfft(:: CuArray{Float64}, :: T)!
+    # Do not use abs2 here or in Map.c2!
+    return irfft(ft .* conj.(ft), size(array, 1))
+end
+
+function crosscorr(a1, a2)
+    @assert size(a1) == size(a2)
+    s = size(a1, 1)
+    plan = plan_rfft(a1)
+
+    ft1 = plan * a1
+    ft2 = plan * a2
+    ccf = @. ft1 * conj(ft2)
+    return irfft(ccf, s)
+end
+
 normalize_result(result, :: Periodic)    = result  / length(result)
 normalize_result(result, :: NonPeriodic) = result ./ cnt_total(result)
 
 function normalize_result(result, mode :: Mask)
-    mask = mode.mask
-    n = autocorr(mask, NonPeriodic())
-
+    padded = maybe_add_padding(mode.mask, NonPeriodic())
+    n = autocorr(padded)
     return result ./ n
 end
 

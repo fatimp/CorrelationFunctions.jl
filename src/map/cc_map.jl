@@ -7,21 +7,13 @@ and `image2`.
 function cross_correlation(image1 :: AbstractArray,
                            image2 :: AbstractArray;
                            mode   :: AbstractMode = NonPeriodic())
-    @assert size(image1) == size(image2)
     m1 = maybe_apply_mask(image1, mode)
     m2 = maybe_apply_mask(image2, mode)
 
     p1 = maybe_add_padding(m1, mode)
     p2 = maybe_add_padding(m2, mode)
 
-    s = size(p1, 1)
-    plan = plan_rfft(p1)
-
-    ft1 = plan * p1
-    ft2 = plan * p2
-    ccf = @. ft1 * conj(ft2)
-    cf  = irfft(ccf, s)
-    return normalize_result(cf, mode)
+    return normalize_result(crosscorr(p1, p2), mode)
 end
 
 """

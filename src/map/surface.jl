@@ -21,7 +21,8 @@ function surf2(image, phase;
 
     masked = maybe_apply_mask(image, mode)
     M = extract_edges(masked .== phase, filter, mode)
-    return s2(M; mode)
+    padded = maybe_add_padding(M, mode)
+    return normalize_result(autocorr(padded), mode)
 end
 
 @doc raw"""
@@ -45,8 +46,12 @@ function surfvoid(image, phase;
                   filter :: AbstractKernel = ConvKernel(7))
     check_rank(image, 1)
 
-    masked = maybe_apply_mask(image, mode)
-    M = extract_edges(masked .== phase, filter, mode)
-    V = masked .== 0
-    return cross_correlation(V, M; mode)
+    V  = image .== 0
+    Vm = maybe_apply_mask(V, mode)
+    Vp = maybe_add_padding(Vm, mode)
+
+    Im = maybe_apply_mask(image, mode)
+    Mm = extract_edges(Im .== phase, filter, mode)
+    Mp = maybe_add_padding(Mm, mode)
+    return normalize_result(crosscorr(Vp, Mp), mode)
 end
