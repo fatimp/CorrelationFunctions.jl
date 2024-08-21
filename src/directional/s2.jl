@@ -43,11 +43,11 @@ function s2(array     :: AbstractArray,
             mode      :: AbstractMode = NonPeriodic())
     check_direction(direction, array, mode)
     success = zeros(Float64, len)
-    total   = zeros(Int, len)
     χ1, χ2 = indicator_function(indicator)
     plan = make_dft_plan(array, mode, direction)
 
-    for slice in slices(array, mode, direction)
+    array_slices = slices(array, mode, direction)
+    for slice in array_slices
         # Apply indicator function
         ind1 =                      maybe_add_padding(χ1.(slice), mode)
         ind2 = (χ1 === χ2) ? ind1 : maybe_add_padding(χ2.(slice), mode)
@@ -61,16 +61,11 @@ function s2(array     :: AbstractArray,
         slen = length(slice)
         shifts = min(len, slen)
 
-        # Update success and total
+        # Update success
         success[1:shifts] .+= s2[1:shifts]
-        if mode == Periodic()
-            total[1:shifts] .+= slen
-        else
-            update_runs!(total, slen, shifts)
-        end
     end
 
-    return success ./ total
+    return normalize_result(success, array_slices, mode)
 end
 
 function s2(array     :: AbstractArray,
@@ -81,9 +76,9 @@ function s2(array     :: AbstractArray,
     check_direction(direction, array, mode)
     χ = indicator_function(indicator)
     success = zeros(Int, len)
-    total   = zeros(Int, len)
 
-    for slice in slices(array, mode, direction)
+    array_slices = slices(array, mode, direction)
+    for slice in array_slices
         slen = length(slice)
         # Number of shifts (distances between two points for this slice)
         shifts = min(len, slen)
@@ -96,16 +91,9 @@ function s2(array     :: AbstractArray,
                       ? circshift(slice, 1 - shift)
                       : view(slice, shift:slen))
         end
-
-        # Calculate total number of slices with lengths from 1 to len
-        if mode == Periodic()
-            total[1:shifts] .+= slen
-        else
-            update_runs!(total, slen, shifts)
-        end
     end
 
-    return success ./ total
+    return normalize_result(success, array_slices, mode)
 end
 
 s2(array     :: AbstractArray, phase,
