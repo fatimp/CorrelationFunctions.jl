@@ -39,6 +39,7 @@ using CUDA: CuArray
 include("directional/slicer.jl")
 include("directional/indicator.jl")
 include("directional/plans.jl")
+include("directional/normalization.jl")
 include("directional/l2.jl")
 include("directional/s2.jl")
 include("directional/cc.jl")
