@@ -54,3 +54,10 @@ function maybe_add_padding(array, :: AbstractMode)
     padded[axes(array)...] .= array
     return padded
 end
+
+maybe_apply_mask(array, :: AbstractMode) = array
+function maybe_apply_mask(array, mode :: Mask)
+    mask = mode.mask
+    @assert size(array) == size(mask)
+    return array .* mask
+end

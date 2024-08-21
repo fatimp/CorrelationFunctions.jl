@@ -112,10 +112,3 @@ function normalize_result(result, mode :: Mask)
     n = autocorr(padded)
     return result ./ n
 end
-
-maybe_apply_mask(array, :: AbstractMode) = array
-function maybe_apply_mask(array, mode :: Mask)
-    mask = mode.mask
-    @assert size(array) == size(mask)
-    return array .* mask
-end
