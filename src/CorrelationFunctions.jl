@@ -41,6 +41,7 @@ include("directional/indicator.jl")
 include("directional/plans.jl")
 include("directional/l2.jl")
 include("directional/s2.jl")
+include("directional/cc.jl")
 include("directional/c2.jl")
 include("directional/surface.jl")
 include("directional/chord-length.jl")
@@ -49,7 +50,6 @@ include("directional/pore-size.jl")
 include("directional/s3.jl")
 include("directional/c3.jl")
 include("directional/surface3.jl")
-include("directional/cc.jl")
 
 export l2, s2, c2,
     surf2, surfvoid, chord_length, pore_size, cross_correlation,
