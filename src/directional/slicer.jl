@@ -9,7 +9,7 @@ function slice(array :: AbstractArray, :: Periodic, iterators...)
     return [@inbounds array[indices...] for indices in stop_iter]
 end
 
-function slice(array :: AbstractArray, :: NonPeriodic, iterators...)
+function slice(array :: AbstractArray, :: AbstractMode, iterators...)
     indices = zip(iterators...)
     stop_iter = takewhile(pair -> checkbounds(Bool, array, pair...), indices)
 
@@ -144,4 +144,7 @@ slices_have_same_length(:: Periodic, :: AbstractDirection) = true
 slices_have_same_length(:: NonPeriodic, :: DirX) = true
 slices_have_same_length(:: NonPeriodic, :: DirY) = true
 slices_have_same_length(:: NonPeriodic, :: DirZ) = true
+slices_have_same_length(:: Mask, :: DirX) = true
+slices_have_same_length(:: Mask, :: DirY) = true
+slices_have_same_length(:: Mask, :: DirZ) = true
 slices_have_same_length(:: AbstractMode, :: AbstractDirection) = false

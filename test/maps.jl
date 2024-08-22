@@ -12,8 +12,9 @@ const dirs = Dict(
 
 function test_cf_on_img(img, cf_map, cf_dir)
     directions = dirs[ndims(img)]
+    mask = rand(Bool, size(img))
 
-    for mode in (U.Periodic(), U.NonPeriodic())
+    for mode in (U.Periodic(), U.NonPeriodic(), U.Mask(mask))
         cf(dir) = dir => cf_dir(img, true, dir; len=size(img, 1), mode)
         cmap = cf_map(img, true; mode)
         cdir = cf.(directions)
