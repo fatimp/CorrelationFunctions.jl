@@ -11,7 +11,7 @@ function crosscorr(a1, a2, direction, len, mode)
         padded2 = maybe_add_padding(slice2, mode)
 
         ft1 = rfft_with_plan(padded1, plan)
-        ft2 = rfft_with_plan(padded1, plan)
+        ft2 = rfft_with_plan(padded2, plan)
         ccft = @. ft1 * conj(ft2)
         cc = irfft_with_plan(ccft, length(padded1), plan)
 

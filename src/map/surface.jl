@@ -19,6 +19,7 @@ function surf2(image, phase;
                filter :: AbstractKernel = ConvKernel(7))
     check_rank(image, 2)
 
+    # It's OK to apply mask BEFORE extracting the phase
     masked = maybe_apply_mask(image, mode)
     M = extract_edges(masked .== phase, filter, mode)
     padded = maybe_add_padding(M, mode)

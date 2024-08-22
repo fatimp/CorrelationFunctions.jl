@@ -91,7 +91,7 @@ end
     @test cf1 ≈ cf2
 end
 
-@testset "Check F_{ss} calculation with a mask" begin
+@testset "Check F_{ss} calculation with a mask (Map)" begin
     noise = two_phase_noise_3d()
     # Add zero padding because of different boundary conditions in extract_edges()
     padded = zeros(Bool, (60, 60, 60))
@@ -108,7 +108,27 @@ end
     end
 end
 
-@testset "Check F_{sv} calculation with a mask" begin
+#=
+@testset "Check F_{ss} calculation with a mask (Directional)" begin
+    noise = two_phase_noise_3d()
+    # Add zero padding because of different boundary conditions in extract_edges()
+    padded = zeros(Bool, (60, 60, 60))
+    padded[6:55, 6:55, 6:55] = noise
+    big = rand(Bool, (100, 100, 100))
+    big[1:60, 1:60, 1:60] = padded
+    mask = zeros(Bool, (100, 100, 100))
+    mask[1:60, 1:60, 1:60] .= 1
+
+    for phase in [false, true]
+        cf1 = D.surf2(big,    phase, U.DirX(); len = 60, mode = U.Mask(mask))
+        cf2 = D.surf2(padded, phase, U.DirY(); len = 60, mode = U.NonPeriodic())
+        @test isapprox(cf1, cf2; atol = 1e-3)
+        #@test cf1 ≈ cf2
+    end
+end
+=#
+
+@testset "Check F_{sv} calculation with a mask (Map)" begin
     noise = two_phase_noise_3d()
     # Add zero padding because of different boundary conditions in extract_edges()
     padded = zeros(Bool, (60, 60, 60))
@@ -122,6 +142,23 @@ end
         cf1 = M.surfvoid(big, phase; mode = U.Mask(mask))
         cf2 = M.surfvoid(padded, phase; mode = U.NonPeriodic())
         @test cf1[1:60, 1:60, 1:60] ≈ cf2[1:60, 1:60, 1:60]
+    end
+end
+
+@testset "Check F_{sv} calculation with a mask (Directional)" begin
+    noise = two_phase_noise_3d()
+    # Add zero padding because of different boundary conditions in extract_edges()
+    padded = zeros(Bool, (60, 60, 60))
+    padded[6:55, 6:55, 6:55] = noise
+    big = rand(Bool, (100, 100, 100))
+    big[1:60, 1:60, 1:60] = padded
+    mask = zeros(Bool, (100, 100, 100))
+    mask[1:60, 1:60, 1:60] .= 1
+
+    for phase in [false, true]
+        cf1 = D.surfvoid(big,    phase, U.DirX(); len = 60, mode = U.Mask(mask))
+        cf2 = D.surfvoid(padded, phase, U.DirX(); len = 60, mode = U.NonPeriodic())
+        @test cf1 ≈ cf2
     end
 end
 
