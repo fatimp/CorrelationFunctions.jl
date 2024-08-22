@@ -125,7 +125,7 @@ end
     end
 end
 
-@testset "Check C₂ calculation with a mask" begin
+@testset "Check C₂ calculation with a mask (Map)" begin
     noise = two_phase_noise_3d()[1:20, 1:20, 1:20] # Slow otherwise
     big = rand(Bool, (50, 50, 50))
     big[1:20, 1:20, 1:20] = noise
@@ -136,5 +136,19 @@ end
         cf1 = M.c2(big, phase; mode = U.Mask(mask))
         cf2 = M.c2(noise, phase; mode = U.NonPeriodic())
         @test cf1[1:20, 1:20, 1:20] ≈ cf2[1:20, 1:20, 1:20]
+    end
+end
+
+@testset "Check C₂ calculation with a mask (Directional)" begin
+    noise = two_phase_noise_3d()[1:20, 1:20, 1:20] # Slow otherwise
+    big = rand(Bool, (50, 50, 50))
+    big[1:20, 1:20, 1:20] = noise
+    mask = zeros(Bool, (50, 50, 50))
+    mask[1:20, 1:20, 1:20] .= 1
+
+    for phase in [false, true]
+        cf1 = D.c2(big,   phase, U.DirX(); len = 20, mode = U.Mask(mask))
+        cf2 = D.c2(noise, phase, U.DirX(); len = 20, mode = U.NonPeriodic())
+        @test cf1 ≈ cf2
     end
 end

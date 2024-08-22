@@ -1,5 +1,3 @@
-const max_labels_for_ft = 50
-
 """
     c2(array, phase, direction[; len,] [mode = NonPeriodic])
 
@@ -27,20 +25,29 @@ julia> c2([1,1,1,0,1,1], 1, DirX(); len = 6)
 For a list of possible directions, see also:
 [`Utilities.AbstractDirection`](@ref).
 """
-function c2(array     :: AbstractArray, phase,
-            direction :: AbstractDirection;
-            len       :: Integer = (array |> size |> minimum) ÷ 2,
-            mode      :: AbstractMode = NonPeriodic())
-    field = map(x -> x == phase, array)
-    labels = label_components(field, mode)
-    nlabels = maximum(labels)
-    if nlabels < max_labels_for_ft
-        return mapreduce(+, 1:nlabels) do label
-            s2(labels, SeparableIndicator(x -> x == label), direction;
-               len, mode)
+function c2(array, phase, direction;
+            len  = (array |> size |> minimum) ÷ 2,
+            mode = NonPeriodic())
+    filtered = array .== phase
+    masked = maybe_apply_mask(filtered, mode)
+    labels = label_components(masked, mode)
+
+    result = zeros(Int, len)
+    χ(x, y) = x == y != 0
+    for slice in slices(labels, mode, direction)
+        slen = length(slice)
+        # Number of shifts (distances between two points for this slice)
+        shifts = min(len, slen)
+
+        # For all y's from 1 to shifts, calculate number of x'es
+        # for which χ(slice[x], slice[x+y]) == 1
+        result[1:shifts] .+= Iterators.map(1:shifts) do shift
+            mapreduce(χ, +, slice,
+                      (mode == Periodic())
+                      ? circshift(slice, 1 - shift)
+                      : view(slice, shift:slen))
         end
-    else
-        return s2(labels, InseparableIndicator((x, y) -> x == y != 0), direction;
-                  len, mode)
     end
+
+    return result ./ normalization(array, direction, len, mode)
 end
