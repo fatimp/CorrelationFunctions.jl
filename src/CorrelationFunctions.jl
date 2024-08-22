@@ -37,7 +37,6 @@ using CircularArrays: CircularArray
 using CUDA: CuArray
 
 include("directional/slicer.jl")
-include("directional/indicator.jl")
 include("directional/plans.jl")
 include("directional/normalization.jl")
 include("directional/l2.jl")
@@ -54,8 +53,7 @@ include("directional/surface3.jl")
 
 export l2, s2, c2,
     surf2, surfvoid, chord_length, pore_size, cross_correlation,
-    s3, c3, surf3, surf2void, surfvoid2,
-    AbstractIndicator, SeparableIndicator, InseparableIndicator
+    s3, c3, surf3, surf2void, surfvoid2
 end # Directional
 
 module Map

@@ -56,64 +56,6 @@ See also: [`Utilities.AbstractDirection`](@ref),
 """
 function s2 end
 
-function s2(array     :: AbstractArray,
-            indicator :: SeparableIndicator,
-            direction :: AbstractDirection;
-            len       :: Integer = (array |> size |> minimum) ÷ 2,
-            mode      :: AbstractMode = NonPeriodic())
-    check_direction(direction, array, mode)
-    success = zeros(Float64, len)
-    χ1, χ2 = indicator_function(indicator)
-    plan = make_dft_plan(array, mode, direction)
-
-    for slice in slices(array, mode, direction)
-        # Apply indicator function
-        ind1 =                      maybe_add_padding(χ1.(slice), mode)
-        ind2 = (χ1 === χ2) ? ind1 : maybe_add_padding(χ2.(slice), mode)
-
-        # Calculate autocorrelation
-        fft1 = rfft_with_plan(ind1, plan)
-        fft2 = (χ1 === χ2) ? fft1 : rfft_with_plan(ind2, plan)
-        s2 = irfft_with_plan(fft1 .* conj.(fft2), length(ind1), plan)
-
-        # Number of correlation lengths
-        slen = length(slice)
-        shifts = min(len, slen)
-
-        # Update success
-        success[1:shifts] .+= s2[1:shifts]
-    end
-
-    return success ./ normalization(array, direction, len, mode)
-end
-
-function s2(array     :: AbstractArray,
-            indicator :: InseparableIndicator,
-            direction :: AbstractDirection;
-            len       :: Integer = (array |> size |> minimum) ÷ 2,
-            mode      :: AbstractMode = NonPeriodic())
-    check_direction(direction, array, mode)
-    χ = indicator_function(indicator)
-    success = zeros(Int, len)
-
-    for slice in slices(array, mode, direction)
-        slen = length(slice)
-        # Number of shifts (distances between two points for this slice)
-        shifts = min(len, slen)
-
-        # For all y's from 1 to shifts, calculate number of x'es
-        # for which χ(slice[x], slice[x+y]) == 1
-        success[1:shifts] .+= Iterators.map(1:shifts) do shift
-            mapreduce(χ, +, slice,
-                      (mode == Periodic())
-                      ? circshift(slice, 1 - shift)
-                      : view(slice, shift:slen))
-        end
-    end
-
-    return success ./ normalization(array, direction, len, mode)
-end
-
 function s2(array, phase, direction;
             len  = (array |> size |> minimum) ÷ 2,
             mode = NonPeriodic())
