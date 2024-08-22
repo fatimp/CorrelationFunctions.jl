@@ -1,3 +1,23 @@
+function autocorr(array, direction, len, mode)
+    check_direction(direction, array, mode)
+    result = zeros(Float64, len)
+    plan = make_dft_plan(array, mode, direction)
+
+    array_slices = slices(array, mode, direction)
+    for slice in array_slices
+        padded = maybe_add_padding(slice, mode)
+
+        ft = rfft_with_plan(padded, plan)
+        s2ft = abs2.(ft)
+        s2 = irfft_with_plan(s2ft, length(padded), plan)
+
+        shifts = min(length(slice), len)
+        result[1:shifts] += s2[1:shifts]
+    end
+
+    return result
+end
+
 """
     s2(array, phase, direction[; len] [,mode = NonPeriodic()])
     s2(array, SeparableIndicator(χ₁, χ₂), direction[; len] [,mode = NonPeriodic()])
@@ -46,8 +66,7 @@ function s2(array     :: AbstractArray,
     χ1, χ2 = indicator_function(indicator)
     plan = make_dft_plan(array, mode, direction)
 
-    array_slices = slices(array, mode, direction)
-    for slice in array_slices
+    for slice in slices(array, mode, direction)
         # Apply indicator function
         ind1 =                      maybe_add_padding(χ1.(slice), mode)
         ind2 = (χ1 === χ2) ? ind1 : maybe_add_padding(χ2.(slice), mode)
@@ -65,7 +84,7 @@ function s2(array     :: AbstractArray,
         success[1:shifts] .+= s2[1:shifts]
     end
 
-    return normalize_result(success, array_slices, mode)
+    return success ./ normalization(array, direction, len, mode)
 end
 
 function s2(array     :: AbstractArray,
@@ -77,8 +96,7 @@ function s2(array     :: AbstractArray,
     χ = indicator_function(indicator)
     success = zeros(Int, len)
 
-    array_slices = slices(array, mode, direction)
-    for slice in array_slices
+    for slice in slices(array, mode, direction)
         slen = length(slice)
         # Number of shifts (distances between two points for this slice)
         shifts = min(len, slen)
@@ -93,11 +111,14 @@ function s2(array     :: AbstractArray,
         end
     end
 
-    return normalize_result(success, array_slices, mode)
+    return success ./ normalization(array, direction, len, mode)
 end
 
-s2(array     :: AbstractArray, phase,
-   direction :: AbstractDirection;
-   len       :: Integer = (array |> size |> minimum) ÷ 2,
-   mode      :: AbstractMode = NonPeriodic()) =
-       s2(array, SeparableIndicator(x -> x == phase), direction; len, mode)
+function s2(array, phase, direction;
+            len  = (array |> size |> minimum) ÷ 2,
+            mode = NonPeriodic())
+    phased = array .== phase
+    masked = maybe_apply_mask(phased, mode)
+    ac = autocorr(masked, direction, len, mode)
+    return ac ./ normalization(masked, direction, len, mode)
+end

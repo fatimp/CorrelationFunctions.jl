@@ -19,10 +19,9 @@ function update_runs_periodic!(array :: AbstractVector{T},
     array[1:nupdate] .+= (f(n) for n in 1:nupdate)
 end
 
-function normalize_result(result, slices, mode :: AbstractMode)
-    len = length(result)
+function normalization(array, direction, len, mode :: AbstractMode)
     norm = zeros(Int, len)
-    for slice in slices
+    for slice in slices(array, mode, direction)
         # Number of correlation lengths
         slen = length(slice)
         shifts = min(len, slen)
@@ -30,5 +29,8 @@ function normalize_result(result, slices, mode :: AbstractMode)
         update_runs!(norm, slen, shifts, mode)
     end
 
-    return result ./ norm
+    return norm
 end
+
+normalization(array, direction, len, mode :: Mask) =
+    autocorr(mode.mask, direction, len, NonPeriodic())
