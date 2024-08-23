@@ -30,6 +30,8 @@ function draw_ball(s, r)
     return array
 end
 
+isapprox_or_nan(x, y) = isapprox(x, y; atol = 1e-12) || (isnan(x) && isnan(y))
+
 """
     relerr(x, truex)
 

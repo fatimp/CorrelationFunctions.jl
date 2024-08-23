@@ -109,6 +109,7 @@ normalize_result(result, :: NonPeriodic) = result ./ cnt_total(result)
 
 function normalize_result(result, mode :: Mask)
     padded = maybe_add_padding(mode.mask, NonPeriodic())
-    n = autocorr(padded)
+    ac = round.(autocorr(padded))
+    n = @. ifelse(ac == 0, NaN, ac)
     return result ./ n
 end

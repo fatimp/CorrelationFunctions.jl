@@ -25,12 +25,13 @@ function normalization(array, direction, len, mode :: AbstractMode)
         # Number of correlation lengths
         slen = length(slice)
         shifts = min(len, slen)
-
         update_runs!(norm, slen, shifts, mode)
     end
 
     return norm
 end
 
-normalization(array, direction, len, mode :: Mask) =
-    autocorr(mode.mask, direction, len, NonPeriodic())
+function normalization(array, direction, len, mode :: Mask)
+    ac = round.(autocorr(mode.mask, direction, len, NonPeriodic()))
+    return @. ifelse(ac == 0, NaN, ac)
+end

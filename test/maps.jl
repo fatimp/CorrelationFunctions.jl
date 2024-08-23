@@ -20,7 +20,7 @@ function test_cf_on_img(img, cf_map, cf_dir)
         cdir = cf.(directions)
 
         for (direction, data) in cdir
-            @test M.dir_from_map(cmap, direction; mode) ≈ data
+            @test all(isapprox_or_nan.(M.dir_from_map(cmap, direction; mode), data))
         end
     end
 end
