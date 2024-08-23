@@ -35,7 +35,4 @@ Some miscellaneous functions and helpers.
 ```@docs
 Utilities.read_cuboid
 Utilities.lowfreq_energy_ratio
-Utilities.make_rotation
-Utilities.rotate_array
-Utilities.detect_anisotropy
 ```

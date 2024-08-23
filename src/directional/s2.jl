@@ -51,8 +51,7 @@ julia> s2([1,1,1,0,1,1], 1, DirX(); len = 6)
  1.0
 ```
 
-See also: [`Utilities.AbstractDirection`](@ref),
-[`SeparableIndicator`](@ref), [`InseparableIndicator`](@ref).
+See also: [`Utilities.AbstractDirection`](@ref).
 """
 function s2 end
 
