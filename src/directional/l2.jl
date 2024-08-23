@@ -1,22 +1,17 @@
-struct CountRuns{A, T}
-    array :: A
-    phase :: T
+struct CountRuns{T}
+    array :: T
 end
-
-CountRuns(array :: AbstractArray{T}, phase :: T) where T =
-    CountRuns{typeof(array), T}(array, phase)
 
 function Base.iterate(counter :: CountRuns, state = nothing)
     idx = isnothing(state) ? 1 : state
     array = counter.array
-    phase = counter.phase
     len = length(array)
 
-    start = findfirst(x -> x == phase, view(array, idx:len))
+    start = findfirst(view(array, idx:len))
     isnothing(start) && return nothing
     start = start + idx - 1
 
-    stop = findfirst(x -> x != phase, view(array, start:len))
+    stop = findfirst(!, view(array, start:len))
     stop = isnothing(stop) ? len + 1 : stop + start - 1
 
     return stop - start, stop
@@ -50,41 +45,31 @@ julia> l2([1,1,1,0,1,1], 1, DirX(); len = 6)
 For a list of possible dimensions, see also:
 [`Utilities.AbstractDirection`](@ref).
 """
-function l2(array     :: AbstractArray, phase,
-            direction :: AbstractDirection;
-            len       :: Integer = (array |> size |> minimum) ÷ 2,
-            mode      :: AbstractMode = NonPeriodic())
+function l2(array, phase, direction;
+            len  = (array |> size |> minimum) ÷ 2,
+            mode = NonPeriodic())
     check_direction(direction, array, mode)
     success = zeros(Int, len)
-    total   = zeros(Int, len)
+    masked = maybe_apply_mask(array .== phase, mode)
 
-    for slice in slices(array, mode, direction)
+    for slice in slices(masked, mode, direction)
         slen = length(slice)
         firstrun = 0
         lastrun = 0
 
         # Update count of slices which satisfy "all elements
         # belong to phase" condition
-        for run in CountRuns(slice, phase)
+        for run in CountRuns(slice)
             firstrun = (firstrun == 0) ? run : firstrun
             lastrun = run
             update_runs!(success, run, min(run, len))
         end
 
         total_updates = min(slen, len)
-        if mode == Periodic()
-            if (slice[begin] == slice[end] == phase)
-                update_runs_periodic!(success, firstrun, lastrun, total_updates)
-            end
-
-            # Update total number of slices
-            total[1:total_updates] .+= slen
-        else
-            # Calculate total number of slices with lengths from 1
-            # to len
-            update_runs!(total, slen, total_updates)
+        if mode == Periodic() && slice[begin] == slice[end] != 0
+            update_runs_periodic!(success, firstrun, lastrun, total_updates)
         end
     end
 
-    return success ./ total
+    return success ./ normalization(masked, direction, len, mode)
 end
