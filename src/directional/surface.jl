@@ -13,7 +13,8 @@ If `phase` is a function it is applied to array to select the phase of
 interest, otherwise the phase of interest is selected by testing
 elements of `array` for equality with `phase`.
 
-See also: [`Utilities.AbstractDirection`](@ref), [`Utilities.AbstractKernel`](@ref).
+See also: [`Utilities.AbstractDirection`](@ref),
+[`Utilities.AbstractMode`](@ref), [`Utilities.AbstractKernel`](@ref).
 """
 function surf2(array, phase, direction;
                len    = (array |> size  |> minimum) ÷ 2,
@@ -30,7 +31,7 @@ function surf2(array, phase, direction;
 end
 
 """
-    surfvoid(array, phase, direction[; len] [,void_phase = 0][, mode = NonPeriodic()][, filter])
+    surfvoid(array, phase, direction[; len] [, mode = NonPeriodic()][, filter])
 
 Calculate surface-void correlation function for one-, two- or
 three-dimensional multiphase system. This implementation calculates
@@ -42,11 +43,12 @@ You can chose how an edge between phases is selected by passing
 
 If `phase` is a function it is applied to array to select the phase of
 interest, otherwise the phase of interest is selected by testing
-elements of `array` for equality with `phase`. `void_phase` can also
-be either a function or some other object and is used as an indicator
-for the void phase.
+elements of `array` for equality with `phase`.
 
-See also: [`Utilities.AbstractDirection`](@ref), [`Utilities.AbstractKernel`](@ref).
+Void phase is assumed to be `0`.
+
+See also: [`Utilities.AbstractDirection`](@ref),
+[`Utilities.AbstractMode`](@ref), [`Utilities.AbstractKernel`](@ref).
 """
 function surfvoid(array, phase, direction;
                   len    = (array |> size  |> minimum) ÷ 2,

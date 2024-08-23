@@ -29,7 +29,8 @@ Calculate cross-correlation between `phase1` and `phase2` in
 `array`. The meaning of optional arguments is the same as for `s2`
 function.
 
-See also: [`s2`](@ref).
+See also: [`s2`](@ref), [`Utilities.AbstractDirection`](@ref),
+[`Utilities.AbstractMode`](@ref).
 """
 function cross_correlation(array, phase1, phase2, direction;
                            len  = (array |> size |> minimum) ÷ 2,

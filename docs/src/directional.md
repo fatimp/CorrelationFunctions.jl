@@ -14,20 +14,33 @@ documentation is divided into the following topics:
 
 ## Boundary Conditions
 
-When calculating the value of correlation functions like $S_2$ or $L_2$ it may
-be necessary to cross a boundary of the input array (i.e. access array using an
-arbitrary index). There two options how `CorrelationFunctions.jl` handles this
-situation:
+Suppose you are calculating correlation functions for a sequence of length
+$N$. Calculation of a vast majority of the functions in this package can be
+reduced to a calculation of autocorrelation between two sequences, $a$ and $b$:
 
-* Impose "closed walls" (CW) boundary conditions on the input data. This means
-  that the boundary is not crossed and correlation functions gather less
-  statistics for bigger length of test line segments.
-* Impose periodic boundary conditions (PBC) on the input data. This means that
-  the input is wrapped around itself (i.e. modular arithmetic is used to access
-  the array).
+$h_k = \frac{\sum\limits_{l=0}^{\tilde{N}} a_l b_{k+l}}{\tilde{N}}$
 
-PBC is used when you specify `periodic = true` when call a correlation function,
-otherwise CW is used.
+where $\tilde{N}$ is a normalization factor. There are few boundary conditions
+which define which value $\tilde{N}$ can take. Here they are:
+
+* Periodic boundary conditions. In this case $\tilde{N} = N$. Indexing to $a$
+  and $b$ is performed modulo $N$.
+* Non-periodic boundary conditions. In this case $\tilde{N}_k = N - k$.
+* Calculations using a mask. In this case $l$ runs not from $0$ to $\tilde{N}$,
+  but can take only values allowed by a boolean mask, which must be of the same
+  length as the input sequence (or, more generally, of the same shape as the
+  input array).
+
+Boundary conditions are selected by a keyword argument `mode`. The mode is a
+value of the type `AbstractMode`. Constructors for descendants of that type are
+following:
+
+```@docs
+Utilities.Periodic
+Utilities.NonPeriodic
+Utilities.Mask
+Utilities.AbstractMode
+```
 
 ## Directions
 

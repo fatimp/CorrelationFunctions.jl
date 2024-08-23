@@ -20,8 +20,6 @@ end
 
 """
     s2(array, phase, direction[; len] [,mode = NonPeriodic()])
-    s2(array, SeparableIndicator(χ₁, χ₂), direction[; len] [,mode = NonPeriodic()])
-    s2(array, InseparableIndicator(χ), direction[; len] [,mode = NonPeriodic()])
 
 Calculate `S₂` (two point) correlation function for one-, two- or
 three-dimensional multiphase system.
@@ -31,13 +29,6 @@ with the length `x` cut from the array belong to the same phase. This
 implementation calculates `S₂(x)` for all `x`es in the range from `1`
 to `len` which defaults to half of the minimal dimenstion of the
 array.
-
-More generally, you can provide indicator function `χ` instead of
-`phase`. In this case `S₂` function calculates probability of `χ(x,
-y)` returing `true` where `x` and `y` are two corners of a line
-segment. Indicator functions must be wrapped in either
-`SeparableIndicator` or `InseparableIndicator`. Some computations for
-separable indicator functions are optimized.
 
 # Examples
 ```jldoctest
@@ -51,10 +42,9 @@ julia> s2([1,1,1,0,1,1], 1, DirX(); len = 6)
  1.0
 ```
 
-See also: [`Utilities.AbstractDirection`](@ref).
+See also: [`Utilities.AbstractDirection`](@ref),
+[`Utilities.AbstractMode`](@ref).
 """
-function s2 end
-
 function s2(array, phase, direction;
             len  = (array |> size |> minimum) ÷ 2,
             mode = NonPeriodic())

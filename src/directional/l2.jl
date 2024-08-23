@@ -43,7 +43,7 @@ julia> l2([1,1,1,0,1,1], 1, DirX(); len = 6)
 ```
 
 For a list of possible dimensions, see also:
-[`Utilities.AbstractDirection`](@ref).
+[`Utilities.AbstractDirection`](@ref), [`Utilities.AbstractMode`])(@ref).
 """
 function l2(array, phase, direction;
             len  = (array |> size |> minimum) ÷ 2,

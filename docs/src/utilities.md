@@ -7,9 +7,6 @@ used to extract edges from an image on CPU and GPU.
 
 ```@docs
 Utilities.extract_edges
-Utilities.AbstractMode
-Utilities.Periodic
-Utilities.NonPeriodic
 Utilities.AbstractKernel
 Utilities.ConvKernel
 Utilities.ErosionKernel

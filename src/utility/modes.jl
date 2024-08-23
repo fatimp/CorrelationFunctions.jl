@@ -3,7 +3,7 @@
 
 Abstract type to describe boundary conditions of calculation
 
-See also: [`Periodic`](@ref), [`NonPeriodic`](@ref).
+See also: [`Periodic`](@ref), [`NonPeriodic`](@ref), [`Mask`](@ref).
 """
 abstract type AbstractMode end
 
@@ -11,8 +11,7 @@ abstract type AbstractMode end
     NonPeriodic()
 
 Non-periodic boundary conditions for image filtering and calculation
-of correlation functions. Usually this means zero-padding of an input
-for out-of-bounds array access.
+of correlation functions.
 
 See also: [`AbstractMode`](@ref).
 """
@@ -22,9 +21,7 @@ struct NonPeriodic <: AbstractMode end
     Periodic()
 
 Periodic boundary conditions for image filtering and calculation of
-correlation functions. This means index "wrapping" (e.g. `array[0]`
-becomes `array[length(array)]`) when accessing out-of-bounds array
-elements.
+correlation functions.
 
 See also: [`AbstractMode`](@ref).
 """
@@ -34,9 +31,11 @@ struct Periodic <: AbstractMode end
 """
     Mask(mask)
 
-Non-periodic boundary conditions for image filtering and calculation
-of correlation functions. Also, data in the input array is only
-contained where elements of the same-shaped boolean mask are true.
+Calculation mode using a mask. The mask must be a bit array of the
+same shape as an input array for a correlation function. The result of
+computations is of the same shape as for non-periodic mode. NaN
+elements of the result mean that there was not a single trial at that
+point.
 
 See also: [`AbstractMode`](@ref).
 """
