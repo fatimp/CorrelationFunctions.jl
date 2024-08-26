@@ -20,6 +20,7 @@ Map.cross_correlation
 Map.surf2
 Map.surfvoid
 Map.average_directions
+Map.dir_from_map
 ```
 
 You can use usual arrays (of type `Array`) or CUDA arrays for these functions.
