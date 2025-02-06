@@ -4,7 +4,7 @@
 
 Incompatible changes:
 
-* make_pattern() is renamed to right_triangles() (as it creates a
+* `make_pattern()` is renamed to `right_triangles()` (as it creates a
   pattern based on right triangles).
 * `AbstractIndicator` type and all its subtypes are removed.
 * Image rotation stuff is completely removed.
