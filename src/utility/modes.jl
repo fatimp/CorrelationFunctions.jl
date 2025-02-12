@@ -46,7 +46,7 @@ end
 maybe_add_padding(array, :: Periodic) = array
 function maybe_add_padding(array, :: AbstractMode)
     s = size(array)
-    s = (2 .* s) .- 1
+    s = 2 .* s
 
     padded = similar(array, s)
     padded .= 0

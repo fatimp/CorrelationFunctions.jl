@@ -7,7 +7,7 @@ Calculate $S_2$ (two point) correlation function for the binary image
 function s2(image; mode :: AbstractMode = NonPeriodic())
     masked = maybe_apply_mask(image, mode)
     padded = maybe_add_padding(masked, mode)
-    normalize_result(autocorr(padded), mode)
+    return normalize_result(autocorr(padded), mode)
 end
 
 @doc raw"""

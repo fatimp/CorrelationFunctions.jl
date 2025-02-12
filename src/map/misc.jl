@@ -67,18 +67,18 @@ function average_directions(cfmap :: AbstractArray{T};
 end
 
 function cnt_total(c :: AbstractArray{<:Any, N}) where N
-    # This works only for arrays with all dimensions being odd, which
-    # is OK becase we usually pad arrays to dimensions 2s[i]-1 for
-    # non-periodic computations
-    @assert all(isodd, size(c))
+    # This works only for arrays with all dimensions being even, which
+    # is OK becase we pad arrays to dimensions 2s[i] for non-periodic
+    # computations.
+    @assert all(iseven, size(c))
 
     # cnt_total[i,j,k] = cnt_total_axis_1[i] * cnt_total_axis_2[j] * …
     result = mapreduce(.*, axes(c), size(c), 1:N) do ix, es, dim
         shape = collect(i == dim ? (:) : 1 for i in 1:N)
-        s = (es + 1) ÷ 2
-        # We get a descending sequence s, s-1, s-2, …, 1 followed by
+        s = es ÷ 2
+        # We get a descending sequence s, s-1, s-2, …, 0 followed by
         # an ascending sequence 1, 2, …, s-1
-        cnt = @. ifelse(ix <= s, s - ix + 1, ix - s)
+        cnt = @. ifelse(ix <= s + 1, s - ix + 1, ix - s - 1)
         # It's necessary to give a hint what a result of reshape is
         reshape(cnt, shape...) :: Array{Int64, N}
     end
@@ -105,7 +105,10 @@ function crosscorr(a1, a2)
 end
 
 normalize_result(result, :: Periodic)    = result  / length(result)
-normalize_result(result, :: NonPeriodic) = result ./ cnt_total(result)
+function normalize_result(result, :: NonPeriodic)
+    na = cnt_total(result)
+    return @. ifelse(na == 0, NaN, result / na)
+end
 
 function normalize_result(result, mode :: Mask)
     padded = maybe_add_padding(mode.mask, NonPeriodic())
