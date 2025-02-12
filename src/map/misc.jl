@@ -1,5 +1,5 @@
 map_slice_len(dim :: Int64, :: Periodic) = dim
-map_slice_len(dim :: Int64, :: AbstractMode) = dim ÷ 2 + 1
+map_slice_len(dim :: Int64, :: AbstractMode) = dim ÷ 2
 
 """
     dir_from_map(m, dir)
