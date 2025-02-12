@@ -94,13 +94,13 @@ slices(array :: AbstractArray{<:Any, 3}, mode, dir :: TrueDiagonal) =
 
 # Slicers for other directions (3D)
 slices(array :: AbstractArray{<:Any, 3}, :: AbstractMode, :: DirX) =
-    (array[:,j,k] for j in 1:size(array, 2) for k in 1:size(array, 3))
+    (array[:,j,k] for k in 1:size(array, 3) for j in 1:size(array, 2))
 
 slices(array :: AbstractArray{<:Any, 3}, :: AbstractMode, :: DirY) =
-    (array[i,:,k] for i in 1:size(array, 1) for k in 1:size(array, 3))
+    (array[i,:,k] for k in 1:size(array, 3) for i in 1:size(array, 1))
 
 slices(array :: AbstractArray{<:Any, 3}, :: AbstractMode, :: DirZ) =
-    (array[i,j,:] for i in 1:size(array, 1) for j in 1:size(array, 2))
+    (array[i,j,:] for j in 1:size(array, 2) for i in 1:size(array, 1))
 
 slices(array :: AbstractArray{<:Any, 3}, mode :: AbstractMode, :: DirXY) =
     flatten(diagonals(array[:,:,k], mode, (1, 1)) for k in 1:size(array, 3))
