@@ -54,8 +54,8 @@ function iterate_adjacent(index :: CartesianIndex{N},
             if checkbounds(Bool, array, index + adj))
 end
 
-function label_components(input :: AbstractArray{Bool, N},
-                          mode  :: AbstractMode) where N
+function _label_components(input :: AbstractArray{Bool, N},
+                           mode  :: AbstractMode) where N
     # -1 means an absence of label
     output = fill(-1, size(input))
     # Current label
@@ -93,10 +93,22 @@ function label_components(input :: AbstractArray{Bool, N},
     return output
 end
 
+_label_components_md(array, mode :: Periodic) =
+    _label_components(array, mode)
+_label_components_md(array, mode :: AbstractMode) =
+    IM.label_components(array)
+
 ## FIXME: Maybe really parallel algorithm is needed here
 label_components(input :: CuArray, mode :: AbstractMode) =
     CuArray(label_components(Array(input), mode))
-
+function label_components(input :: AbstractArray{<:Any, N}, mode :: AbstractMode) where N
+    if N == 1
+        ## NB: label_components from ImageMorphology crashes when doing this
+        return _label_components(input, mode)
+    else
+        return _label_components_md(input, mode)
+    end
+end
 
 ################################
 # Euclidean distance transform #

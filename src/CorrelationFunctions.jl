@@ -8,6 +8,7 @@ using FFTW: fft, plan_rfft, irfft
 using Statistics: mean
 using CUDA: CuArray
 using ImageFiltering: centered, Pad, imfilter
+import ImageMorphology as IM
 import CUDA.CUFFT
 
 include("utility/misc.jl")
