@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 0.14.0
+
+* Enhancement: Start to use `label_components` from ImageMorphology.jl again
+  when it does not crash Julia.
+* Incompatible change: When computing correlation functions in non-periodic
+  mode, pad to 2*dim[k] instead of 2*dim[k]-1. This makes computational speed of
+  Fourier transform more predictable. Meaningless elements of correlation maps
+  will contain `NaN`s.
+
 ## Version 0.13.0
 
 Incompatible changes:
