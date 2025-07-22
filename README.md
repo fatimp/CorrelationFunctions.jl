@@ -81,4 +81,4 @@ Mechanics and its Applications, 628,
 129137.](https://www.sciencedirect.com/science/article/abs/pii/S0378437123006921)
 4. Evaluation of 3-point correlation functions from structural images on CPU and GPU
 architectures: accounting for anisotropy effects [Postnicov, V., Karsanina, M.V.,
-Khlyupin, A., Gerke, K.M. (2024) in revision with Physical Review E.]
+Khlyupin, A., Gerke, K.M.](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.110.045306)
