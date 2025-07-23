@@ -9,19 +9,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Setup Julia
-        uses: julia-actions/setup-julia@v1
+        uses: julia-actions/setup-julia@v2
         with:
           version: '1'
           arch: x64
-      - name: Cache
-        uses: actions/cache@v1
-        with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-cache-artifacts-${{ hashFiles('**/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
       - name: Build package
         uses: julia-actions/julia-buildpkg@v1
       - name: Test package
